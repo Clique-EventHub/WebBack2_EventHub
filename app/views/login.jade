@@ -1,0 +1,28 @@
+html
+  head
+    title= title
+    link(href='/css/login.css', rel='stylesheet')
+  body
+    if name
+      // logout form
+      h3 Hello #{name}
+      div
+      form(name='logout', method='POST', action='/provider/logout')
+          input(type='submit', value='Logout')
+    else
+      // login form
+      each msg in message
+        div.flash
+          = msg
+      form(name='login', method='POST', action='/provider')
+        div
+          label(for='username') Username
+          input(name='username', type='text', placeholder='username')
+        div
+          label(for='password') Password
+          input(name='password', type='password', placeholder='password')        
+        div
+          input(type='submit',value='login')
+        div
+          a(href='/provider/signup') Sign up
+    

@@ -1,0 +1,8 @@
+*.jpg
+*.png
+*.JPG
+*.PNG
+node_modules/
+config/env
+data/
+pictures/

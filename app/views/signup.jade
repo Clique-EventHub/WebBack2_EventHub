@@ -1,0 +1,21 @@
+html
+  head
+    title= title
+    link(href='css/main.css', rel='stylesheet')
+  body
+    each msg in message
+      div.flash
+        = msg
+    form(name='signup', method='POST', action='/provider/signup')
+      div
+        label(for='name') name
+        input(name='name', type='text' ,placeholder='name')
+      div
+        label(for='username') username
+        input(name='username', type='text' ,placeholder='username')
+      div
+        label(for='password') password
+        input(name='password', type='password' ,placeholder='password')
+      div
+        input(type='submit', value='Sign up')
+      
