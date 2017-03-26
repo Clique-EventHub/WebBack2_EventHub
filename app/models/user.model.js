@@ -7,13 +7,13 @@ var userSchema = new Schema({
 	name :{
 		type:String,
 		trim : true,
-		// unique : true,
+		unique : true,
 		// index:true,
 		required:true,
 		validate: [
 			function(name){
-				return /^[aA-zZ]+\-{0,1}[aA-zZ]+\-{0,1}[aA-zZ]*\-{0,1}[aA-zZ]*$/.test(name);
-			}, 'name should have only alphabet and hyphen'
+				return /^(?:[aA-zZ]+| |-|[0-9]+|[\u0E01-\u0E5B]+)+$/.test(name);
+			}, 'Name must consist of alphabets, whitespaces and hyphens.'
 		]
 	},
 	username:{
@@ -24,18 +24,23 @@ var userSchema = new Schema({
 		validate: [
 			{
 				validator : function(username){
-					return /^[a-z]+\d*\.{0,1}[a-z]*([a-z]|\d)*$/.test(username);
-				}, msg : 'username must have only lowercase, digit and a single dot'
+					return /^[aA-zZ]/.test(username);
+				}, msg : 'Username must start with an English alphabet'
 			},
 			{
 				validator : function(username){
-					return /^[a-z]+\.{0,1}[a-z]+$/.test(username);
-				}, msg : 'dot should not be fisrt or last character of username'
+					return /^[aA-zZ]+\d*\.{0,1}[aA-zZ]*([aA-zZ]|\d)*$/.test(username);
+				}, msg : 'Username must consist of alphabets, numbers and a single dot'
+			},
+			{
+				validator : function(username){
+					return /^[aA-zZ](?:[aA-zZ]+|[0-9]+)+\.{0,1}(?:[aA-zZ]+|[0-9]+)+$/.test(username);
+				}, msg : 'Only one dot allowed and it can not be the fisrt or the last character of the username'
 			},
 			{
 				validator : function(username){
 					return username && username.length >=3;
-				}, msg : 'username must be at least 3 characters'
+				}, msg : 'Username must be at least 3 characters'
 			}
 		]
 	},

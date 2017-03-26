@@ -16,5 +16,5 @@ var hotCronJob = hotCj();
 
 
 
-app.listen(config.PORT);
-console.log("Server is running at " +config.IP +":"+config.PORT);
+app.listen(config.PORT, config.IP);
+console.log("Server is running at port " + config.PORT);
