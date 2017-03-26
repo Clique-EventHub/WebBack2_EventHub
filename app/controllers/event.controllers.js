@@ -677,8 +677,8 @@ exports.searchEvent = function(request,response,next){
 
 exports.searchByDate = function(request,response,next){
 	var info = {};
-	var enddateinterval = new Date(request.query.date_end);//input in Milliseconds //This will include the Date that is beyond too
-	var startdateinterval = new Date(request.query.date_start); //request.date_start is in unix time
+	var enddateinterval = new Date(request.query.date_end*1000); //This will include the Date that is beyond too
+	var startdateinterval = new Date(request.query.date_start*1000); //request.date_start is in unix time
 	console.log(request.query.date_end);
 	console.log(request.query.date_start);
  	Event.find({

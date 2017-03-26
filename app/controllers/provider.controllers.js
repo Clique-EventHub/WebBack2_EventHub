@@ -78,7 +78,7 @@ var getErrorMessage = function(err){
 exports.logout = function(request,response){
 	request.logout();
   response.redirect('/provider');
-};
+}
 
 exports.listall = function(request,response){
   User.find({},function(err,users){
