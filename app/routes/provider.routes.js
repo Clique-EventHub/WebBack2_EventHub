@@ -12,6 +12,6 @@ module.exports  = function(app){
 	app.route('/provider/signup')
 			.get(provider.renderSignup)
 			.post(provider.signup);
-
+			
 	app.get('/user/listall',provider.listall);
 }

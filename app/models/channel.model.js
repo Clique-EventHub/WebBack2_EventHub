@@ -5,8 +5,8 @@ var Moment = require('moment-timezone');
 var channelSchema = new Schema({
 	name :{
 		type:String,
-		// trim : true,
-		// unique : true,
+		trim : true,
+		unique : true,
 //		index:true,
 		required:true
 	},

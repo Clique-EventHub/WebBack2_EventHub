@@ -5,10 +5,10 @@ var Schema = mongoose.Schema;
 
 var eventSchema = new Schema({
 	title : {
-		// trim : true,
+		trim : true,
 		type:String,
-		required:true
-		// unique : true
+		required:true,
+		unique : true
 //		index:true
 	},
 	about : String,
@@ -31,6 +31,7 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default:false
 	},
+	admins : [],
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,
@@ -87,7 +88,7 @@ var eventSchema = new Schema({
 		default: new Moment()
 	},
 	lastModified:{
-		type:'Moment',	
+		type:'Moment',
 		default: new Moment()
 	}
  });
