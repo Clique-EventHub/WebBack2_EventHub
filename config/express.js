@@ -60,7 +60,7 @@ module.exports = function(){
 	require('../app/routes/channel.routes')(app);
 	require('../app/routes/tag.routes')(app);
 	require('../app/routes/provider.routes')(app);
-	//require('../routes/user.routes')(app);
+	require('../app/routes/user.routes')(app);
 
 	//end setting up routing -------------------------------------
  	app.use(express.static('./public'));

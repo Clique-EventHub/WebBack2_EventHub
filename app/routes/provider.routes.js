@@ -13,7 +13,7 @@ module.exports  = function(app){
 	app.route('/provider/signup')
 			.get(provider.renderSignup)
 			.post(provider.signup);
-
+			
 	app.get('/user/listall',provider.listall);
 	app.get('/provider/profile',provider.getProfile);
 	app.get('/provider/stats',provider.showStat);

@@ -31,6 +31,7 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default:false
 	},
+	admins : [],
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,

@@ -9,7 +9,7 @@ var userSchema = new Schema({
 		trim : true,
 		unique : true,
 		// index:true,
-		required:true,
+		// required:true,
 		validate: [
 			function(name){
 				return /^(?:[aA-zZ]+| |-|[0-9]+|[\u0E01-\u0E5B]+)+$/.test(name);
@@ -22,53 +22,76 @@ var userSchema = new Schema({
 		trim : true,
 		required: true,
 		validate: [
+			// {
+			// 	validator : function(username){
+			// 		return /^[aA-zZ]/.test(username);
+			// 	}, msg : 'Username must start with an English alphabet'
+			// },
+			// {
+			// 	validator : function(username){
+			// 		return /^[aA-zZ]+\d*\.{0,1}[aA-zZ]*([aA-zZ]|\d)*$/.test(username);
+			// 	}, msg : 'Username must consist of alphabets, numbers and a single dot'
+			// },
+			// {
+			// 	validator : function(username){
+			// 		return /^[aA-zZ](?:[aA-zZ]+|[0-9]+)+\.{0,1}(?:[aA-zZ]+|[0-9]+)+$/.test(username);
+			// 	}, msg : 'Only one dot allowed and it can not be the fisrt or the last character of the username'
+			// },
 			{
 				validator : function(username){
-					return /^[aA-zZ]/.test(username);
-				}, msg : 'Username must start with an English alphabet'
-			},
-			{
-				validator : function(username){
-					return /^[aA-zZ]+\d*\.{0,1}[aA-zZ]*([aA-zZ]|\d)*$/.test(username);
-				}, msg : 'Username must consist of alphabets, numbers and a single dot'
-			},
-			{
-				validator : function(username){
-					return /^[aA-zZ](?:[aA-zZ]+|[0-9]+)+\.{0,1}(?:[aA-zZ]+|[0-9]+)+$/.test(username);
-				}, msg : 'Only one dot allowed and it can not be the fisrt or the last character of the username'
-			},
-			{
-				validator : function(username){
-					return username && username.length >=3;
-				}, msg : 'Username must be at least 3 characters'
+					return username && username.length >=6 && username.length <= 20;
+				}, msg : 'Username must be 6 - 20 characters long.'
 			}
 		]
 	},
 	password :{
 		type:String,
+		// required: true,
 		validate: [
 			function(password){
-				return password && password.length >=6;
+				return password && password.length >=6 && password.length <=25;
 			},
-			'Password must be at least 6 characters'
+			'Password must be 6 - 25 characters long.'
 		]
 	},
 	salt:{
-			type: String
+			type: String,
+			// required: true,
+			trim: true
+	},
+	firstName : {
+		type: String,
+		trim: true
+	},
+	lastName : {
+		type: String,
+		trim: true
+	},
+	nick_name: {
+		type: String,
+		trim: true
 	},
 	picture:String,
 	gender:String,
 	phone:String,
 	shirt_size:String,
+	birth_day:Date,
+	allergy:String,
+	disease:String,
+	profileUrl:String,
 
 	regId:String,
+	provider:String,   //OAuth provider
 	facebookId:String,
 	facebookData:{},
+	twitterUsername:String,
+	lineId:String,
 
 	own_channels:[],
 	join_events:[],
 	interest_events:[],
 	subscribe_channels:[],
+	admin_events:[],
 
 //stat
 	tag_visit:{},
@@ -108,6 +131,22 @@ userSchema.methods.hashPassword = function(password){
 
 userSchema.methods.authenticate = function(password){
 	return this.password === this.hashPassword(password);
+};
+// find the unique username from different OAuth
+userSchema.statics.findUniqueUsername = function(username, suffix, callback){
+	var _this = this;
+	var possibleUsername = username + (suffix || '');
+	_this.findOne({
+		username : possibleUsername
+	}, function(err, user){
+		if(!err){
+			if(!user) callback(possibleUsername);
+			else return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
+		}
+		else{
+			callback(null);
+		}
+	});
 };
 
 mongoose.model('User',userSchema);
