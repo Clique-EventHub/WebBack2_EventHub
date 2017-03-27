@@ -6,26 +6,20 @@ var Event = require('mongoose').model('Event');
 
 //route POST /tags/modify
 exports.modifyTag = function(request,response){
-    var info = {};
 	mkdirp(path.join(__dirname,'../data/'),function(err){
 		if(err){
-            info.msg ="error";
-            response.json(info);
+            response.send("error");
             return next(err);
 		}
         else{
             // modify tags type in file
-			fs.writeFile(path.join(__dirname,'../../data/tags.json'),JSON.stringify(request.body,null,2),function(err){
+			fs.writeFile(path.join(__dirname,'../data/tags.json'),JSON.stringify(request.body,null,2),function(err){
 				if(err){
-                    info.msg = "error2";
-                    response.json(info);
+                    response.send("error1");
                     return next(err);
 				}
-                else {
-                    info.msg = 'done';
-                    response.json(info);
-			    }
-            });
+                else response.send('done');
+			});
 		}
 	});
 }
@@ -33,7 +27,7 @@ exports.modifyTag = function(request,response){
 //route GET /tags
 //return type of tags
 exports.getTags = function(request,response){
-	response.sendFile(path.join(__dirname,'../../data/tags.json'));
+	response.sendFile(path.join(__dirname,'../data/tags.json'));
 }
 
 //route GET /tags/search?keywords=k1,k2,k3...

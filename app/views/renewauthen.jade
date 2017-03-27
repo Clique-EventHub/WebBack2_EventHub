@@ -1,0 +1,22 @@
+html
+  head
+    title= title
+    link(href='css/editauthenpage.css', rel='stylesheet')
+  body
+    each msg in message
+      div.flash
+        = msg
+        //- 
+          if we edit the fields, don't forget to edit the postEditProfile, too.
+    form(name='postChangeAuthentication', method='POST', action='/provider/change-authen')
+      div
+        label(for='password') Please Enter Your Old Password
+        input(name='password', type='password' ,placeholder='your old password', autofocus=true)
+      div
+        label(for='newpassword') Please Enter Your New Password
+        input(name='newpassword', type='text' ,placeholder='your new password')
+        //-
+          We will add the confirm new password box later.
+      div
+        input(type='submit', value='Reset')
+      

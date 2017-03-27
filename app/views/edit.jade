@@ -1,0 +1,26 @@
+html
+  head
+    title= title
+    link(href='css/editpage.css', rel='stylesheet')
+  body
+    each msg in message
+      div.flash
+        = msg
+        //- 
+          if we edit the fields, don't forget to edit the postEditProfile, too.
+    form(name='postEditProfile', method='POST', action='/provider/editprofile')
+      div
+        label(for='name') name
+        input(name='name', type='text' ,placeholder='name')
+      div
+        label(for='username') username
+        input(name='username', type='text' ,placeholder='username')
+      div
+        label(for='picture') picture
+        input(name='picture', type='text' ,placeholder='picture')
+      div
+        label(for='phone') phone
+        input(name='phone', type='text' ,placeholder='phone')
+      div
+        input(type='submit', value='Submit')
+      

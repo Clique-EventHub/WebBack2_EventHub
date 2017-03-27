@@ -7,7 +7,7 @@ var eventSchema = new Schema({
 	title : {
 		trim : true,
 		type:String,
-		required:true,
+		required : true,
 		unique : true
 //		index:true
 	},
