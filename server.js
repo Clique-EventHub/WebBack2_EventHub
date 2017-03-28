@@ -12,9 +12,9 @@ var fs = require('fs');
 var sslPath = '/etc/letsencrypt/live/www.cueventhub.com/';
 
 var options = {
-     key: fs.readFileSync('/path/to/privkey.pem'),
-     cert: fs.readFileSync('/path/to/fullchain.pem'),
-     ca: fs.readFileSync('/path/to/chain.pem')
+     key: fs.readFileSync(sslPath + 'privkey.pem'),
+     cert: fs.readFileSync(sslPath + 'fullchain.pem'),
+     ca: fs.readFileSync(sslPath + 'chain.pem')
 }
 
 var db = mongoose();
@@ -24,7 +24,7 @@ var updateCronJob = updateCj();
 var hotCronJob = hotCj();
 
 
-var server = https.createServer(app);
+var server = https.createServer(options,app);
 
 server.listen(config.PORT,config.IP);
 
