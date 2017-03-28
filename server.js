@@ -26,9 +26,6 @@ var hotCronJob = hotCj();
 
 var server = https.createServer(app);
 
-<<<<<<< HEAD
-server.listen(config.PORT);
-=======
-app.listen(config.PORT, config.IP);
->>>>>>> 8614f58aaefeae78b7275eee3a4324873223d24d
+server.listen(config.PORT,config.IP);
+
 console.log("Server is running at " +config.IP +":"+config.PORT);
