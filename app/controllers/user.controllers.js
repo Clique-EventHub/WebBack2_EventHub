@@ -1,6 +1,12 @@
 var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
+var config = require('../../config/config');
+var jwt = require('jsonwebtoken');
+var http = require('http');
+var https = require('https');
+var passport = require('passport');
+
 
 exports.render = function(request, response){
 	response.render('user-login',{
@@ -10,37 +16,6 @@ exports.render = function(request, response){
 	});
 
 }
-
-	exports.saveOAuthUserProfile = function(req, profile, done){
-	User.findOne({
-		provider : profile.provider,
-		facebookId : profile.facebookId
-	}, function(err, user){
-		if(err) return done(err);
-		else{
-			if(!user){
-				var possibleUsername = profile.username || (profile.email ? profile.email.split('@')[0] : '');
-				console.log(profile);
-				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
-					profile.username = availableUsername;
-					user = new User(profile);
-					user.save(function(err){
-						if(err){
-							console.log(err);
-							var message = getErrorMessage(err);
-							req.flash('error', message);
-							return res.redirect('/user');
-						}
-						return done(err, user);
-					});
-				});
-			}
-			else{
-				return done(err, user);
-			}
-		}
-	});
-};
 
 exports.joinAnEvent = function(request, response, next){
 	if(request.user){
@@ -52,15 +27,15 @@ exports.joinAnEvent = function(request, response, next){
 				response.json(info);
 			}
 			else{
-        var info = {};
-        if(!channel['tokenDelete']){
-          fields = ['picture','name'];
-          for(var i = 0; i < fields.length; i++){
-  					if(channel[fields[i]]){
-  						info[fields[i]] = channel[fields[i]];
-  					}
-  				}
-        }
+		        var info = {};
+		        if(!channel['tokenDelete']){
+		          fields = ['picture','name'];
+		          for(var i = 0; i < fields.length; i++){
+						if(channel[fields[i]]){
+							info[fields[i]] = channel[fields[i]];
+						}
+		  			}
+		        }
 				response.json(info);
 			}
 		});
@@ -80,27 +55,30 @@ exports.logout = function(request,response){
   response.redirect('/user');
 }
 
-exports.getProfile = function(request, response, next){
-	if(request.user){
-		var info = {};
-		info['firstName'] = request.user.firstName;
-		info['lastName'] = request.user.lastName;
-		info['picture'] = request.user.picture;
-    info['shirt_size'] = request.user.shirt_size;
-    info['twitterUsername'] = request.user.twitterUsername;
-    info['lineId'] = request.user.lineId;
-    info['birth_day'] = request.user.birth_day;
-    info['disease'] = request.user.disease;
-    info['allergy'] = request.user.allergy;
-    //info['interest_tags']??
-    response.json(info);
-	}
-	else{
-		var info = {};
-		info.msg = "invalid profile";
-		response.json(info);
-	}
-
+exports.getProfile = function(request, response){
+  passport.authenticate('jwt', {session:false},
+      function(err, user, info) {
+		console.log(user);
+		var res = {};
+		if(user){		
+			res['firstName'] = user.firstName;
+			res['lastName'] = user.lastName;
+			res['picture'] = user.picture;
+			res['shirt_size'] = user.shirt_size;
+			res['twitterUsername'] = user.twitterUsername;
+			res['lineId'] = user.lineId;
+			res['birth_day'] = user.birth_day;
+			res['disease'] = user.disease;
+			res['allergy'] = user.allergy;
+			//info['interest_tags']??
+			response.json(res);
+		}
+		else{
+			res.msg = 'error';
+			res.err = {msg:'Unautorized'};
+			response.json(res);
+		}
+    })(request, response);
 }
 
 exports.putEditProfile = function(request, response){
@@ -312,3 +290,139 @@ exports.clear = function(request,response,next){
 // exports.getSetting = function(request,response){
 //
 // }
+
+
+var generateToken = function(id,done){
+	var payload = {id: id};
+    var token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
+    done(token);
+}
+
+var saveOAuthUserProfile_fromClient = function(response,profile){
+
+	var callback = function(token){
+		var info = {
+			msg : 'done',
+			access_token : token
+		};
+		response.json(info);
+	}
+	console.log('findOne:'+ profile.provider + '&' + profile.id);
+	User.findOne({
+		provider : profile.provider,
+		facebookId : profile.id
+	}, function(err, user){
+		if(err) response.json({msg:'error saveOAuthUserProfile',err:err});
+		else{
+			if(!user){
+				var possibleUsername = profile.email ? profile.email.split('@')[0] : '';
+				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
+					profile.username = availableUsername;
+					user = new User(profile);
+					console.log(user);
+					delete user[' '];
+					user.save(function(err){
+						if(err) response.json({msg:'error save new user',err:err});
+						else generateToken(user,callback);
+					});
+				});
+			}
+			else{
+				user.update(profile,function(err){
+					if(err) response.json({msg:'error',err:err});
+					else generateToken(user,callback);	
+				});
+			}
+		}
+	});	
+}
+
+// not use for production
+exports.saveOAuthUserProfile = function(req, profile, done){
+	User.findOne({
+		provider : profile.provider,
+		facebookId : profile.facebookId
+	}, function(err, user){
+		if(err) return done(err);
+		else{
+			if(!user){
+				var possibleUsername = profile.username || (profile.email ? profile.email.split('@')[0] : '');
+				console.log(profile);
+				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
+					profile.username = availableUsername;
+					user = new User(profile);
+					user.save(function(err){
+						if(err) return done(err);
+						else return generateToken(user._id,done);
+
+					});
+					
+				//	user.save(function(err){
+				//		if(err){
+				//			console.log(err);
+				//			var message = getErrorMessage(err);
+				//			req.flash('error', message);
+				//			return res.redirect('/user');
+				//		}
+				//		generateToken(user);
+				//		return done(err, user);
+				//	});
+				});
+			}
+			else{
+				return generateToken(user._id,done);
+			}
+		}
+	});
+};
+
+exports.login_fb = function(request,response){
+	var id = request.query.id;
+	var token = request.query.access_token;
+	var fields = "fields=id%2Cgender%2Cbirthday%2Cemail%2Cage_range%2Cpicture%7Burl%7D%2Cfirst_name%2Clast_name%2Cname";
+	var options = {
+		host: 'graph.facebook.com',
+		port : 443,
+		path: '/v2.8/'+id+'?'+fields+'&access_token='+token,
+		method: 'GET'	
+	}
+	var port = options.port == 443 ? https : http;
+    var obj;
+    var req = port.request(options, function(res)
+    {
+        var output = '';
+        
+        console.log(options.host + ':' + res.statusCode);
+        res.setEncoding('utf8');
+
+        res.on('data', function (chunk) {
+            output += chunk;
+        });
+
+        res.on('end', function() {
+            var obj = JSON.parse(output);
+
+            if(!obj.hasOwnProperty('id')){
+            	obj.msg  = "error response from fb";
+            	response.json(obj);
+            }           
+            else{
+            	console.log(obj);
+	        	obj.provider = 'facebook';
+	        	obj.picture = obj.picture.data.url;
+	        	obj.firstName = obj.first_name;
+	        	obj.lastName = obj.last_name;
+	        	obj.facebookId = id;
+	        	delete obj.first_name;
+	        	delete obj.last_name;
+	        	delete obj.id;
+	        	saveOAuthUserProfile_fromClient(response,obj);
+        	}
+        });
+	});
+
+	req.on('error', function(err) {
+	    response.json({error:err.message,msg:"error"});
+	});
+    req.end();
+}

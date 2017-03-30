@@ -9,7 +9,8 @@ var passport = require('passport');
 var validator = require('express-validator');
 var session = require('express-session');
 var flash = require('connect-flash');
-var cookieSession = require('cookie-session');
+
+
 module.exports = function(){
 
 	var app = express();
@@ -20,18 +21,11 @@ module.exports = function(){
 	else if(process.env.NODE_ENV ==='common') app.use(morgan('common'));
 	else app.use(compression);
 
-	app.use(cookieSession({
-		name : 'session',
-		keys : ['afcnkoheIEfeiNEIEniEw','eEBFUWndfeciEbvoeeeWE'],
-		maxAge : 1 * 60 * 60 * 1000	//24 hours
-	}));
-
 	app.use(session({
-		secret: 'irvmeic363i4frroFEEqfiwfFJIFEgroF',
+		secret: 'secret_key',
 		resave: false,
  		saveUninitialized: true
  	}));
-
 	app.use(bodyParser.urlencoded({
 		extended: true
 	}));
