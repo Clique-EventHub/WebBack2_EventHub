@@ -21,16 +21,19 @@ module.exports = function(app){
     
     passport.authenticate('facebook', function(err, user, info) {
       if (err) { return next(err); }
-      // req / res held in closure
       else{
-        user.getHelp(req,res);
-      
-        //user.callback(info);
+          res.json({token:info});
       }
     })(req, res, next);
   });
     
-  
+  // app.get('/oauth/facebook/callback', passport.authenticate('facebook', {
+  //   failureRedirect : '/user',
+  //   successRedirect : '/'
+  // }));
+
+
+
   app.put('/user/edit-profile', user.putEditProfile);
 
   app.get('/user/profile',user.getProfile);

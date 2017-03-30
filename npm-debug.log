@@ -7,7 +7,7 @@
 6 silly lifecycle EventHub@1.0.0~prestart: no script for prestart, continuing
 7 info lifecycle EventHub@1.0.0~start: EventHub@1.0.0
 8 verbose lifecycle EventHub@1.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle EventHub@1.0.0~start: PATH: /usr/lib/node_modules/npm/bin/node-gyp-bin:/home/freespace/backkup/node_modules/.bin:/opt/Xilinx/DocNav:/opt/Xilinx/Vivado/2016.4/bin:/opt/Xilinx/Vivado_HLS/2016.4/bin:/home/freespace/bin:/home/freespace/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin
+9 verbose lifecycle EventHub@1.0.0~start: PATH: /usr/lib/node_modules/npm/bin/node-gyp-bin:/home/freespace/backkup/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
 10 verbose lifecycle EventHub@1.0.0~start: CWD: /home/freespace/backkup
 11 silly lifecycle EventHub@1.0.0~start: Args: [ '-c', 'node server.js' ]
 12 silly lifecycle EventHub@1.0.0~start: Returned: code: 1  signal: null

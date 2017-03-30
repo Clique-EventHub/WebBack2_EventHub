@@ -295,22 +295,27 @@ exports.clear = function(request,response,next){
 var generateToken = function(id,done){
 	var payload = {id: id};
     var token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
-    done(token);
+    done(null,null,token);
 }
 
 var saveOAuthUserProfile_fromClient = function(response,profile){
 
-	var callback = function(token){
-		var info = {
-			msg : 'done',
-			access_token : token
-		};
-		response.json(info);
+	var callback = function(err,user,token){
+		if(!err){
+			var info = {
+				msg : 'done',
+				access_token : token
+			};
+			response.json(info);
+		}
+		else{
+			response.json({msg:'error',err:err});
+		}
 	}
 	console.log('findOne:'+ profile.provider + '&' + profile.id);
 	User.findOne({
 		provider : profile.provider,
-		facebookId : profile.id
+		facebookId : profile.facebookId
 	}, function(err, user){
 		if(err) response.json({msg:'error saveOAuthUserProfile',err:err});
 		else{
@@ -320,17 +325,16 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 					profile.username = availableUsername;
 					user = new User(profile);
 					console.log(user);
-					delete user[' '];
 					user.save(function(err){
 						if(err) response.json({msg:'error save new user',err:err});
-						else generateToken(user,callback);
+						else generateToken(user._id,callback);
 					});
 				});
 			}
 			else{
 				user.update(profile,function(err){
 					if(err) response.json({msg:'error',err:err});
-					else generateToken(user,callback);	
+					else generateToken(user._id,callback);	
 				});
 			}
 		}
@@ -370,7 +374,10 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 				});
 			}
 			else{
-				return generateToken(user._id,done);
+				user.update(profile,function(err){
+					if(err) response.json({msg:'error',err:err});
+					else generateToken(user._id,done);	
+				});
 			}
 		}
 	});
@@ -378,12 +385,12 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 
 exports.login_fb = function(request,response){
 	var id = request.query.id;
-	var token = request.query.access_token;
+	var access_token = request.query.access_token;
 	var fields = "fields=id%2Cgender%2Cbirthday%2Cemail%2Cage_range%2Cpicture%7Burl%7D%2Cfirst_name%2Clast_name%2Cname";
 	var options = {
 		host: 'graph.facebook.com',
 		port : 443,
-		path: '/v2.8/'+id+'?'+fields+'&access_token='+token,
+		path: '/v2.8/'+id+'?'+fields+'&access_token='+access_token,
 		method: 'GET'	
 	}
 	var port = options.port == 443 ? https : http;
@@ -413,6 +420,7 @@ exports.login_fb = function(request,response){
 	        	obj.firstName = obj.first_name;
 	        	obj.lastName = obj.last_name;
 	        	obj.facebookId = id;
+	        	obj.access_token = access_token;
 	        	delete obj.first_name;
 	        	delete obj.last_name;
 	        	delete obj.id;

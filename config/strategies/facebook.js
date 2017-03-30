@@ -26,7 +26,6 @@ module.exports = function(){
       picture : profile.photos ? profile.photos[0].value : '/img/faces/unknown-user-pic.jpg',
       profileUrl : profile.profileUrl
     };
-   // user.saveOAuthUserProfile(req, providerUserProfile, done);
-      done(null);
+      user.saveOAuthUserProfile(req, providerUserProfile, done);
   }));
 };
