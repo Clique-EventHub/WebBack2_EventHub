@@ -1,5 +1,6 @@
 var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
+var Event = require('mongoose').model('Event');
 var crypto = require('crypto');
 
 exports.render = function(request,response){
@@ -368,7 +369,26 @@ exports.postEditProfile = function(request, response){
 }
 
 exports.getAdmins = function(request, response){
-
+	var info = {};
+	Event.findById(request.body.event, function(err, returnedValue){
+		if(err){
+			info.msg = "event not found."
+			response.json(info);
+			console.log('event not found : getAdmins - provider.controllers');
+		}
+		else if(!returnedValue){
+			info.msg = "event not found."
+			response.json(info);
+		}
+		else if(returnedValue[tokenDelete]){
+			info.msg = "event deleted."
+			response.json(info);
+		}
+		else{
+			info.admins = updatedEvent.admins;
+			response.json(info);
+		}
+	});
 }
 
 exports.changeAuthentication = function(request, response){
@@ -383,6 +403,84 @@ exports.changeAuthentication = function(request, response){
 	}
 }
 
+var checkUserValid = function(user){
+	return new Promise(function(resolve, reject){
+		User.findById(user,function(err, returnedUser){
+			if(err) reject('error in finding user');
+			else if(!returnedUser){
+				reject('user not found');
+			}
+			else{
+				if(!returnedUser[tokenDelete]){
+					resolve(returnedUser._id);
+				}
+				else resolve(null);
+			}
+		});
+	});
+};
+
+exports.addAdminEvent = function(request, response, next){
+	if(request.user){
+		var user = request.body.user;
+		var user_event = request.body.event;
+		var info = {};
+		checkUserValid(user)
+		.catch(function(msg){
+				info.msg = msg;     // not sure
+				response.json(info);
+		})
+		.then(function(returnedValue){
+				if(!returnedValue){
+					info.msg = "User not found."
+					response.json(info);
+				}
+				Event.findByIdAndUpdate(user_event,{
+					$addToSet : {
+							admins : user
+					}
+				},function(err, updatedEvent){
+						if(err){
+							info.msg = "Event not found.";
+							response.json(info);
+							console.error("error : addAdminEvent");
+							return next(err);
+						}
+						else if(!updatedEvent){
+							info.msg = "Event not found."
+							response.json(info);
+						}
+						else{
+							info.admins = updatedEvent.admins;
+							response.json(info);
+						}
+				});
+				User.findByIdAndUpdate(user, {
+					$addToSet : {
+						admin_events : user_event
+					}
+				},function(err, updatedUser){
+					if(err){
+						info.msg = "User not found.";
+						response.json(info);
+						console.error("error : addAdminEvent");
+						return next(err);
+					}
+					else if(!updatedUser){
+						info.msg = "User not found."
+						response.json(info);
+					}
+					else{
+						info.admin_events = updatedUser.admin_events;
+						response.json(info);
+					}
+				});
+		});
+	}
+	else{
+		response.redirect('/provider');
+	}
+};
 // exports.postChangeAuthentication = function(request, response){
 // 	if(request.user){
 // 		console.log((request.user).authenticate(request.body.password));
@@ -400,18 +498,6 @@ exports.changeAuthentication = function(request, response){
 // 	}
 // };
 
-exports.getHelp = function(request, response){
-	if(request.user){
-		response.render('provider-help-page',{
-			title: 'Help'
-		});
-	}
-	else response.redirect('/provider');
-}
-
-// exports.postSettings = function(request, response){
-//
-// }
 
 // exports.getMessages = function(request, response){
 //

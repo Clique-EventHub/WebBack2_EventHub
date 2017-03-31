@@ -64,6 +64,7 @@ exports.joinAnEvent = function(request, response, next){
 				response.json(info);
 			}
 		});
+		//add update user model, too.
 	}
 };
 
