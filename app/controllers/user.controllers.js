@@ -17,29 +17,40 @@ exports.render = function(request, response){
 
 }
 
+//body id wtf?
 exports.joinAnEvent = function(request, response, next){
-	if(request.user){
-		Event.findById(request.body.id,function(err, event){
-			if(err) next(err);
-			else if(!channel){
-				var info = {};
-				info['msg'] = 'channel not found';
-				response.json(info);
-			}
-			else{
-		        var info = {};
-		        if(!channel['tokenDelete']){
-		          fields = ['picture','name'];
-		          for(var i = 0; i < fields.length; i++){
-						if(channel[fields[i]]){
-							info[fields[i]] = channel[fields[i]];
-						}
-		  			}
-		        }
-				response.json(info);
-			}
-		});
-	}
+  passport.authenticate('jwt', {session:false},
+      function(err, user, info) {
+		console.log(user);
+		var res = {};
+		if(user){		
+			Event.findById(request.body.id,function(err, event){
+				if(err) next(err);
+				else if(!channel){
+					var info = {};
+					info['msg'] = 'channel not found';
+					response.json(info);
+				}
+				else{
+			        var info = {};
+			        if(!channel['tokenDelete']){
+			          fields = ['picture','name'];
+			          for(var i = 0; i < fields.length; i++){
+									if(channel[fields[i]]){
+										info[fields[i]] = channel[fields[i]];
+									}
+			  				}
+			        }
+					response.json(info);
+				}
+			});
+		}
+		else{
+			res.msg = 'error';
+			res.err = {msg:'Unautorized'};
+			response.json(res);
+		}
+    })(request, response);
 };
 
 //in debugging process
@@ -74,47 +85,50 @@ exports.getProfile = function(request, response){
 			response.json(res);
 		}
 		else{
-			res.msg = 'error';
-			res.err = {msg:'Unautorized'};
-			response.json(res);
+			response.json({msg:"error",err:info});
 		}
     })(request, response);
 }
 
+// require body
 exports.putEditProfile = function(request, response){
-  if(request.user){
-		console.log('editing...');
-		var keys = Object.keys(request.body);
-		var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-													,'lineId','own_channels','subscribe_channels'];
-		for(var i=0;i<keys.length;i++){
-			if(editableFields.indexOf(keys[i]) == -1){
-				delete request.body[keys[i]];
+    passport.authenticate('jwt', {session:false},
+    function(err, user, info) {
+			var res = {};
+			if(user){		
+				console.log('editing...');
+				var keys = Object.keys(request.body);
+				var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
+															,'lineId','own_channels','subscribe_channels'];
+				for(var i=0;i<keys.length;i++){
+					if(editableFields.indexOf(keys[i]) == -1){
+						delete request.body[keys[i]];
+					}
+				}
+				//Actually we should check its content later, too. For security reason.
+				User.findByIdAndUpdate(user._id,{
+					$set:request.body						// update body
+				},function(err,updatedProvider){
+					if(err){
+						info.msg = "error";
+						response.json(info);
+						console.error("error : editProfile");
+						return next(err);
+					}
+					else if(!updatedProvider){
+						info.msg = "provider not found";
+						console.error("provider not found : postEditProfile - provider.controllers");
+						response.status(404).json(info);
+					}
+					else response.redirect('/provider/profile');
+				});
 			}
-		}
-		//Actually we should check its content later, too. For security reason.
-		User.findByIdAndUpdate(request.user._id,{
-			$set:request.body						// update body
-		},function(err,updatedProvider){
-			if(err){
-				info.msg = "error";
-				response.json(info);
-				console.error("error : editProfile");
-				return next(err);
+			else{
+				res.msg = 'error';
+				res.err = {msg:'Unautorized'};
+				response.json(res);
 			}
-			else if(!updatedProvider){
-				info.msg = "provider not found";
-				console.error("provider not found : postEditProfile - provider.controllers");
-				response.status(404).json(info);
-			}
-			else response.redirect('/provider/profile');
-		});
-	}
-	else {
-		var info = {};
-		info.msg = "invalid profile";
-		response.json(info);
-	}
+    })(request, response);
 }
 
 

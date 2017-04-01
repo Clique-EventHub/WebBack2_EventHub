@@ -15,7 +15,7 @@ module.exports = function(){
 		User.findById(payload.id,function(err, user){
 			if(err){
 				console.error(err);
-				done(null,false);
+				done(err,false);
 			}
 			else if(user){
 				var result = {};
@@ -26,7 +26,10 @@ module.exports = function(){
 				});
 				done(null,result);
 			}
-			else done(null,false);
+			else{
+				console.log('case3');
+				done(null,false);
+			}
 		});	
 	}));
 }
