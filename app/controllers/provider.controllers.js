@@ -116,7 +116,11 @@ exports.changePassword = function(request,response){
           });        
         }
         else{
-          response.status(403).json({'msg':"error",'err':{"massage":"wrong password"}});  
+          var detail = {
+            name : "Untorized",
+            message : "old password is invalid"
+          };
+          response.status(403).json({'msg':"error",'err':detail});  
         }
       }
     });
