@@ -62,6 +62,10 @@ module.exports = function(){
 					request.user.birth_day = user.birth_day;
 					request.user.disease = user.disease;
 					request.user.allergy = user.allergy;
+					request.user._id = user._id;
+				}
+				else{
+					request.authen = {info:info};
 				}
 				next();
 			})(request, response);

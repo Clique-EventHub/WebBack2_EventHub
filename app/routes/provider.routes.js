@@ -14,4 +14,6 @@ module.exports  = function(app){
 			.post(provider.signup);
 			
 	app.get('/user/listall',provider.listall);
+
+	app.put('/user/changepassword',provider.changePassword);
 }

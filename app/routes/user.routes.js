@@ -48,4 +48,6 @@ module.exports = function(app){
   // app.get('user/message', user.getMessage);
 
   app.get('/login/facebook',user.login_fb);
+
+  
 }
