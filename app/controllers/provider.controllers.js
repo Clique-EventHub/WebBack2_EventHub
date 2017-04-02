@@ -112,7 +112,7 @@ exports.changePassword = function(request,response){
               console.error(err);
               response.status(500).json({'msg':'error'});
             }
-            else response.status(200).json({user:updatedUser,'msg':'done'});
+            else response.status(200).json({'msg':'done'});
           });        
         }
         else{
