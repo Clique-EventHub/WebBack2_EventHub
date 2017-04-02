@@ -116,12 +116,12 @@ exports.changePassword = function(request,response){
           });        
         }
         else{
-          response.status(403).json({'msg':'wrong password'});  
+          response.status(403).json({'msg':"error",'err':{"massage":"wrong password"}});  
         }
       }
     });
   }
   else{
-    response.status(403).json({err:request.authen.info});
+    response.status(403).json({"msg":"error",err:request.authen.info});
   }
 }
