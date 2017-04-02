@@ -48,6 +48,25 @@ module.exports = function(){
 
  	// require at runtime time path relative to express.js
 
+	app.use(function(request, response, next){
+		passport.authenticate('jwt', {session : false},
+			function(err, user, info){
+				if(user){
+					request.user = {};
+					request.user.firstName = user.firstName;
+					request.user.lastName = user.lastName;
+					request.user.picture = user.picture;
+					request.user.shirt_size = user.shirt_size;
+					request.user.twitterUsername = user.twitterUsername;
+					request.user.lineId = user.lineId;
+					request.user.birth_day = user.birth_day;
+					request.user.disease = user.disease;
+					request.user.allergy = user.allergy;
+				}
+				next();
+			})(request, response);
+	});
+
   //setting up routing -------------------------------------
 	require('../app/routes/picture.routes')(app);
 	require('../app/routes/event.routes')(app);

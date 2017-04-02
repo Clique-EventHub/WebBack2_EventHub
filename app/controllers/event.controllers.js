@@ -134,7 +134,7 @@ exports.putEvent = function(request,response,next){
 		if(err){
 			info.msg = "error";
 			response.json(info);
-			console.error("error : putEvent - event.controllers")
+			console.error("error : putEvent - event.controllers");
 			return next(err);
 		}
 		else if(!updatedEvent){

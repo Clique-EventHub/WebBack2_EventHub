@@ -52,34 +52,32 @@ exports.listAll = function(request,response,next){
 
 exports.logout = function(request,response){
 	request.logout();
-  response.redirect('/user');
+	var info = {};
+	info.msg = "done";
+  response.json(info);
 }
 
 exports.getProfile = function(request, response){
-  passport.authenticate('jwt', {session:false},
-      function(err, user, info) {
-		console.log(user);
-		var res = {};
-		if(user){		
-			res['firstName'] = user.firstName;
-			res['lastName'] = user.lastName;
-			res['picture'] = user.picture;
-			res['shirt_size'] = user.shirt_size;
-			res['twitterUsername'] = user.twitterUsername;
-			res['lineId'] = user.lineId;
-			res['birth_day'] = user.birth_day;
-			res['disease'] = user.disease;
-			res['allergy'] = user.allergy;
-			//info['interest_tags']??
-			response.json(res);
-		}
-		else{
-			res.msg = 'error';
-			res.err = {msg:'Unautorized'};
-			response.json(res);
-		}
-    })(request, response);
-}
+	var user = request.user;
+	var res = {};
+	if(user){
+		res['firstName'] = user.firstName;
+		res['lastName'] = user.lastName;
+		res['picture'] = user.picture;
+		res['shirt_size'] = user.shirt_size;
+		res['twitterUsername'] = user.twitterUsername;
+		res['lineId'] = user.lineId;
+		res['birth_day'] = user.birth_day;
+		res['disease'] = user.disease;
+		res['allergy'] = user.allergy;
+		response.json(res);
+	}
+	else{
+		res.msg = 'error';
+		res.err = {msg:'Unautorized'};
+		response.json(res);
+	}
+};
 
 exports.putEditProfile = function(request, response){
   if(request.user){
@@ -334,11 +332,11 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 			else{
 				user.update(profile,function(err){
 					if(err) response.json({msg:'error',err:err});
-					else generateToken(user._id,callback);	
+					else generateToken(user._id,callback);
 				});
 			}
 		}
-	});	
+	});
 }
 
 // not use for production
@@ -360,7 +358,7 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 						else return generateToken(user._id,done);
 
 					});
-					
+
 				//	user.save(function(err){
 				//		if(err){
 				//			console.log(err);
@@ -376,7 +374,7 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 			else{
 				user.update(profile,function(err){
 					if(err) response.json({msg:'error',err:err});
-					else generateToken(user._id,done);	
+					else generateToken(user._id,done);
 				});
 			}
 		}
@@ -391,14 +389,14 @@ exports.login_fb = function(request,response){
 		host: 'graph.facebook.com',
 		port : 443,
 		path: '/v2.8/'+id+'?'+fields+'&access_token='+access_token,
-		method: 'GET'	
+		method: 'GET'
 	}
 	var port = options.port == 443 ? https : http;
     var obj;
     var req = port.request(options, function(res)
     {
         var output = '';
-        
+
         console.log(options.host + ':' + res.statusCode);
         res.setEncoding('utf8');
 
@@ -412,7 +410,7 @@ exports.login_fb = function(request,response){
             if(!obj.hasOwnProperty('id')){
             	obj.msg  = "error response from fb";
             	response.json(obj);
-            }           
+            }
             else{
             	console.log(obj);
 	        	obj.provider = 'facebook';

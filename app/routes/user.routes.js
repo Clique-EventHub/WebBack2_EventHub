@@ -15,10 +15,10 @@ module.exports = function(app){
   }));
 
 
-	
+
   app.get('/oauth/facebook/callback', function(req, res, next) {
     // generate the authenticate method and pass the req/res
-    
+
     passport.authenticate('facebook', function(err, user, info) {
       if (err) { return next(err); }
       else{
@@ -26,7 +26,7 @@ module.exports = function(app){
       }
     })(req, res, next);
   });
-    
+
   // app.get('/oauth/facebook/callback', passport.authenticate('facebook', {
   //   failureRedirect : '/user',
   //   successRedirect : '/'
