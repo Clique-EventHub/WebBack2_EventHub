@@ -6,16 +6,7 @@ var passport = require('./config/passport');
 var updateCj = require('./config/updateCronjob');
 var hotCj = require('./config/hotCronjob');
 var config = require('./config/config');
-var https = require('https');
-var fs = require('fs');
 
-var sslPath = '/etc/letsencrypt/live/www.cueventhub.com/';
-
-var options = {
-     key: fs.readFileSync(sslPath + 'privkey.pem'),
-     cert: fs.readFileSync(sslPath + 'fullchain.pem'),
-     ca: fs.readFileSync(sslPath + 'chain.pem')
-}
 
 var db = mongoose();
 var app = express();
@@ -24,8 +15,7 @@ var updateCronJob = updateCj();
 var hotCronJob = hotCj();
 
 
-var server = https.createServer(options,app);
 
-server.listen(config.PORT,config.IP);
+app.listen(config.PORT);
 
 console.log("Server is running at " +config.IP +":"+config.PORT);

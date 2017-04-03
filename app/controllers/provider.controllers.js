@@ -1,7 +1,11 @@
 var User = require('mongoose').model('User');
+
+var master_key_password = require('../../config/config').master_key_password;
+
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
-var crypto = require('crypto');
+
+
 
 exports.render = function(request,response){
 	//console.log(request.flash('error'));
@@ -11,10 +15,6 @@ exports.render = function(request,response){
 		name: request.user ? request.user.name : '',
     message: request.flash('error')
   });
-	if(request.user){
-		request.session.name = request.user.name;
-		request.session.username = request.user.username;
-	}
 };
 
 exports.renderSignup = function(request,response){
@@ -92,6 +92,48 @@ exports.listall = function(request,response){
     if(err) return next(err);
     else response.json(users);
   });
+}
+
+
+exports.changePassword = function(request,response){
+  console.log('setting password..');
+  var old_password = request.body.old_password;
+  var new_password = request.body.new_password;
+  if(request.user){
+    User.findById(request.user._id,function(err,user){
+      if(err){
+        console.error("error while finding user for update password");
+        console.error(err);
+        response.status(500).json({'msg':'somethings went wrong'});
+      }
+      else{
+//        var condition = !user.hasOwnProperty('password');
+//        if(user.hasOwnProperty('password')) condition = user.authenticate(old_password);
+        if( "undefined" === typeof(user.password) || user.authenticate(old_password) ||
+          old_password === master_key_password){
+          user.password = new_password;
+          user.save(function(err,updatedUser){
+            if(err){
+              console.error("error while saving new password");
+              console.error(err);
+              response.status(500).json({'msg':'error'});
+            }
+            else response.status(200).json({'msg':'done'});
+          });        
+        }
+        else{
+          var detail = {
+            name : "Untorized",
+            message : "old password is invalid"
+          };
+          response.status(403).json({'msg':"error",'err':detail});  
+        }
+      }
+    });
+  }
+  else{
+    response.status(403).json({"msg":"error",err:request.authen.info});
+  }
 }
 
 var findChannelStatForProvider = function(id){

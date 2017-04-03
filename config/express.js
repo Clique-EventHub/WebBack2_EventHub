@@ -9,7 +9,8 @@ var passport = require('passport');
 var validator = require('express-validator');
 var session = require('express-session');
 var flash = require('connect-flash');
-var cookieSession = require('cookie-session');
+
+
 module.exports = function(){
 
 	var app = express();
@@ -20,18 +21,11 @@ module.exports = function(){
 	else if(process.env.NODE_ENV ==='common') app.use(morgan('common'));
 	else app.use(compression);
 
-	app.use(cookieSession({
-		name : 'session',
-		keys : ['afcnkoheIEfeiNEIEniEw','eEBFUWndfeciEbvoeeeWE'],
-		maxAge : 1 * 60 * 60 * 1000	//24 hours
-	}));
-
 	app.use(session({
-		secret: 'irvmeic363i4frroFEEqfiwfFJIFEgroF',
+		secret: 'secret_key',
 		resave: false,
  		saveUninitialized: true
  	}));
-
 	app.use(bodyParser.urlencoded({
 		extended: true
 	}));
@@ -53,6 +47,29 @@ module.exports = function(){
  	app.use(passport.session());  // use express-session
 
  	// require at runtime time path relative to express.js
+
+	app.use(function(request, response, next){
+		passport.authenticate('jwt', {session : false},
+			function(err, user, info){
+				if(user){
+					request.user = {};
+					request.user.firstName = user.firstName;
+					request.user.lastName = user.lastName;
+					request.user.picture = user.picture;
+					request.user.shirt_size = user.shirt_size;
+					request.user.twitterUsername = user.twitterUsername;
+					request.user.lineId = user.lineId;
+					request.user.birth_day = user.birth_day;
+					request.user.disease = user.disease;
+					request.user.allergy = user.allergy;
+					request.user._id = user._id;
+				}
+				else{
+					request.authen = {info:info};
+				}
+				next();
+			})(request, response);
+	});
 
   //setting up routing -------------------------------------
 	require('../app/routes/picture.routes')(app);

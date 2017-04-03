@@ -1,4 +1,3 @@
-
 var user = require('../controllers/user.controllers');
 var passport = require('passport');
 
@@ -15,10 +14,25 @@ module.exports = function(app){
     scope : 'email'
   }));
 
-  app.get('/oauth/facebook/callback', passport.authenticate('facebook', {
-    failureRedirect : '/user',
-    successRedirect : '/'
-  }));
+
+
+  app.get('/oauth/facebook/callback', function(req, res, next) {
+    // generate the authenticate method and pass the req/res
+
+    passport.authenticate('facebook', function(err, user, info) {
+      if (err) { return next(err); }
+      else{
+          res.json({token:info});
+      }
+    })(req, res, next);
+  });
+
+  // app.get('/oauth/facebook/callback', passport.authenticate('facebook', {
+  //   failureRedirect : '/user',
+  //   successRedirect : '/'
+  // }));
+
+
 
   app.put('/user/edit-profile', user.putEditProfile);
 
@@ -33,7 +47,7 @@ module.exports = function(app){
   // app.get('/user/setting', user.getSetting);
   // app.get('user/message', user.getMessage);
 
+  app.get('/login/facebook',user.login_fb);
 
-
-
+  
 }

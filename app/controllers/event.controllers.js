@@ -7,8 +7,7 @@ var moment = require('moment-timezone');
 
 //route /
 exports.hi = function(request,response,next){
-	response.send("abcde");
-	response.send('hi');
+	response.send("hello dude");
 }
 
 //route /listall
@@ -503,6 +502,7 @@ exports.updatehotEvent = function(request,response,next){
  						events[i].momentum+=events[i].visit_per_day[j][key];
 
 	 				if(j == t){
+
 			 			events[i].update(events[i],function(err){
 			 				if(err) return next(err);
 			 			});
@@ -510,80 +510,58 @@ exports.updatehotEvent = function(request,response,next){
 			 			hot = checkhot(hot,events[i]);
 
 			 			if(i+1==events.length){
-							var promises = [];
-					 		var field = ['_id','title','picture','momentum','channel'];
+					 		var field = ['_id','title','picture','momentum'];
 					 		var result={};
 					 		for(var key in hot){
 					 			result[key] = {};
 					 			for(var k=0;k<field.length;k++){
 					 				result[key][field[k]] = hot[key][field[k]];
 					 			}
-								promises[promises.length] = new Promise(function(resolve, reject){
-									var index = key;
-									findChannelForEvent(hot[key]['channel']).catch(function(msg){
-										console.log('can not find channel for hot events!');
-										resolve();
-									}).then(function(channelInfo){
-										result[index]['channel_name'] = channelInfo['name'];
-										result[index]['channel_picture'] = channelInfo['picture'];
-										resolve();
-									});
-								});
-							}
-							Promise.all(promises).then(function(){
-								mkdirp(path.join(__dirname,'../data/'),function(err){
-							 		if(err) return next(err);
-							 		else{
-								 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
-								 			JSON.stringify(result,null,2),function(err,data){
-								 			if(err) return next(err);
-								 			else response.send('done');
-								 		});
-							 		}
-						 		});
-							});
+					 		}
+					 		mkdirp(path.join(__dirname,'../data/'),function(err){
+						 		if(err) return next(err);
+						 		else{
+							 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
+							 			JSON.stringify(result,null,2),function(err,data){
+							 			if(err) return next(err);
+							 			else response.send('done');
+							 		});
+						 		}
+					 		});
 			 			}
 	 				}
  				}
  			}
+
 			if(events[i].visit_per_day.length==0){
+
  				hot = checkhot(hot,events[i]);
 		 		if(i+1==events.length){
-					var promises = [];
-					var field = ['_id','title','picture','momentum','channel'];
+					var field = ['_id','title','picture','momentum'];
 					var result={};
 					for(var key in hot){
 			 			result[key] = {};
+
 			 			for(var k=0;k<field.length;k++){
 			 				result[key][field[k]] = hot[key][field[k]];
+
 			 			}
-						promises[promises.length] = new Promise(function(resolve, reject){
-							var index = key;
-							findChannelForEvent(hot[key]['channel']).catch(function(msg){
-								console.log('can not find channel for hot events!');
-								resolve();
-							}).then(function(channelInfo){
-								result[index]['channel_name'] = channelInfo['name'];
-								result[index]['channel_picture'] = channelInfo['picture'];
-								resolve();
-							});
-						});
 			 		}
-					Promise.all(promises).then(function(){
-						mkdirp(path.join(__dirname,'../data/'),function(err){
-							if(err) return next(err);
-							else{
-								fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
-									JSON.stringify(result,null,2),function(err,data){
-									if(err) return next(err);
-									else response.send('done');
-								});
-							}
-						});
-					});
+			 		mkdirp(path.join(__dirname,'../data/'),function(err){
+				 		if(err) return next(err);
+				 		else{
+					 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
+					 			JSON.stringify(result,null,2),function(err,data){
+					 			if(err) return next(err);
+					 			else response.send('done');
+					 		});
+				 		}
+			 		});
 	 			}
+
  			}
 		}
+
  	});
 }
 
@@ -695,7 +673,7 @@ exports.searchEvent = function(request,response,next){
 	});
 }*/
 
-//This is made by Tun(onepiecetime)
+//This is made my Tun(onepiecetime)
 
 exports.searchByDate = function(request,response,next){
 	var info = {};

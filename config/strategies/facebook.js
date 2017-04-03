@@ -8,7 +8,7 @@ module.exports = function(){
     clientID : config.facebook.clientID,
     clientSecret : config.facebook.clientSecret,
     callbackURL : config.facebook.callbackURL,
-    profileFields : ['id','email','name','photos','profileUrl'],
+    profileFields : ['id','email','name','photos','profileUrl','age_range','birthday','gender'],
     passReqToCallback : true
   },function(req, accessToken, refreshToken, profile, done){
     var providerData = profile._json; //receive profile from fields we declare
@@ -26,6 +26,6 @@ module.exports = function(){
       picture : profile.photos ? profile.photos[0].value : '/img/faces/unknown-user-pic.jpg',
       profileUrl : profile.profileUrl
     };
-    user.saveOAuthUserProfile(req, providerUserProfile, done);
+      user.saveOAuthUserProfile(req, providerUserProfile, done);
   }));
 };
