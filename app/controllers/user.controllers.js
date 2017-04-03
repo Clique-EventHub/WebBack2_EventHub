@@ -49,8 +49,34 @@ exports.joinAnEvent = function(request, response, next){
 			res.msg = 'error';
 			res.err = {msg:'Unautorized'};
 			response.json(res);
-		}
     })(request, response);
+	});
+};
+
+exports.joinAnEvent = function(request, response, next){
+	if(request.user){
+		Event.findById(request.body.id,function(err, event){
+			if(err) next(err);
+			else if(!channel){
+				var info = {};
+				info['msg'] = 'channel not found';
+				response.json(info);
+			}
+			else{
+        var info = {};
+        if(!channel['tokenDelete']){
+          fields = ['picture','name'];
+          for(var i = 0; i < fields.length; i++){
+  					if(channel[fields[i]]){
+  						info[fields[i]] = channel[fields[i]];
+  					}
+  				}
+        }
+				response.json(info);
+			}
+		});
+		//add update user model, too.
+	}
 };
 
 //in debugging process
