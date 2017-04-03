@@ -49,8 +49,8 @@ exports.joinAnEvent = function(request, response, next){
 			res.msg = 'error';
 			res.err = {msg:'Unautorized'};
 			response.json(res);
-    })(request, response);
-	});
+		}
+	})(request, response);
 };
 
 exports.joinAnEvent = function(request, response, next){
