@@ -41,6 +41,7 @@ say hello
 * **Success Response:**
   * **Code:** 200
     **Content:** `{fields : data}`
+
     *__fields__: title,about,video,channel,location,date_start,expire,date_end,picture,picture_large, year_require,faculty_require,tags*
 
 * **Error Response:**
@@ -65,9 +66,11 @@ Create a new event
     `{fields : data}`  
 
     **Required:**
+
     *__fields__: title,channel*
 
     **Optional:**
+
     *__fields__: about,video,location,date_start,expire,date_end,picture,picture_large, year_require,faculty_require,tags*
 
 * **Success Response:**
@@ -97,6 +100,7 @@ Modify event data
     `{fields : data}`  
 
     **Optional:**
+
     *__fields__: about,video,location,date_start,date_end,picture,picture_large, year_require,faculty_require,tags,'agreement','contact_information'*
 
 * **Success Response:**
@@ -155,6 +159,7 @@ Get event's staistic
 * **Success Response:**
   * **Code:** 200
     **Content:** `{ fields : data }`
+
     *__fields__: visit, visit_per_day*
 
 
@@ -210,6 +215,7 @@ get the most 3 hot event
 * **Success Response:**
   * **Code:** 200
     **Content:** `{ fields : event }`
+    
     *__fields:__ first , second , thrid*
 ---
 
