@@ -1,4 +1,24 @@
 # **Event**
+
+## Greeting
+say hello
+
+* **URL**
+  `/`
+* **Method:**
+  `GET`
+* **Authentication**
+    `Optional`
+*  **URL Params**
+  None
+
+* **Body**
+  None
+
+* **Success Response:**
+  * **Code:** 200
+    **Content:** `hello dude`
+
 ---
 ## Get event detail
  Returns json data about detail of user
