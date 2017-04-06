@@ -33,7 +33,7 @@ say hello
 ---
 ## Get event detail
 
- Returns json data about detail of user
+ Returns json data about detail of event
 
 * **URL**
 

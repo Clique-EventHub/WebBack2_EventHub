@@ -3,11 +3,13 @@ var passport = require('passport');
 
 module.exports = function(app){
 
-  app.get('/user',user.render);
+  app.route('/user')
+    .get(user.getProfile)
+    .put(user.putEditProfile);
 
   app.get('/user/listall', user.listAll);
 
-  app.post('/user/logout',user.logout);
+  //app.post('/user/logout',user.logout);
 
   app.get('/oauth/facebook', passport.authenticate('facebook', {
     failureRedirect : '/user',
@@ -15,10 +17,8 @@ module.exports = function(app){
   }));
 
 
-
   app.get('/oauth/facebook/callback', function(req, res, next) {
     // generate the authenticate method and pass the req/res
-
     passport.authenticate('facebook', function(err, user, info) {
       if (err) { return next(err); }
       else{
@@ -32,15 +32,9 @@ module.exports = function(app){
   //   successRedirect : '/'
   // }));
 
-
-
-  app.put('/user/profile', user.putEditProfile);
-
-  app.get('/user/profile',user.getProfile);
-
-  app.get('/user/subbedchannels', user.getSubbedChannnel);
-  app.get('/user/joinedevents', user.getJoinedEvent);
-  app.get('/user/interestedevents', user.getInterestedEvent);
+  app.get('/user/subscribe', user.getSubbedChannnel);
+  app.get('/user/join', user.getJoinedEvent);
+  app.get('/user/interest', user.getInterestedEvent);
 
   app.delete('/user/clear', user.clear);   // use in test only removing user from database
   // app.get('/user/help', user.getHelp);

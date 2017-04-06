@@ -182,17 +182,17 @@ var findChannelForProvider = function(id){
 	});
 };
 
-var queryGetProvider = function(own_channels, info){
+var queryGetProvider = function(admin_channels, info){
 	return new Promise(function(resolve, reject){
-		info.own_channels = {};
+		info.admin_channels = {};
 		var promises = [];
-		for(var i = 0; i < own_channels.length; i++){
+		for(var i = 0; i < admin_channels.length; i++){
 			promises[promises.length] = new Promise(function(resolve, reject){
-				findChannelForProvider(own_channels[i]).catch(function(msg){
+				findChannelForProvider(admin_channels[i]).catch(function(msg){
 					info.msg = msg;     // not sure
 					resolve();
 				}).then(function(channelInfo){
-					info.own_channels[channelInfo['name']] = channelInfo;
+					info.admin_channels[channelInfo['name']] = channelInfo;
 					resolve();
 				});
 			});
@@ -203,13 +203,13 @@ var queryGetProvider = function(own_channels, info){
 	});
 };
 
-var queryGetStat = function(own_channels, info){
+var queryGetStat = function(admin_channels, info){
 	return new Promise(function(resolve, reject){
 		info.channels = {};
 		var promises = [];
-		for(var i = 0; i < own_channels.length; i++){
+		for(var i = 0; i < admin_channels.length; i++){
 			promises[promises.length] = new Promise(function(resolve, reject){
-				findChannelStatForProvider(own_channels[i]).catch(function(msg){
+				findChannelStatForProvider(admin_channels[i]).catch(function(msg){
 					info.msg = msg;     // not sure
 					resolve();
 				}).then(function(channelInfo){
@@ -232,9 +232,9 @@ var queryGetStat = function(own_channels, info){
 
 exports.getProfile = function(request, response, next){
 	if(request.user){
-		var own_channels = request.user.own_channels;
+		var admin_channels = request.user.admin_channels;
 		var info = {};
-		queryGetProvider(own_channels, info)
+		queryGetProvider(admin_channels, info)
 		.catch(function(err){
 			info.msg = "error";
 			response.json(info);
@@ -256,9 +256,9 @@ exports.getProfile = function(request, response, next){
 
 exports.showStat = function(request, response){
 	if(request.user){
-		var own_channels = request.user.own_channels;
+		var admin_channels = request.user.admin_channels;
 		var info = {};
-		queryGetStat(own_channels, info)
+		queryGetStat(admin_channels, info)
 		.catch(function(err){
 			info.msg = "error";
 			response.json(info);
@@ -353,14 +353,14 @@ exports.getEvents = function(request, response){
 		var channelevent = [];
 		var info = {};
 		var events = {};
-		queryGetProvider(request.user.own_channels, info)
+		queryGetProvider(request.user.admin_channels, info)
 		.catch(function(err){
 			info.msg = "error";
 			response.json(info);
 			return next(err);
 		})
 		.then(function(returnedChannel){
-			queryChannel(returnedChannel.own_channels,events)
+			queryChannel(returnedChannel.admin_channels,events)
 			.catch(function(err){
 				info.msg = "error";
 				response.json(info);
