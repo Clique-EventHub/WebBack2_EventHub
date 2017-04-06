@@ -667,19 +667,19 @@ exports.searchEvent = function(request,response,next){
 	Event.find( {$and : [ {title: { $regex:request.query.keyword,$options:"i"}}, {tokenDelete:false}] } ,
 		function(err,events){
 			if(err){
-				info.msg = "error";
+				info.err = "error";
 				response.status(500).json(info);
 				return next(err);
 			}
 			else if(events.length==0){
-				info.msg = "event not found";
-				response.status(404).json(info);
+				info.err = "event not found";
+				response.status(400).json(info);
 			}
 			else {
 				info.events = [];
 				querySearchEvent(events,info)
 				.catch(function(err){
-					response.status(400).json(err:err);
+					response.status(500).json(err:err);
 					return next(err);
 				})
 				.then(function(returnedInfo){
@@ -723,8 +723,8 @@ exports.searchEvent = function(request,response,next){
 	});
 }*/
 
-//This is made my Tun(onepiecetime)
 
+//This is made my Tun(onepiecetime)
 exports.searchByDate = function(request,response,next){
 	var info = {};
 	var enddateinterval = new Date(request.query.date_end*1000); //This will include the Date that is beyond too
@@ -741,24 +741,24 @@ exports.searchByDate = function(request,response,next){
 					 ]
 	}, function(err, events){
  		if(err){
- 			info.msg = "error.";
- 			response.json(info);
+ 			info.err = "error.";
+ 			response.status(500).json(info);
  			return next(err);
  		}
  		else if(events.length==0){
- 			info.msg = "no event match.";
-			response.status(404).json(info);
+ 			info.err = "no event match.";
+			response.status(400).json(info);
  		}
  		else {
 			info.events = [];
 			querySearchEvent(events,info)
 			.catch(function(err){
-				info.msg = "error";
-				response.json(info);
+				info.err = "error";
+				response.status(500).json(info);
 				return next(err);
 			})
 			.then(function(returnedInfo){
-				response.json(returnedInfo);
+				response.status(200).json(returnedInfo);
 			});
  		}
 	});
