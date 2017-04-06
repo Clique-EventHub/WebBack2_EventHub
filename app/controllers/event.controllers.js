@@ -98,7 +98,7 @@ exports.postEvent = function(request,response,next){
 
 	// chcek permission
 	if(request.user){
-		if(request.user.own_channels.indexOf(channel) == -1){
+		if(request.user.admin_channels.indexOf(channel) == -1){
 			response.status(403).json({err:"No permission for create event"});
 			return;
 		}
@@ -679,7 +679,7 @@ exports.searchEvent = function(request,response,next){
 				info.events = [];
 				querySearchEvent(events,info)
 				.catch(function(err){
-					response.status(500).json(err:err);
+					response.status(500).json(err);
 					return next(err);
 				})
 				.then(function(returnedInfo){
@@ -783,7 +783,7 @@ var check_permission = function(request,callback){
 			callback(400,{err:"event not found"});
 		}
 		else{
-			if(request.user.own_channels.indexOf(event.channel) == -1){
+			if(request.user.admin_channels.indexOf(event.channel) == -1){
 				callback(403,{err:"Need permission to edit this event"});
 			}
 			else{

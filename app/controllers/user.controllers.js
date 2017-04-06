@@ -19,65 +19,35 @@ exports.render = function(request, response){
 
 //body id wtf?
 exports.joinAnEvent = function(request, response, next){
-  passport.authenticate('jwt', {session:false},
-      function(err, user, info) {
-		console.log(user);
-		var res = {};
-		if(user){
-			Event.findById(request.body.id,function(err, event){
-				if(err) next(err);
-				else if(!channel){
-					var info = {};
-					info['msg'] = 'channel not found';
-					response.json(info);
-				}
-				else{
-		        var info = {};
-		        if(!channel['tokenDelete']){
-		          fields = ['picture','name'];
-		          for(var i = 0; i < fields.length; i++){
-								if(channel[fields[i]]){
-									info[fields[i]] = channel[fields[i]];
-								}
-		  				}
-		        }
-					response.json(info);
-				}
-			});
-		}
-		else{
-			res.msg = 'error';
-			res.err = {msg:'Unautorized'};
-			response.json(res);
-		}
-	})(request, response);
-};
-
-exports.joinAnEvent = function(request, response, next){
-	if(request.user){
-		Event.findById(request.body.id,function(err, event){
-			if(err) next(err);
-			else if(!channel){
-				var info = {};
-				info['msg'] = 'channel not found';
-				response.json(info);
+  var user = request.user;
+	if(user){
+		Event.findById(request.query.id,function(err, event){
+			if(err){
+				response.status(500).json({err:"internal error"});
+				next(err);
+			}
+			else if(!event || event['tokenDelete']){
+				response.status(400).json({err:'event not found'});
 			}
 			else{
-        var info = {};
-        if(!channel['tokenDelete']){
-          fields = ['picture','name'];
-          for(var i = 0; i < fields.length; i++){
-  					if(channel[fields[i]]){
-  						info[fields[i]] = channel[fields[i]];
-  					}
-  				}
-        }
-				response.json(info);
+				User.findByIdAndUpdate(user._id,{
+					$push : {"join_events" : request.query.id}
+				},function(err){
+					if(err) response.status(500).json({err:"internal error");
+					else response.status(200).json({msg:"done"});
+				}
+				});
 			}
 		});
-		//add update user model, too.
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
 	}
 };
+
 
 //in debugging process
 exports.listAll = function(request,response,next){
@@ -87,12 +57,12 @@ exports.listAll = function(request,response,next){
 	});
 };
 
-exports.logout = function(request,response){
+/*exports.logout = function(request,response){
 	request.logout();
 	var info = {};
 	info.msg = "done";
   response.json(info);
-}
+}*/
 
 exports.getProfile = function(request, response){
 	var user = request.user;
@@ -107,53 +77,52 @@ exports.getProfile = function(request, response){
 		res['birth_day'] = user.birth_day;
 		res['disease'] = user.disease;
 		res['allergy'] = user.allergy;
-		response.json(res);
+		response.status(200).json(res);
 	}
 	else{
-		res.msg = 'error';
-		res.err = {msg:'Unautorized'};
-		response.json(res);
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
 	}
 };
 // require body
 exports.putEditProfile = function(request, response){
-    passport.authenticate('jwt', {session:false},
-    function(err, user, info) {
-			var res = {};
-			if(user){
-				console.log('editing...');
-				var keys = Object.keys(request.body);
-				var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-															,'lineId','own_channels','subscribe_channels','join_events','interest_events','admin_events'];
-				for(var i=0;i<keys.length;i++){
-					if(editableFields.indexOf(keys[i]) == -1){
-						delete request.body[keys[i]];
-					}
-				}
-				//Actually we should check its content later, too. For security reason.
-				User.findByIdAndUpdate(user._id,{
-					$set:request.body						// update body
-				},function(err,updatedProvider){
-					if(err){
-						info.msg = "error";
-						response.json(info);
-						console.error("error : editProfile");
-						return next(err);
-					}
-					else if(!updatedProvider){
-						info.msg = "provider not found";
-						console.error("provider not found : postEditProfile - provider.controllers");
-						response.status(404).json(info);
-					}
-					else response.status(200).json({msg:"done"});
-				});
+	var res = {};
+	var user = request.user;
+	if(user){
+		console.log('editing...');
+		var keys = Object.keys(request.body);
+		var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
+													,'lineId','admin_channels','subscribe_channels','join_events','interest_events'];
+		for(var i=0;i<keys.length;i++){
+			if(editableFields.indexOf(keys[i]) == -1){
+				delete request.body[keys[i]];
 			}
-			else{
-				res.msg = 'error';
-				res.err = {msg:'Unautorized'};
-				response.json(res);
+		}
+		//Actually we should check its content later, too. For security reason.
+		User.findByIdAndUpdate(user._id,{
+			$set:request.body						// update body
+		},function(err,updatedProvider){
+			if(err){
+				response.status(500).json({err:"internal error"});
+				console.error("error : editProfile");
+				return next(err);
 			}
-    })(request, response);
+			else if(!updatedProvider){
+				info.err = "provider not found";
+				console.error("provider not found : postEditProfile - provider.controllers");
+				response.status(400).json(info);
+			}
+			else response.status(200).json({msg:"done"});
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
 }
 
 
@@ -357,7 +326,7 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 		provider : profile.provider,
 		facebookId : profile.facebookId
 	}, function(err, user){
-		if(err) response.json({msg:'error saveOAuthUserProfile',err:err});
+		if(err) response.status(500).json({msg:'error saveOAuthUserProfile',err:err});
 		else{
 			if(!user){
 				var possibleUsername = profile.email ? profile.email.split('@')[0] : '';
@@ -382,6 +351,7 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 }
 
 // not use for production
+/*
 exports.saveOAuthUserProfile = function(req, profile, done){
 	User.findOne({
 		provider : profile.provider,
@@ -421,7 +391,7 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 			}
 		}
 	});
-};
+};*/
 
 exports.login_fb = function(request,response){
 	var id = request.query.id;
@@ -450,11 +420,11 @@ exports.login_fb = function(request,response){
             var obj = JSON.parse(output);
 
             if(!obj.hasOwnProperty('id')){
-            	obj.msg  = "error response from fb";
-            	response.json(obj);
+            	obj.err  = "invalid facebook's access token";
+            	response.status(400).json(obj);
             }
             else{
-            	console.log(obj);
+            console.log(obj);
 	        	obj.provider = 'facebook';
 	        	obj.picture = obj.picture.data.url;
 	        	obj.firstName = obj.first_name;

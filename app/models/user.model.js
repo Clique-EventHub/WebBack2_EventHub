@@ -88,7 +88,7 @@ var userSchema = new Schema({
 	twitterUsername:String,
 	lineId:String,
 
-	own_channels:[],
+	admin_channels:[],
 	join_events:[],
 	interest_events:[],
 	subscribe_channels:[],

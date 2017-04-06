@@ -19,8 +19,8 @@ module.exports = function(){
 			}
 			else if(user){
 				var result = {};
-				var fields = ['_id','firstName','lastName','picture','admin_events',
-				'subscribe_channels','interest_events','join_events','own_channels'];
+				var fields = ['_id','firstName','lastName','picture',
+				'subscribe_channels','interest_events','join_events','admin_channels'];
 				fields.forEach(function(field){
 					result[field] = user[field];
 				});
