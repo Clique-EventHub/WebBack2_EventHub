@@ -10,8 +10,8 @@ module.exports = function(app){
 		.put(event.putEvent)	// modify event
 		.delete(event.deleteEvent);	// delete event
 	app.route('/event/stat')
-		.get(event.getStat)
-		.put(event.putStat);
+		.get(event.getStat);
+		
 	app.get('/event/new',event.newEvent);
  	app.get('/event/hot',event.gethotEvent);
 

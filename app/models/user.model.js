@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var crypto = require('crypto');
+var Moment = require('moment-timezone');
 var Schema = mongoose.Schema;
 var userSchema = new Schema({
 
@@ -91,7 +92,7 @@ var userSchema = new Schema({
 	join_events:[],
 	interest_events:[],
 	subscribe_channels:[],
-	admin_events:[],
+
 
 //stat
 	tag_visit:{},
@@ -104,16 +105,16 @@ var userSchema = new Schema({
 		default: false
 	},
 	created_date:{
-		type: Date,
-		default: Date.now
+		type: 'Moment',
+		default: new Moment()
 	},
 	lastModified:{
-		type:Date,
-		default: Date.now
+		type: 'Moment',
+		default: new Moment()
 	},
 	lastOnline:{
-		type:Date,
-		default: Date.now
+		type: 'Moment',
+		default: new Moment()
 	}
 });
 // do this before save

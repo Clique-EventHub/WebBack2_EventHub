@@ -32,15 +32,15 @@ exports.joinAnEvent = function(request, response, next){
 					response.json(info);
 				}
 				else{
-			        var info = {};
-			        if(!channel['tokenDelete']){
-			          fields = ['picture','name'];
-			          for(var i = 0; i < fields.length; i++){
-									if(channel[fields[i]]){
-										info[fields[i]] = channel[fields[i]];
-									}
-			  				}
-			        }
+		        var info = {};
+		        if(!channel['tokenDelete']){
+		          fields = ['picture','name'];
+		          for(var i = 0; i < fields.length; i++){
+								if(channel[fields[i]]){
+									info[fields[i]] = channel[fields[i]];
+								}
+		  				}
+		        }
 					response.json(info);
 				}
 			});
@@ -124,7 +124,7 @@ exports.putEditProfile = function(request, response){
 				console.log('editing...');
 				var keys = Object.keys(request.body);
 				var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-															,'lineId','own_channels','subscribe_channels'];
+															,'lineId','own_channels','subscribe_channels','join_events','interest_events','admin_events'];
 				for(var i=0;i<keys.length;i++){
 					if(editableFields.indexOf(keys[i]) == -1){
 						delete request.body[keys[i]];
@@ -145,7 +145,7 @@ exports.putEditProfile = function(request, response){
 						console.error("provider not found : postEditProfile - provider.controllers");
 						response.status(404).json(info);
 					}
-					else response.redirect('/provider/profile');
+					else response.status(200).json({msg:"done"});
 				});
 			}
 			else{
@@ -345,13 +345,14 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 				msg : 'done',
 				access_token : token
 			};
-			response.json(info);
+			response.status(200).json(info);
 		}
 		else{
-			response.json({msg:'error',err:err});
+			response.status(500).json({msg:'error',err:err});
 		}
 	}
 	console.log('findOne:'+ profile.provider + '&' + profile.id);
+
 	User.findOne({
 		provider : profile.provider,
 		facebookId : profile.facebookId
@@ -365,14 +366,14 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 					user = new User(profile);
 					console.log(user);
 					user.save(function(err){
-						if(err) response.json({msg:'error save new user',err:err});
+						if(err) response.status(500).json({msg:'error save new user',err:err});
 						else generateToken(user._id,callback);
 					});
 				});
 			}
 			else{
 				user.update(profile,function(err){
-					if(err) response.json({msg:'error',err:err});
+					if(err) response.status(500).json({msg:'error',err:err});
 					else generateToken(user._id,callback);
 				});
 			}

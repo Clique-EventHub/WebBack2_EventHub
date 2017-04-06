@@ -34,7 +34,7 @@ module.exports = function(app){
 
 
 
-  app.put('/user/edit-profile', user.putEditProfile);
+  app.put('/user/profile', user.putEditProfile);
 
   app.get('/user/profile',user.getProfile);
 
@@ -49,5 +49,5 @@ module.exports = function(app){
 
   app.get('/login/facebook',user.login_fb);
 
-  
+
 }
