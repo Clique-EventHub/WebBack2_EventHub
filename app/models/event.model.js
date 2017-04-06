@@ -87,10 +87,8 @@ var eventSchema = new Schema({
 		type:'Moment',
 		default: new Moment()
 	},
-	lastModified:{
-		type:'Moment',
-		default: new Moment()
-	}
+	Creator : Schema.Types.ObjectId,
+	lastModified: []
  });
 
 

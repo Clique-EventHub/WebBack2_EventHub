@@ -9,7 +9,7 @@ var passport = require('passport');
 var validator = require('express-validator');
 var session = require('express-session');
 var flash = require('connect-flash');
-
+var Moment = require('moment-timezone');
 
 module.exports = function(){
 
@@ -52,20 +52,24 @@ module.exports = function(){
 		passport.authenticate('jwt', {session : false},
 			function(err, user, info){
 				if(user){
-					request.user = {};
-					request.user.firstName = user.firstName;
-					request.user.lastName = user.lastName;
-					request.user.picture = user.picture;
-					request.user.shirt_size = user.shirt_size;
-					request.user.twitterUsername = user.twitterUsername;
-					request.user.lineId = user.lineId;
-					request.user.birth_day = user.birth_day;
-					request.user.disease = user.disease;
-					request.user.allergy = user.allergy;
-					request.user._id = user._id;
+					// request.user = {};
+					// request.user.firstName = user.firstName;
+					// request.user.lastName = user.lastName;
+					// request.user.picture = user.picture;
+					// request.user.shirt_size = user.shirt_size;
+					// request.user.twitterUsername = user.twitterUsername;
+					// request.user.lineId = user.lineId;
+					// request.user.birth_day = user.birth_day;
+					// request.user.disease = user.disease;
+					// request.user.allergy = user.allergy;
+					// request.user._id = user._id;
+					// request.user.admin_events = user.admin_events;
+					// request.user.isProviderId = user.isProviderId;
+					request.user = user;
+					console.log(user);
 				}
 				else{
-					request.authen = {info:info};
+					request.authen = info;
 				}
 				next();
 			})(request, response);
