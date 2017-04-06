@@ -79,7 +79,7 @@ exports.getEvent = function(request,response,next){
 				return next(err);
 			}).then(function(returnedInfo){
 				response.status(200).json(returnedInfo);
-				putStat2(id);
+				putStat(id);
 			});
 		}
 	});
@@ -171,13 +171,13 @@ exports.putEvent = function(request,response,next){
 			delete request.body[keys[i]];
 		}
 	}
-	check_permission(request,function(code,err){
+	check_permission(request,function(code,err,event){
 		if(code !== 200){
 			response.status(code).json(err);
 		}
 		else{
-			event.lastModified.push({when:new moment(),who:request.user._id});
 			request.body.lastModified = event.lastModified;
+			request.body.lastModified.push({when:new moment(),who:request.user._id});
 			if(request.body.lastModified.length >= modify_log_size)
 				request.body.lastModified.splice(0,request.body.lastModified-modify_log_size);
 			event.update({
@@ -232,12 +232,12 @@ exports.deleteEvent = function(request,response,next){
 	var id = request.query.id;
 	var info = {msg:"done"};
 
-	check_permission(request,function(code,err){
+	check_permission(request,function(code,err,event){
 		if(code!==200)
 			response.status(code).json(err);
 		else{
-			event.lastModified.push({when:new moment(),who:request.user._id});
 			request.body.lastModified = event.lastModified;
+			request.body.lastModified.push({when:new moment(),who:request.user._id});
 			if(request.body.lastModified.length >= modify_log_size)
 				request.body.lastModified.splice(0,request.body.lastModified-modify_log_size);
 			event.update({
@@ -258,32 +258,23 @@ exports.deleteEvent = function(request,response,next){
 
 //route GET /event/stat?id=...
 exports.getStat = function(request,response,next){
-	var id = request.query.id;
+
 	var info = {};
-	Event.findById(id,function(err,event){
-		if(err){
-			info.msg = "error";
-			console.error("error find event: getStat - event.controllers");
-			response.json(info);
-			return next(err);
-		}
+
+	check_permission(request,function(code,err,event){
+		if(code!=200) response.status(code).json(err);
 		else{
-			if(!event){
-				info.msg = "event not found";
-				response.status(404).json(info);
+			var fields = ['visit','visit_per_day'];
+			for(var i=0;i<fields.length;i++){
+				info[fields[i]]=event[fields[i]];
 			}
-			else{
-				var fields = ['visit','visit_per_day'];
-				for(var i=0;i<fields.length;i++){
-					info[fields[i]]=event[fields[i]];
-				}
-				response.json(info);
-			}
+			response.status(200).json(info);
 		}
 	});
 }
 
 //route PUT /event/stat?id=...
+/*
 exports.putStat = function(request,response,next){
 	var id = request.query.id;
 	//var d = new time.Date().setTimezone('Asia/Bangkok');
@@ -294,7 +285,7 @@ exports.putStat = function(request,response,next){
 	Event.findById(id,function(err,event){
 		if(err){
 			info.msg = "error";
-			response.json(info);
+			response.status(500).json(info);
 			console.error("error find event : putStat - event.controllers");
 			return next(err);
 		}
@@ -332,29 +323,10 @@ exports.putStat = function(request,response,next){
 		}
 	});
 }
+*/
 
-var findChannelForEvent = function(id){
-	return new Promise(function(resolve, reject){
-		Channel.findById(id,function(err, channel){
-			if(err) reject('error in finding channel');
-			else if(!channel){
-				reject('channel not found');
-			}
-			else{
-				info = {};
-				fields = ['picture','name'];
-				for(var i = 0; i < fields.length; i++){
-					if(channel[fields[i]]){
-						info[fields[i]] = channel[fields[i]];
-					}
-				}
-				resolve(info);
-			}
-		});
-	});
-};
-
-var putStat2 = function(id){
+// increase stat when getEvent
+var putStat = function(id){
 	//var d = new time.Date().setTimezone('Asia/Bangkok');
 	//var date = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear();
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
@@ -368,7 +340,7 @@ var putStat2 = function(id){
 			console.error("event not found");
 		}
 		else{
-			event.lastModified = moment().format();
+		//	event.lastModified = moment().format();
 			event.visit+=1;								//add visit
 			if(event.visit_per_day.length==0){			//add object to empty array
 				event.visit_per_day.push({});
@@ -388,10 +360,32 @@ var putStat2 = function(id){
 					return next(err);
 				}
 				else{
-					console.log("done");
+					console.log("push stat done");
 				}
 			});
 		}
+	});
+};
+
+
+var findChannelForEvent = function(id){
+	return new Promise(function(resolve, reject){
+		Channel.findById(id,function(err, channel){
+			if(err) reject('error in finding channel');
+			else if(!channel){
+				reject('channel not found');
+			}
+			else{
+				info = {};
+				fields = ['picture','name'];
+				for(var i = 0; i < fields.length; i++){
+					if(channel[fields[i]]){
+						info[fields[i]] = channel[fields[i]];
+					}
+				}
+				resolve(info);
+			}
+		});
 	});
 };
 
@@ -447,14 +441,13 @@ exports.newEvent = function(request,response,next){
 	var info={};
 	Event.find({tokenDelete:{$ne:true}},function(err,events){
 		if(err){
-			info.msg = "error";
 			console.error("error find event : newEvent - event.controllers");
+			response.status(500).json({err:"internal error"});
 			return next(err);
 		}
 		if(events.length==0){
-			info.msg='no available event';
 			console.error('no available event');
-			response.json(info);
+			response.status(200).json({err:'no available event'});
 		}
 		else {
 			info.events = [];
@@ -474,7 +467,7 @@ exports.newEvent = function(request,response,next){
 				}
 				index++;
 			}
-			response.json(info);
+			response.status(200).json(info);
 		}
 	});
 }
@@ -624,7 +617,9 @@ exports.updatehotEvent = function(request,response,next){
 
 //route /event/hot
 exports.gethotEvent = function(request,response,next){
-	response.sendFile(path.join(__dirname,'../data/hotEvent.json'));
+	response.sendFile(path.join(__dirname,'../data/hotEvent.json'),options,function(err){
+		if(err) console.error(err);
+	});
 }
 
 var querySearchEvent = function(events,info){
@@ -640,8 +635,8 @@ var querySearchEvent = function(events,info){
 						var index = j;
 						findChannelForEvent(events[j][fields[i]]).catch(function(msg){
 							info.msg = msg;     // not sure
-							response.json(info);
-							resolve();
+							//response.json(info);
+							reject(msg);
 						}).then(function(channelInfo){
 							info.events[index]['channel_name'] = channelInfo['name'];
 							info.events[index]['channel_picture'] = channelInfo['picture'];
@@ -673,7 +668,7 @@ exports.searchEvent = function(request,response,next){
 		function(err,events){
 			if(err){
 				info.msg = "error";
-				response.json(info);
+				response.status(500).json(info);
 				return next(err);
 			}
 			else if(events.length==0){
@@ -684,12 +679,11 @@ exports.searchEvent = function(request,response,next){
 				info.events = [];
 				querySearchEvent(events,info)
 				.catch(function(err){
-					info.msg = "error";
-					response.json(info);
+					response.status(400).json(err:err);
 					return next(err);
 				})
 				.then(function(returnedInfo){
-					response.json(returnedInfo);
+					response.status(200).json(returnedInfo);
 				});
 			}
 	});
@@ -794,7 +788,7 @@ var check_permission = function(request,callback){
 			}
 			else{
 				// if permsion ok
-				callback(200);
+				callback(200,null,event);
 			}
 		}
 	});
