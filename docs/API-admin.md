@@ -39,7 +39,7 @@ Change details of channel
 
 * **Error Response:**
 
-  * **Code:** 404,500
+  * **Code:** 403,404,410,500
 
     **Content:** `{err : error detail}`
 ---
@@ -79,7 +79,7 @@ Change details of channel
 
 * **Error Response:**
 
-  * **Code:** 404,500
+  * **Code:** 403,404,410,500
 
     **Content:** `{err : error detail}`
 ---
@@ -120,7 +120,7 @@ Change details of channel
 
 * **Error Response:**
 
-  * **Code:** 404,500
+  * **Code:** 403,404,410,500
 
     **Content:** `{err : error detail}`
 ---
