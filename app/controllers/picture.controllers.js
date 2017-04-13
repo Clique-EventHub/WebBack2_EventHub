@@ -130,7 +130,7 @@ exports.postPicture= function(request,response,next){
 }
 
 // route GET /picture/:name
-exports.getPicture = function(request,response){
+exports.getPicture = function(request,response,next){
 	dest = '../../pictures/';
 	dest += request.params.name[0] == 'e' ? 'event/' : 'channel/';
 	dest += request.params.name[1] == 's' ? 'small/' : 'large/';
@@ -139,7 +139,7 @@ exports.getPicture = function(request,response){
       var error = {};
       error.msg = "error in sending file";
       console.error("error in sending file");
-      response.json(error);
+      response.status(500).json(error);
       return next(err);
     }
     else{
