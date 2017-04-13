@@ -33,7 +33,18 @@ exports.modifyTag = function(request,response){
 //route GET /tags
 //return type of tags
 exports.getTags = function(request,response){
-	response.sendFile(path.join(__dirname,'../../data/tags.json'));
+	response.sendFile(path.join(__dirname,'../../data/tags.json'),function(err){
+    if(err){
+      var error = {};
+      error.msg = "error in sending file";
+      console.error("error in sending file");
+      response.json(error);
+      return next(err);
+    }
+    else{
+      console.log("Sent tags.json");
+    }
+  });
 }
 
 //route GET /tags/search?keywords=k1,k2,k3...

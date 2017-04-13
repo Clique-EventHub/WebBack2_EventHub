@@ -134,7 +134,19 @@ exports.getPicture = function(request,response){
 	dest = '../../pictures/';
 	dest += request.params.name[0] == 'e' ? 'event/' : 'channel/';
 	dest += request.params.name[1] == 's' ? 'small/' : 'large/';
-	response.sendFile(path.join(__dirname,dest,request.params.name.substr(2,request.params.name.length)));
+	response.sendFile(path.join(__dirname,dest,request.params.name.substr(2,request.params.name.length)),function(err){
+    if(err){
+      var error = {};
+      error.msg = "error in sending file";
+      console.error("error in sending file");
+      response.json(error);
+      return next(err);
+    }
+    else{
+			var picname = request.params.name;
+      console.log("Sent : "+picname);
+    }
+  });
 }
 
 // route DELETE /picture/:name?id=...(event's id)
