@@ -16,8 +16,9 @@ exports.postPicture= function(request,response,next){
 	info.msg = 'file is not valid';
 	mkdirp(dest,function(err){ // save picture on filesystem
 		if(err){
-			response.send("something went wrong");
+			info.msg = "something went wrong";
 			console.error("error mkdirp : postPicture - picture.controllers");
+			response.json(info);
 			return next(err);
 		}
 		else{
@@ -55,8 +56,8 @@ exports.postPicture= function(request,response,next){
 						 		response.json(info);
 						 		return next(err);
 						 	}
-						 	else{								
-								url = 'http://'+config.IP+PORT+'/picture/'+request.query.field[0] + request.query.size[0] +request.file.filename;								
+						 	else{
+								url = 'http://'+config.IP+PORT+'/picture/'+request.query.field[0] + request.query.size[0] +request.file.filename;
 								//save picture url to event
 								if(request.query.size=='small') event.picture = url;
 								else event.picture_large.push(url);
@@ -85,7 +86,7 @@ exports.postPicture= function(request,response,next){
 					if(err){
 						info.msg = 'error';
 						response.json(info);
-						console.error("error find event : postPicture - picture.controllers");
+						console.error("error find channel : postPicture - picture.controllers");
 						return next(err);
 					}
 					else if(!channel){
@@ -116,8 +117,8 @@ exports.postPicture= function(request,response,next){
 									else{
 										info.msg = "done";
 										info.url = url;
-										response.status(201).json(info);	
-									} 
+										response.status(201).json(info);
+									}
 								});
 							}
 						});
@@ -129,11 +130,23 @@ exports.postPicture= function(request,response,next){
 }
 
 // route GET /picture/:name
-exports.getPicture = function(request,response){
+exports.getPicture = function(request,response,next){
 	dest = '../../pictures/';
 	dest += request.params.name[0] == 'e' ? 'event/' : 'channel/';
 	dest += request.params.name[1] == 's' ? 'small/' : 'large/';
-	response.sendFile(path.join(__dirname,dest,request.params.name.substr(2,request.params.name.length)));
+	response.sendFile(path.join(__dirname,dest,request.params.name.substr(2,request.params.name.length)),function(err){
+    if(err){
+      var error = {};
+      error.msg = "error in sending file";
+      console.error("error in sending file");
+      response.status(500).json(error);
+      return next(err);
+    }
+    else{
+			var picname = request.params.name;
+      console.log("Sent : "+picname);
+    }
+  });
 }
 
 // route DELETE /picture/:name?id=...(event's id)
@@ -149,7 +162,12 @@ exports.deletePicture = function(request,response,next){
 	var PORT = config.PORT === 80 ? '' : ':'+config.PORT;
 	//move picture to folder bin
 	mkdirp(path.join(__dirname,'..	/../pictures/bin'),function(err){
-		if(err) return next(err);
+		if(err){
+			info.msg = "error";
+			console.error("error mkdirp : deletePicture - picture.controllers");
+			response.json(info);
+			return next(err);
+		}
 		else{
 			//remove picture url in event
 			Event.findById(request.query.id,function(err,event){
@@ -163,7 +181,7 @@ exports.deletePicture = function(request,response,next){
 					response.json(info);
 				}
 				else{
-					if(size=='small') event.picture=null;	
+					if(size=='small') event.picture=null;
 					else {
 						var index = event.picture_large.indexOf('http://'+config.IP+PORT+'/picture/'+request.params.name);
 						if(index>-1) event.picture_large.splice(index,1);

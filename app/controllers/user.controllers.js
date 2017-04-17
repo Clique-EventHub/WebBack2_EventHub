@@ -33,9 +33,8 @@ exports.joinAnEvent = function(request, response, next){
 				User.findByIdAndUpdate(user._id,{
 					$push : {"join_events" : request.query.id}
 				},function(err){
-					if(err) response.status(500).json({err:"internal error");
+					if(err) response.status(500).json({err:"internal error"});
 					else response.status(200).json({msg:"done"});
-				}
 				});
 			}
 		});
