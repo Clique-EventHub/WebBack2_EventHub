@@ -57,6 +57,28 @@ exports.postChannel = function(request,response,next){
 exports.putChannel = function(request,response,next){
 	var id = request.query.id;
 	var info = {};
+
+	// validate input data
+	if(id === undefined ){
+			response.status(400).json({err:"invalid channel"});
+			return;
+	}
+
+	// chcek permission
+	if(request.user){
+		if(request.user.admin_channels.indexOf(id) == -1){
+			response.status(403).json({err:"No permission for edit channel"});
+			return;
+		}
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+		return;
+	}
+
 	Channel.findByIdAndUpdate(id,{
 		 // $set : use request body as updated information
 		// same field will be overwritten , new field will be created
@@ -71,7 +93,7 @@ exports.putChannel = function(request,response,next){
 		}
 		else if(!channel){
 			info.msg = "channel not found"
-			response.status(404).json(info);
+			response.status(400).json(info);
 		}
 		else{
 			info.msg = "done";
@@ -84,6 +106,27 @@ exports.putChannel = function(request,response,next){
 exports.deleteChannel = function(request,response,next){
 	var id = request.query.id;
 	var info = {};
+
+	if(id === undefined ){
+			response.status(400).json({err:"invalid channel"});
+			return;
+	}
+
+	// chcek permission
+	if(request.user){
+		if(request.user.admin_channels.indexOf(id) == -1){
+			response.status(403).json({err:"No permission for delete channel"});
+			return;
+		}
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+		return;
+	}
+
 	//use tokenDelete to show as it delete, and not shown when user search
 	Channel.findByIdAndUpdate(id,{
 		tokenDelete:true,

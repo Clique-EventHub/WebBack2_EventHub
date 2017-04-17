@@ -328,7 +328,14 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 		if(err) response.status(500).json({msg:'error saveOAuthUserProfile',err:err});
 		else{
 			if(!user){
-				var possibleUsername = profile.email ? profile.email.split('@')[0] : '';
+				if(profile.email) var possibleUsername = profile.email ? profile.email.split('@')[0] : '';
+				else{
+					var fname = profile.name.split(' ')[0];
+					var lname = profile.name.split(' ')[1];
+					if(lname.length <3 ) var len = lname.length;
+					else var len = 3;
+					var possibleUsername = fname + '.' + lname.substring(0,len);
+				}
 				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
 					profile.username = availableUsername;
 					user = new User(profile);
