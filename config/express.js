@@ -53,8 +53,6 @@ module.exports = function(){
 			function(err, user, info){
 				 if(user){
 					request.user = user;
-					console.log("Authentication");
-					console.log(user);
 				}
 				else{
 					request.authen = info;

@@ -66,18 +66,13 @@ exports.listAll = function(request,response,next){
 exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
+	var fields = ['_id','firstName','lastName','picture','picture_200px',
+	'gender','phone','shirt_size','brith_day','allergy','disease',
+	'regId','facebookId','twitterUsername','lineId'];
 	if(user){
-		// res['firstName'] = user.firstName;
-		// res['lastName'] = user.lastName;
-		// res['picture'] = user.picture;
-		// res['picture_200px'] = user.picture_200px;
-		// res['shirt_size'] = user.shirt_size;
-		// res['twitterUsername'] = user.twitterUsername;
-		// res['lineId'] = user.lineId;
-		// res['birth_day'] = user.birth_day;
-		// res['disease'] = user.disease;
-		// res['allergy'] = user.allergy;
-		res = user;
+		fields.forEach(function(field){
+			res[field] = user[field];
+		});
 		response.status(200).json(res);
 	}
 	else{
