@@ -51,21 +51,9 @@ module.exports = function(){
 	app.use(function(request, response, next){
 		passport.authenticate('jwt', {session : false},
 			function(err, user, info){
-				if(user){
-					// request.user = {};
-					// request.user.firstName = user.firstName;
-					// request.user.lastName = user.lastName;
-					// request.user.picture = user.picture;
-					// request.user.shirt_size = user.shirt_size;
-					// request.user.twitterUsername = user.twitterUsername;
-					// request.user.lineId = user.lineId;
-					// request.user.birth_day = user.birth_day;
-					// request.user.disease = user.disease;
-					// request.user.allergy = user.allergy;
-					// request.user._id = user._id;
-					// request.user.admin_events = user.admin_events;
-					// request.user.isProviderId = user.isProviderId;
+				 if(user){
 					request.user = user;
+					console.log("Authentication");
 					console.log(user);
 				}
 				else{

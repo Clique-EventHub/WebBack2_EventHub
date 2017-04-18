@@ -19,7 +19,9 @@ module.exports = function(){
 			}
 			else if(user){
 				var result = {};
-				var fields = ['_id','firstName','lastName','picture',
+				var fields = ['_id','firstName','lastName','picture','picture_200px',
+				'gender','phone','shirt_size','brith_day','allergy','disease',
+				'regId','facebookId','twitterUsername','lineId',
 				'subscribe_channels','interest_events','join_events','admin_channels'];
 				fields.forEach(function(field){
 					result[field] = user[field];

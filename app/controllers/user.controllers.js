@@ -67,15 +67,17 @@ exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
 	if(user){
-		res['firstName'] = user.firstName;
-		res['lastName'] = user.lastName;
-		res['picture'] = user.picture;
-		res['shirt_size'] = user.shirt_size;
-		res['twitterUsername'] = user.twitterUsername;
-		res['lineId'] = user.lineId;
-		res['birth_day'] = user.birth_day;
-		res['disease'] = user.disease;
-		res['allergy'] = user.allergy;
+		// res['firstName'] = user.firstName;
+		// res['lastName'] = user.lastName;
+		// res['picture'] = user.picture;
+		// res['picture_200px'] = user.picture_200px;
+		// res['shirt_size'] = user.shirt_size;
+		// res['twitterUsername'] = user.twitterUsername;
+		// res['lineId'] = user.lineId;
+		// res['birth_day'] = user.birth_day;
+		// res['disease'] = user.disease;
+		// res['allergy'] = user.allergy;
+		res = user;
 		response.status(200).json(res);
 	}
 	else{
@@ -403,6 +405,7 @@ exports.login_fb = function(request,response){
 	var id = request.query.id;
 	var access_token = request.query.access_token;
 	var fields = "fields=id%2Cgender%2Cbirthday%2Cemail%2Cage_range%2Cpicture%7Burl%7D%2Cfirst_name%2Clast_name%2Cname";
+
 	var options = {
 		host: 'graph.facebook.com',
 		port : 443,
@@ -430,17 +433,18 @@ exports.login_fb = function(request,response){
             	response.status(400).json(obj);
             }
             else{
-            console.log(obj);
 	        	obj.provider = 'facebook';
 	        	obj.picture = obj.picture.data.url;
 	        	obj.firstName = obj.first_name;
 	        	obj.lastName = obj.last_name;
 	        	obj.facebookId = id;
 	        	obj.access_token = access_token;
-	        	delete obj.first_name;
+						obj.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
+						delete obj.first_name;
 	        	delete obj.last_name;
 	        	delete obj.id;
-	        	saveOAuthUserProfile_fromClient(response,obj);
+						console.log(obj);
+						saveOAuthUserProfile_fromClient(response,obj);
         	}
         });
 	});

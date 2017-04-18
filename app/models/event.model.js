@@ -11,21 +11,39 @@ var eventSchema = new Schema({
 		unique : true
 //		index:true
 	},
-	about : String,
+	about : {
+		type:String,
+		default:null
+	},
 	channel : {
 		type:Schema.Types.ObjectId,
 		required : true
 	},
-	picture : String,
+	picture : {
+		type:String,
+		default:null
+	},
 	picture_large:[],
-	video : String,
+	video : {
+		type:String,
+		default:null
+	},
 	faculty_require: [],
 	year_require:[],
-	agreement :String,
-	location:String,
-	date_start: Date,
+	agreement :{
+		type:String,
+		default:null
+	},
+	location:{
+		type:String,
+		default:null
+	},
+	date_start:Date,
 	date_end:Date,
-	contact_information: String,
+	contact_information: {
+		type:String,
+		default:null
+	},
 	tags:[],
 	expire:{
 		type:Boolean,
