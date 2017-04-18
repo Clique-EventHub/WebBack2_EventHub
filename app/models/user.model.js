@@ -62,31 +62,74 @@ var userSchema = new Schema({
 	},
 	firstName : {
 		type: String,
-		trim: true
+		trim: true,
+		default:null
 	},
 	lastName : {
 		type: String,
-		trim: true
+		trim: true,
+		default:null
 	},
 	nick_name: {
 		type: String,
-		trim: true
+		trim: true,
+		default:null
 	},
-	picture:String,
-	gender:String,
-	phone:String,
-	shirt_size:String,
-	birth_day:Date,
-	allergy:String,
-	disease:String,
+	picture:{
+		type:String,
+		default:null
+	},
+	picture_200px:{
+		type:String,
+		default:null
+	},
+	gender:{
+		type:String,
+		default:null
+	},
+	phone:{
+		type:String,
+		default:null
+	},
+	shirt_size:{
+		type:String,
+		default:null
+	},
+	birth_day:{
+		type:Date,
+		default:null
+	},
+	allergy:{
+		type:String,
+		default:null
+	},
+	disease:{
+		type:String,
+		default:null
+	},
 	profileUrl:String,
 
-	regId:String,
-	provider:String,   //OAuth provider
-	facebookId:String,
+	regId:{
+		type:String,
+		default:null
+	},
+	provider:{
+		type:String,
+		default:null
+	},   //OAuth provider
+	facebookId:{
+		type:String,
+		default:null
+	},
 	facebookData:{},
-	twitterUsername:String,
-	lineId:String,
+	twitterUsername:{
+		type:String,
+		default:null
+	},
+	lineId:{
+		type:String,
+		default:null
+	},
 
 	admin_channels:[],
 	join_events:[],
