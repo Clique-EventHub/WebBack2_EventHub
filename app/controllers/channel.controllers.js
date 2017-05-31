@@ -1,21 +1,35 @@
 var Channel = require('mongoose').model('Channel');	// require model database
 var Event = require('mongoose').model('Event');		//
 var moment = require('moment-timezone');
-var User = require('mongoose').model('User');
 // list all channel
 exports.listAll = function(request,response,next){
 	Channel.find({},function(err,channel){
-		if(err) return next(err);
-		else response.json(channel);
+		if(err) response.status(500).json({err:"internal error"});
+		else{
+			var info = channel;
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			}
+			else{
+				console.log('jing vjv');
+				response.status(200).json(info);
+			}
+		}
 	});
-}
+};
 
 // route GET /channel?id=...
 exports.getChannel = function(request,response){
 	var id = request.query.id;
 	var info = {};
 	Channel.findById(id,function(err,channel){
-		if(err) return next(err);
+		if(err) response.status(500).json({msg:"internal error from getChannel"});
 		else if(!channel){
 			info.msg = 'channel not found';
 			response.status(404).json(info);
@@ -32,7 +46,18 @@ exports.getChannel = function(request,response){
 						info[fields[i]]=channel[fields[i]];
 				}
 			}
-			response.json(info);
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			}
+			else{
+				response.status(200).json(info);
+			}
 		}
 	});
 }
@@ -44,12 +69,23 @@ exports.postChannel = function(request,response,next){
 	newChannel.save(function(err){
 		if(err) {
 			info.msg = "err";
-			response.json(info);
-			return next(err);
+			response.status(500).json(info);
+			// return next(err);
 		}
 		else {
 			info.id = newChannel._id;
-			response.status(201).json(info);
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(201).json(info);
+				}
+				else{
+					response.status(201).json(info);
+				}
+			}
+			else{
+				response.status(201).json(info);
+			}
 		}
 	});
 }
@@ -89,8 +125,8 @@ exports.putChannel = function(request,response,next){
 	},function(err,channel){
 		if(err){
 			info.msg = "error";
-			response.json(info);
-			return next(err);
+			response.status(500).json(info);
+			// return next(err);
 		}
 		else if(!channel){
 			info.msg = "channel not found"
@@ -98,7 +134,18 @@ exports.putChannel = function(request,response,next){
 		}
 		else{
 			info.msg = "done";
-			response.status(200).json(info);
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			}
+			else{
+				response.status(200).json(info);
+			}
 		}
 	});
 }
@@ -135,9 +182,9 @@ exports.deleteChannel = function(request,response,next){
 	},function(err,channel){
 		if (err){
 			info.msg = "error0";
-			response.json(info);
+			response.status(500).json(info);
 			console.error("error while find channel : deleteChannel-channel.controllers");
-			return next(err);
+			// return next(err);
 		}
 		else {
 			//delete all event in the channel
@@ -147,20 +194,32 @@ exports.deleteChannel = function(request,response,next){
 					lastModified:new moment()
 				},function(err,event){
 					if (err){
-						info.msg = "error1";
-						response.json(info);
+						info.msg = "internal error : deleteChannel";
+						response.status(500).json(info);
 						console.error("error while find event : deleteChannel-channel.controllers");
-						return next(err);
+						// return next(err);
 					}
 					else if(!event){
-						info.msg = "error2";
+						info.msg = "event not found";
+						response.status(404).json(info);
 						console.error('event not found:'+channel.events[i]+"deleteChannel-channel.controllers");
 					}
 				});
 			}
 		}
 		info.msg = "done";
-		response.status(200).json(info);
+		if(request.user){
+			if(request.user.notification != undefined && request.user.notification != null){
+				info.notification = request.user.notification;
+				response.status(200).json(info);
+			}
+			else{
+				response.status(200).json(info);
+			}
+		}
+		else{
+			response.status(200).json(info);
+		}
 	});
 }
 
@@ -173,14 +232,15 @@ var calStat = function(channel,callback){
     Event.find({_id: {$in:channel.events}},function(err,events){
         if(err){
         	info.msg = "error2";
+					info.code = 500;
         	console.error("error at find event in channel : calStat-channel.controllers");
         	callback(info);
-        	return next(err);
+        	// return next(err);
         }
         else if(events){
            	//console.log(events);
             events.forEach(function(event){
-                info.visit += event.visit;
+              info.visit += event.visit;
             	console.log('event.visit:'+event.visit);
             	console.log(info.visit);
             });
@@ -197,10 +257,10 @@ exports.getStat = function(request,response,next){
 	var info = {};
 	Channel.findById(id,function(err,channel){
 		if(err){
-			info.msg = "error";
+			info.msg = "internal error getStat";
 			console.error("error at find channel : getStat-channel.controllers");
-			response.json(info);
-			return next(err);
+			response.status(500).json(info);
+			// return next(err);
 		}
 		else if(!channel){
 			info.msg = "channel not found"
@@ -209,7 +269,22 @@ exports.getStat = function(request,response,next){
 		}
 		else{
 			calStat(channel,function(info){
-				response.json(info);
+				if(info.msg){
+						response.status(info.code).json({msg:info.msg});
+						return ;
+				}
+				if(request.user){
+					if(request.user.notification != undefined && request.user.notification != null){
+						info.notification = request.user.notification;
+						response.status(200).json(info);
+					}
+					else{
+						response.status(200).json(info);
+					}
+				}
+				else{
+					response.status(200).json(info);
+				}
 			});
 		}
 	});
@@ -221,7 +296,7 @@ exports.getStat = function(request,response,next){
 exports.clear = function(request,response,next){
 	var id = request.query.id;
 	Channel.findByIdAndRemove(id,function(err){
-		if(err) return next(err);
+		if(err) response.status(500).json({msg:"internal error from clear"});
 		else response.send('removed:'+id);
 
 	});
@@ -236,10 +311,10 @@ exports.searchChannel = function(request,response,next){
 	Channel.find({$and : [ {name: { $regex:request.query.keyword,$options:"i"}}, {tokenDelete:false}] },
 		function(err,channels){
 			if(err){
-				info.msg = "error";
+				info.msg = "internal error searchChannel";
 				console.error("error at find channel : searchChannel-channel.controllers");
-				response.json(info);
-				return next(err);
+				response.status(500).json(info);
+				// return next(err);
 			}
 			else if(channels.length==0){
 				info.msg = "channel not found";
@@ -255,7 +330,18 @@ exports.searchChannel = function(request,response,next){
 					 	info.channels[j][fields[i]] = channels[j][fields[i]];
 					}
 				}
-				response.json(info);
+				if(request.user){
+					if(request.user.notification != undefined && request.user.notification != null){
+						info.notification = request.user.notification;
+						response.status(200).json(info);
+					}
+					else{
+						response.status(200).json(info);
+					}
+				}
+				else{
+					response.status(200).json(info);
+				}
 			}
 	});
 }

@@ -19,48 +19,42 @@ exports.render = function(request, response){
 }
 
 //body id wtf?
-exports.joinAnEvent = function(request, response, next){
-  var user = request.user;
-	if(user){
-		Event.findById(request.query.id,function(err, event){
-			if(err){
-				response.status(500).json({err:"internal error"});
-			}
-			else if(!event || event['tokenDelete']){
-				response.status(404).json({err:'event not found'});
-			}
-			else{
-				User.findByIdAndUpdate(user._id,{
-					$push : {"join_events" : request.query.id}
-				},function(err){
-					if(err) response.status(500).json({err:"internal error"});
-					else {
-						var responseObject = {msg:"done"};
-						checkNotification(user._id)
-						.catch(function(returnedInfo){
-								info = {};
-								info['err'] = returnedInfo.err;
-								response.status(returnedInfo.code).json(info);
-						})
-						.then(function(returnedInfo){
-								if(returnedInfo.length != 0){
-										info.notification = returnedInfo;
-										response.status(200).json(info);
-								}
-								else response.status(200).json(info);
-						});
-					}
-				});
-			}
-		});
-	}
-	else{
-		if(Object.keys(request.authen).length == 0 )
-			response.status(403).json({err:"Please login"});
-		else
-			response.status(403).json({err:request.authen});
-	}
-};
+// exports.joinAnEvent = function(request, response, next){
+//   var user = request.user;
+// 	if(user){
+// 		Event.findById(request.query.id,function(err, event){
+// 			if(err){
+// 				response.status(500).json({err:"internal error"});
+// 			}
+// 			else if(!event || event['tokenDelete']){
+// 				response.status(404).json({err:'event not found'});
+// 			}
+// 			else{
+// 				User.findByIdAndUpdate(user._id,{
+// 					$push : {"join_events" : request.query.id}
+// 				},function(err){
+// 					if(err) response.status(500).json({err:"internal error"});
+// 					else {
+// 						var responseObject = {msg:"done"};
+// 						if(request.user.notification != undefined && request.user.notification != null){
+// 							responseObject.notification = request.user.notification;
+// 							response.status(200).json(responseObject);
+// 						}
+// 						else{
+// 							response.status(200).json(responseObject);
+// 						}
+// 					}
+// 				});
+// 			}
+// 		});
+// 	}
+// 	else{
+// 		if(Object.keys(request.authen).length == 0 )
+// 			response.status(403).json({err:"Please login"});
+// 		else
+// 			response.status(403).json({err:request.authen});
+// 	}
+// };
 
 exports.joinAnEvent = function(request, response, next){
 	if(request.user){
@@ -80,15 +74,17 @@ exports.joinAnEvent = function(request, response, next){
 				}, function(err, updatedEvent){
 						if(err){
 							var info = {};
-							info.msgEvent = "Event internal error.";
+							info.msg = "Event internal error.";
+							info.code = 500;
 							//console.error("error : joinAnEvent");
-							resolve(info);
+							reject(info);
 						}
 						else if(!updatedEvent){
 							var info = {};
-							info.msgEvent = "Event not found."
+							info.msg = "Event not found."
+							info.code = 404;
 							//console.error("error : joinAnEvent");
-							resolve(info);
+							reject(info);
 						}
 						else{
 							var info = {};
@@ -106,15 +102,17 @@ exports.joinAnEvent = function(request, response, next){
 	      	},function(err, updatedUser){
 	        if(err){
 	          var info = {};
-	          info.msgUser = "User internal error.";
+	          info.msg = "User internal error.";
+						info.code = 500;
 						//console.error("error : joinAnEvent");
-	          resolve(info);
+	          reject(info);
 	        }
 	        else if(!updatedUser){
 	          var info = {};
-	          info.msgUser = "User not found."
+	          info.msg = "User not found."
+						info.code = 404;
 						//console.error("error : joinAnEvent");
-	          resolve(info);
+	          reject(info);
 	        }
 	        else{
 	          var info = {};
@@ -124,42 +122,41 @@ exports.joinAnEvent = function(request, response, next){
 	        }
 	     })});
       Promise.all(promises)
+			.catch(function(returnedInfo){
+				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+				return ;
+			})
       .then(function(returnedValue){
         var info = {};
-        if(returnedValue[0].hasOwnProperty('msgEvent')){
-
-          console.log('error in joinAnEvent - user.controllers.js');
-          //we have to remove admin from model, too.
-          //this case should not happen since we have checked the data before.
-          info['msgEvent'] = returnedValue[0]['msgEvent'];
-        }
-        else{
-          info['who_join'] = returnedValue[0]['who_join'];
-        }
-        if(returnedValue[1].hasOwnProperty('msgUser')){
-          console.log('error in joinAnEvent - user.controllers.js');
-          //we have to remove admin from model, too.
-          //this case should not happen since we have checked the data before.
-          info['msgUser'] = returnedValue[1]['msgUser'];
-        }
-        else{
-          info['join_events'] = returnedValue[1]['join_events'];
-        }
-				checkNotification(request.user._id)
-				.catch(function(returnedInfo){
-						info = {};
-						info['err'] = returnedInfo.err;
-						response.status(returnedInfo.code).json(info);
-				})
-				.then(function(returnedInfo){
-						if(returnedInfo.length != 0){
-								info.notification = returnedInfo;
-								response.status(200).json(info);
-						}
-						else response.status(200).json(info);
-
-				});
-      });
+        // if(returnedValue[0].hasOwnProperty('msgEvent')){
+				//
+        //   console.log('error in joinAnEvent - user.controllers.js');
+        //   //we have to remove admin from model, too.
+        //   //this case should not happen since we have checked the data before.
+        //   info['msgEvent'] = returnedValue[0]['msgEvent'];
+        // }
+        // else{
+        //   info['who_join'] = returnedValue[0]['who_join'];
+        // }
+        // if(returnedValue[1].hasOwnProperty('msgUser')){
+        //   console.log('error in joinAnEvent - user.controllers.js');
+        //   //we have to remove admin from model, too.
+        //   //this case should not happen since we have checked the data before.
+        //   info['msgUser'] = returnedValue[1]['msgUser'];
+        // }
+        // else{
+        //   info['join_events'] = returnedValue[1]['join_events'];
+        // }
+				info.who_join = returnedValue[0]['who_join'];
+				info.join_events = returnedValue[1]['join_events'];
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			});
 		});
 	}
 	else{
@@ -179,21 +176,13 @@ exports.listAll = function(request,response,next){
 		else{
 			var info = users;
 			if(request.user){
-				checkNotification(request.user._id)
-				.catch(function(returnedInfo){
-						info = {};
-						info['err'] = returnedInfo.err;
-						response.status(returnedInfo.code).json(info);
-				})
-				.then(function(returnedInfo){
-						if(returnedInfo.length != 0){
-								info.notification = returnedInfo;
-								response.status(200).json(info);
-						}
-						else{
-							response.status(200).json(info);
-						}
-				});
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
 			}
 			else{
 				response.status(200).json(info);
@@ -252,7 +241,7 @@ exports.putEditProfile = function(request, response){
 			if(err){
 				response.status(500).json({err:"internal error"});
 				console.error("error : putEditProfile");
-				return next(err);
+				return ;
 			}
 			else if(!updatedUser){
 				info.err = "user not found";
@@ -261,21 +250,13 @@ exports.putEditProfile = function(request, response){
 			}
 			else {
 				var info={msg:"done"};
-				checkNotification(updatedUser._id)
-				.catch(function(returnedInfo){
-						info = {};
-						info['err'] = returnedInfo.err;
-						response.status(returnedInfo.code).json(info);
-				})
-				.then(function(returnedInfo){
-						if(returnedInfo.length != 0){
-								info.notification = returnedInfo;
-								response.status(200).json(info);
-						}
-						else{
-							response.status(200).json(info);
-						}
-				});
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
 			}
 		});
 	}
@@ -342,23 +323,16 @@ exports.getSubbedChannnel = function(request,response){
     Promise.all(promises)
 		.catch(function(returnedInfo){
 			response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+			return ;
 		})
 		.then(function(){
-			checkNotification(request.user._id)
-			.catch(function(returnedInfo){
-					info = {};
-					info['err'] = returnedInfo.err;
-					response.status(returnedInfo.code).json(info);
-			})
-			.then(function(returnedInfo){
-					if(returnedInfo.length != 0){
-							info.notification = returnedInfo;
-							response.status(200).json(info);
-					}
-					else{
-						response.status(200).json(info);
-					}
-			});
+			if(request.user.notification != undefined && request.user.notification != null){
+				info.notification = request.user.notification;
+				response.status(200).json(info);
+			}
+			else{
+				response.status(200).json(info);
+			}
 		});
   }
 	else{
@@ -423,6 +397,7 @@ exports.getJoinedEvent = function(request,response){
         queryFindEventForUser(events[i])
         .catch(function(returnedInfo){
           response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+					return ;
         })
         .then(function(eventInfo){
           info.events[index] = eventInfo;
@@ -432,21 +407,13 @@ exports.getJoinedEvent = function(request,response){
       });
     }
     Promise.all(promises).then(function(){
-			checkNotification(request.user._id)
-			.catch(function(returnedInfo){
-					info = {};
-					info['err'] = returnedInfo.err;
-					response.status(returnedInfo.code).json(info);
-			})
-			.then(function(returnedInfo){
-					if(returnedInfo.length != 0){
-							info.notification = returnedInfo;
-							response.status(200).json(info);
-					}
-					else{
-						response.status(200).json(info);
-					}
-			});
+			if(request.user.notification != undefined && request.user.notification != null){
+				info.notification = request.user.notification;
+				response.status(200).json(info);
+			}
+			else{
+				response.status(200).json(info);
+			}
 		});
   }
 	else{
@@ -470,6 +437,7 @@ exports.getInterestedEvent = function(request,response){
         queryFindEventForUser(events[i])
         .catch(function(returnedInfo){
           response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+					return ;
         })
         .then(function(eventInfo){
           info.events[index] = eventInfo;
@@ -479,21 +447,13 @@ exports.getInterestedEvent = function(request,response){
       });
     }
     Promise.all(promises).then(function(){
-			checkNotification(request.user._id)
-			.catch(function(returnedInfo){
-					info = {};
-					info['err'] = returnedInfo.err;
-					response.status(returnedInfo.code).json(info);
-			})
-			.then(function(returnedInfo){
-					if(returnedInfo.length != 0){
-							info.notification = returnedInfo;
-							response.status(200).json(info);
-					}
-					else{
-						response.status(200).json(info);
-					}
-			});
+			if(request.user.notification != undefined && request.user.notification != null){
+				info.notification = request.user.notification;
+				response.status(200).json(info);
+			}
+			else{
+				response.status(200).json(info);
+			}
 		});
   }
 	else{
@@ -585,24 +545,6 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 		}
 	});
 }
-
-var checkNotification = function(userID){
-	return new Promise(function(resolve, reject){
-		User.findById(userID,function(err, user){
-			if(err){
-				console.log("err in checkNotification");
-				reject({err:"internal error", code:500});
-			}
-			else if(!user || user['tokenDelete']){
-				console.log("user not found in checkNotification");
-				reject({err:"user not found", code:404});
-			}
-			else{
-				resolve(user.notification);
-			}
-		});
-	});
-};
 
 var checkUserAndEvent = function(user, event){
 	return new Promise(function(resolve, reject){
@@ -747,6 +689,7 @@ exports.login_fb = function(request,response){
             if(!obj.hasOwnProperty('id')){
             	obj.err  = "invalid facebook's access token";
             	response.status(400).json(obj);
+							return ;
             }
             else{
 	        	obj.provider = 'facebook';

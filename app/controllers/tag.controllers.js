@@ -3,7 +3,6 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 
 var Event = require('mongoose').model('Event');
-var User = require('mongoose').model('User');
 
 //route POST /tags/modify
 exports.modifyTag = function(request,response){
@@ -58,7 +57,7 @@ exports.searchTag = function(request,response,next){
             function(err,events){
                 if(err){
                     info.msg = "error";
-                    response.json(info);
+                    response.status(500).json(info);
                     return next(err);
                 }
                 else if(events.length==0){
@@ -76,7 +75,18 @@ exports.searchTag = function(request,response,next){
                             }
                     }
                     // info is { events : [ {event},{},{},...] }
-                    response.json(info);
+                    if(request.user){
+											if(request.user.notification != undefined && request.user.notification != null){
+												info.notification = request.user.notification;
+												response.status(200).json(info);
+											}
+											else{
+												response.status(200).json(info);
+											}
+										}
+										else{
+											response.status(200).json(info);
+										}
                 }
         });
 }

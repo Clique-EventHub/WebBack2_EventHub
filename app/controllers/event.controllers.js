@@ -1,6 +1,5 @@
 var Event = require('mongoose').model('Event'); // collections
 var Channel = require('mongoose').model('Channel');
-var User = require('mongoose').model('User');
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
@@ -14,10 +13,25 @@ exports.hi = function(request,response,next){
 //route /listall
 exports.listAll = function(request,response,next){
 	Event.find({},function(err,events){
-		if(err) return next(err);
-		else response.json(events);
+		if(err) response.status(500).json({err:"internal error"});
+		else{
+			var info = events;
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			}
+			else{
+				response.status(200).json(info);
+			}
+		}
 	});
-}
+};
+
 
 // query data of event
 var queryGetEvent = function(event, isStat, info){
@@ -65,7 +79,7 @@ exports.getEvent = function(request,response,next){
 		if(err){
 			info.err = 'finding event error';
 			response.status(500).json(info);
-			return next(err);
+			// return next(err);
 		}
 		else if(!event){
 			info.err = "event not found";
@@ -77,10 +91,23 @@ exports.getEvent = function(request,response,next){
 			queryGetEvent(event, isStat, info)
 			.catch(function(err){
 				response.status(500).json({err:err});
-				return next(err);
+				// return next(err);
 			}).then(function(returnedInfo){
-				response.status(200).json(returnedInfo);
-				putStat(id);
+				putStat(id, function(info){
+					if(info.code != 201){
+						response.status(info.code).json(info.msg);
+					}
+					else{
+						if(request.user && request.user.notification != undefined && request.user.notification != null){
+							returnedInfo.notification = request.user.notification;
+							response.status(200).json(returnedInfo);
+						}
+						else{
+							response.status(200).json(returnedInfo);
+						}
+					}
+				});
+
 			});
 		}
 	});
@@ -127,7 +154,7 @@ exports.postEvent = function(request,response,next){
 			else{
 				console.error(err);
 				response.status(500).json({err : "internal error"});
-				return next(err);
+				// return next(err);
 			}
 		}
 		else{
@@ -139,7 +166,7 @@ exports.postEvent = function(request,response,next){
 					info.err = "internal error";
 					console.error("error1 : postEvent - event.controllers");
 					response.status(500).json(info);
-					return next(err);
+					// return next(err);
 				}
 				else if(!channel){
 					info.err = "channel not found";
@@ -148,7 +175,14 @@ exports.postEvent = function(request,response,next){
 				}
 				else{
 					console.log("post new Event");
-					response.status(201).json({"msg":"done","id":newEvent._id});
+					returnedInfo = {"msg":"done","id":newEvent._id};
+					if(request.user && request.user.notification != undefined && request.user.notification != null){
+						returnedInfo.notification = request.user.notification;
+						response.status(201).json(returnedInfo);
+					}
+					else{
+						response.status(201).json(returnedInfo);
+					}
 				}
 			});
 		}
@@ -189,7 +223,19 @@ exports.putEvent = function(request,response,next){
 					response.status(500).json({err:"internal error"});
 				}
 				else{
-					response.status(200).json({"msg":"done"});
+					var info = {"msg":"done"};
+					if(request.user){
+						if(request.user.notification != undefined && request.user.notification != null){
+							info.notification = request.user.notification;
+							response.status(200).json(info);
+						}
+						else{
+							response.status(200).json(info);
+						}
+					}
+					else{
+						response.status(200).json(info);
+					}
 				}
 			});
 		}
@@ -205,7 +251,7 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 			info.err = 'error1';
 			console.error("error1 : updateDeleteEventToChannel - event.controllers");
 			response.status(500).json(info);
-			return next(err);
+			// return next(err);
 		}
 		else if(!channel){
 			info.err = "channel not found";
@@ -220,9 +266,22 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 					info.err = "error3";
 					response.status(500).json(msg);
 					console.error("error3 : updateDeleteEventToChannel - event.controllers");
-					return next(err);
+					// return next(err);
 				}
-				else response.status(200).json(info);
+				else {
+					if(request.user){
+						if(request.user.notification != undefined && request.user.notification != null){
+							info.notification = request.user.notification;
+							response.status(200).json(info);
+						}
+						else{
+							response.status(200).json(info);
+						}
+					}
+					else{
+						response.status(200).json(info);
+					}
+				}
 			});
 		}
 	});
@@ -269,7 +328,18 @@ exports.getStat = function(request,response,next){
 			for(var i=0;i<fields.length;i++){
 				info[fields[i]]=event[fields[i]];
 			}
-			response.status(200).json(info);
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			}
+			else{
+				response.status(200).json(info);
+			}
 		}
 	});
 }
@@ -327,18 +397,25 @@ exports.putStat = function(request,response,next){
 */
 
 // increase stat when getEvent
-var putStat = function(id){
+var putStat = function(id,callback){
 	//var d = new time.Date().setTimezone('Asia/Bangkok');
 	//var date = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear();
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	Event.findById(id,function(err,event){
 		if(err){
 			console.error("error find event : putStat - event.controllers");
-			return next(err);
+			var info = {};
+			info.msg = "internal error in putStat";
+			info.code =  500;
+			callback(info);
+			// return next(err);
 		}
 		else if(!event){
+			var info = {};
 			info.msg = "event not found";
+			info.code = 404;
 			console.error("event not found");
+			callback(info);
 		}
 		else{
 		//	event.lastModified = moment().format();
@@ -358,10 +435,18 @@ var putStat = function(id){
 			event.update(event,function(err){
 				if(err){
 					console.error("error1 update event : putStat - event.controllers");
-					return next(err);
+					var info={};
+					info.msg = "internal error in putStat";
+					info.code = 500;
+					callback(info);
+					// return next(err);
 				}
 				else{
 					console.log("push stat done");
+					var info = {};
+					info.msg = "done";
+					info.code = 201;
+					callback(info);
 				}
 			});
 		}
@@ -399,17 +484,17 @@ exports.clear = function(request,response,next){
 	Event.findByIdAndRemove(id,function(err,event){
 		if(err) {
 			info.msg = "error";
-			response.json(info);
+			response.status(500).json(info);
 			console.error("error find&removed event : clear - event.controllers");
-			return next(err);
+			// return next(err);
 		}
 		else { // callback hell oh no!
 			Channel.findById(event.channel,function(err,channel){
 				if(err) {
 					info.msg = "error1";
-					response.json(info);
+					response.status(500).json(info);
 					console.error("error find channel : clear - event.controllers");
-					return next(err);
+					// return next(err);
 				}
 				else if(!channel){
 					info.msg = "channel not found";
@@ -421,9 +506,9 @@ exports.clear = function(request,response,next){
 					channel.update(channel,function(err){
 						if(err) {
 							info.msg = "error2";
-							response.json(info);
+							response.status(500).json(info);
 							console.error("error update channel : clear - event.controllers");
-							return next(err);
+							// return next(err);
 						}
 						else{
 							response.send('done');
@@ -444,7 +529,7 @@ exports.newEvent = function(request,response,next){
 		if(err){
 			console.error("error find event : newEvent - event.controllers");
 			response.status(500).json({err:"internal error"});
-			return next(err);
+			// return next(err);
 		}
 		if(events.length==0){
 			console.error('no available event');
@@ -468,7 +553,18 @@ exports.newEvent = function(request,response,next){
 				}
 				index++;
 			}
-			response.status(200).json(info);
+			if(request.user){
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(200).json(info);
+				}
+				else{
+					response.status(200).json(info);
+				}
+			}
+			else{
+				response.status(200).json(info);
+			}
 		}
 	});
 }
@@ -482,8 +578,8 @@ exports.updateStatperDay = function(request,response,next){
  	Event.find({$and :[ {tokenDelete:{$ne:true}}, {expire:{$ne:true}} ]},function(err,events){
 		if(err){
 			info.msg = "unhandle error";
-			response.json(info);
-			return next(err);
+			response.status(500).json(info);
+			// return next(err);
 		}
 		if(events.length==0){
 			info.msg = "no active event";
@@ -498,9 +594,9 @@ exports.updateStatperDay = function(request,response,next){
 				event.update(event,function(err){
 					if(err){
 						info.msg = "error";
-						response.json(info);
+						response.status(500).json(info);
 						console.error("error update event : updateStatperDay : event.controllers");
-						return next(err);
+						// return next(err);
 					}
 				});
 			}
@@ -554,7 +650,7 @@ exports.updatehotEvent = function(request,response,next){
 	 				if(j == t){
 
 			 			events[i].update(events[i],function(err){
-			 				if(err) return next(err);
+			 				if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 			 			});
 
 			 			hot = checkhot(hot,events[i]);
@@ -569,11 +665,11 @@ exports.updatehotEvent = function(request,response,next){
 					 			}
 					 		}
 					 		mkdirp(path.join(__dirname,'../data/'),function(err){
-						 		if(err) return next(err);
+						 		if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 						 		else{
 							 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
 							 			JSON.stringify(result,null,2),function(err,data){
-							 			if(err) return next(err);
+							 			if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 							 			else response.send('done');
 							 		});
 						 		}
@@ -598,11 +694,11 @@ exports.updatehotEvent = function(request,response,next){
 			 			}
 			 		}
 			 		mkdirp(path.join(__dirname,'../data/'),function(err){
-				 		if(err) return next(err);
+				 		if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 				 		else{
 					 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
 					 			JSON.stringify(result,null,2),function(err,data){
-					 			if(err) return next(err);
+					 			if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 					 			else response.send('done');
 					 		});
 				 		}
@@ -670,7 +766,7 @@ exports.searchEvent = function(request,response,next){
 			if(err){
 				info.err = "error";
 				response.status(500).json(info);
-				return next(err);
+				// return next(err);
 			}
 			else if(events.length==0){
 				info.err = "event not found";
@@ -681,10 +777,21 @@ exports.searchEvent = function(request,response,next){
 				querySearchEvent(events,info)
 				.catch(function(err){
 					response.status(500).json(err);
-					return next(err);
+					// return next(err);
 				})
 				.then(function(returnedInfo){
-					response.status(200).json(returnedInfo);
+					if(request.user){
+						if(request.user.notification != undefined && request.user.notification != null){
+							returnedInfo.notification = request.user.notification;
+							response.status(200).json(returnedInfo);
+						}
+						else{
+							response.status(200).json(returnedInfo);
+						}
+					}
+					else{
+						response.status(200).json(returnedInfo);
+					}
 				});
 			}
 	});
@@ -744,7 +851,7 @@ exports.searchByDate = function(request,response,next){
  		if(err){
  			info.err = "error.";
  			response.status(500).json(info);
- 			return next(err);
+ 		// 	return next(err);
  		}
  		else if(events.length==0){
  			info.err = "no event match.";
@@ -756,10 +863,21 @@ exports.searchByDate = function(request,response,next){
 			.catch(function(err){
 				info.err = "error";
 				response.status(500).json(info);
-				return next(err);
+				// return next(err);
 			})
 			.then(function(returnedInfo){
-				response.status(200).json(returnedInfo);
+				if(request.user){
+					if(request.user.notification != undefined && request.user.notification != null){
+						returnedInfo.notification = request.user.notification;
+						response.status(200).json(returnedInfo);
+					}
+					else{
+						response.status(200).json(returnedInfo);
+					}
+				}
+				else{
+					response.status(200).json(returnedInfo);
+				}
 			});
  		}
 	});

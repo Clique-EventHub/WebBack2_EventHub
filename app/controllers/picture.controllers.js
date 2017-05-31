@@ -3,7 +3,6 @@ var multer = require('multer');
 var path = require('path');
 var Event = require('mongoose').model('Event');
 var Channel = require('mongoose').model('Channel');
-var User = require('mongoose').model('User');
 var mkdirp = require('mkdirp');
 var config = require('../../config/config');
 
@@ -17,10 +16,10 @@ exports.postPicture= function(request,response,next){
 	info.msg = 'file is not valid';
 	mkdirp(dest,function(err){ // save picture on filesystem
 		if(err){
-			info.msg = "something went wrong";
+			info.msg = "internal error postPicture";
 			console.error("error mkdirp : postPicture - picture.controllers");
-			response.json(info);
-			return next(err);
+			response.status(500).json(info);
+			// return next(err);
 		}
 		else{
 			//path to save picture
@@ -40,13 +39,13 @@ exports.postPicture= function(request,response,next){
 					if(err) {
 						info.msg = "error find event : postPicture - picture.controllers";
 						console.error("error find event : postPicture - picture.controllers");
-						response.json(info);
-						return next(err);
+						response.status(500).json(info);
+						// return next(err);
 					}
 					else if(!event){
 						console.error("event not found : postPicture - picture.controllers");
 						info.msg = "event not found : postPicture - picture.controllers";
-						response.json(info);
+						response.status(404).json(info);
 					}
 					else{
 						// upload picture
@@ -54,8 +53,8 @@ exports.postPicture= function(request,response,next){
 						 	if(err){
 						 		info.msg = "something went wrong";
 						 		console.error("error upload0 : postPicture - picture.controllers");
-						 		response.json(info);
-						 		return next(err);
+						 		response.status(500).json(info);
+								// 	return next(err);
 						 	}
 						 	else{
 								url = 'http://'+config.IP+PORT+'/picture/'+request.query.field[0] + request.query.size[0] +request.file.filename;
@@ -66,14 +65,25 @@ exports.postPicture= function(request,response,next){
 								event.update(event,function(err){
 									if(err){
 										info.msg = "something went wrong";
-										response.json(info);
+										response.status(500).json(info);
 										console.error("error update event : postPicture - picture.controllers");
-										return next(err);
+										// return next(err);
 									}
 									else {
 										info.msg = 'done';
 										info.url = url;
-										response.status(201).json(info);
+										if(request.user){
+											if(request.user.notification != undefined && request.user.notification != null){
+												info.notification = request.user.notification;
+												response.status(201).json(info);
+											}
+											else{
+												response.status(201).json(info);
+											}
+										}
+										else{
+											response.status(201).json(info);
+										}
 									}
 								});
 							}
@@ -86,22 +96,22 @@ exports.postPicture= function(request,response,next){
 				Channel.findById(request.query.id,function(err,channel){
 					if(err){
 						info.msg = 'error';
-						response.json(info);
+						response.status(500).json(info);
 						console.error("error find channel : postPicture - picture.controllers");
-						return next(err);
+						// return next(err);
 					}
 					else if(!channel){
 						info.msg = 'channel not found';
-						response.json(info);
+						response.status(404).json(info);
 						console.error("channel not found : postPicture - picture.controllers");
 					}
 					else{
 						upload(request,response,function(err){
 							if(err){
 								info.msg = "something went wrong";
-								response.json(info);
+								response.status(500).json(info);
 								console.error("error upload1 : postPicture - picture.controllers");
-								return next(err);
+								// return next(err);
 							}
 							else{
 								url = 'http://'+config.IP+PORT+'/picture/'+request.query.field[0] + request.query.size[0] +request.file.filename;
@@ -112,13 +122,24 @@ exports.postPicture= function(request,response,next){
 								channel.update(channel,function(err){
 									if(err) {
 										info.msg = "something went wrong";
-										reponse.json(info);
-										return next(err);
+										reponse.status(500).json(info);
+										// return next(err);
 									}
 									else{
 										info.msg = "done";
 										info.url = url;
-										response.status(201).json(info);
+										if(request.user){
+											if(request.user.notification != undefined && request.user.notification != null){
+												info.notification = request.user.notification;
+												response.status(201).json(info);
+											}
+											else{
+												response.status(201).json(info);
+											}
+										}
+										else{
+											response.status(201).json(info);
+										}
 									}
 								});
 							}
@@ -141,7 +162,7 @@ exports.getPicture = function(request,response,next){
       error.msg = "error in sending file";
       console.error("error in sending file");
       response.status(500).json(error);
-      return next(err);
+      // return next(err);
     }
     else{
 			var picname = request.params.name;
@@ -166,20 +187,20 @@ exports.deletePicture = function(request,response,next){
 		if(err){
 			info.msg = "error";
 			console.error("error mkdirp : deletePicture - picture.controllers");
-			response.json(info);
-			return next(err);
+			response.status(500).json(info);
+			// return next(err);
 		}
 		else{
 			//remove picture url in event
 			Event.findById(request.query.id,function(err,event){
 				if(err){
 					info.msg = 'error';
-					response.json(info);
-					return next(err);
+					response.status(500).json(info);
+					// return next(err);
 				}
 				else if(!event) {
 					info.msg = 'event not found'
-					response.json(info);
+					response.status(404).json(info);
 				}
 				else{
 					if(size=='small') event.picture=null;
@@ -190,26 +211,37 @@ exports.deletePicture = function(request,response,next){
 					event.update(event,function(err){
 						if(err){
 							info.msg = 'error1';
-							response.json(info);
-							return next(err);
+							response.status(500).json(info);
+							// return next(err);
 						}
 						else{
 							if(fs.existsSync(oldpath)){
 								fs.rename(oldpath,newpath,function(err){
 									if(err){
 										info.msg = 'error2'
-										response.json(info);
-										return next(err);
+										response.status(500).json(info);
+										// return next(err);
 									}
 									else{
 										info.msg = 'done';
-										response.json(info);
+										if(request.user){
+											if(request.user.notification != undefined && request.user.notification != null){
+												info.notification = request.user.notification;
+												response.status(200).json(info);
+											}
+											else{
+												response.status(200).json(info);
+											}
+										}
+										else{
+											response.status(200).json(info);
+										}
 									}
 								});
 							}
 							else{
 								info.msg = 'picture is not found';
-								response.json(info);
+								response.status(404).json(info);
 							}
 						}
 					});
