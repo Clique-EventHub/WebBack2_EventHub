@@ -6,6 +6,7 @@ var jwt = require('jsonwebtoken');
 var http = require('http');
 var https = require('https');
 var passport = require('passport');
+var moment = require('moment-timezone');
 
 
 exports.render = function(request, response){
@@ -24,17 +25,31 @@ exports.joinAnEvent = function(request, response, next){
 		Event.findById(request.query.id,function(err, event){
 			if(err){
 				response.status(500).json({err:"internal error"});
-				next(err);
 			}
 			else if(!event || event['tokenDelete']){
-				response.status(400).json({err:'event not found'});
+				response.status(404).json({err:'event not found'});
 			}
 			else{
 				User.findByIdAndUpdate(user._id,{
 					$push : {"join_events" : request.query.id}
 				},function(err){
 					if(err) response.status(500).json({err:"internal error"});
-					else response.status(200).json({msg:"done"});
+					else {
+						var responseObject = {msg:"done"};
+						checkNotification(user._id)
+						.catch(function(returnedInfo){
+								info = {};
+								info['err'] = returnedInfo.err;
+								response.status(returnedInfo.code).json(info);
+						})
+						.then(function(returnedInfo){
+								if(returnedInfo.length != 0){
+										info.notification = returnedInfo;
+										response.status(200).json(info);
+								}
+								else response.status(200).json(info);
+						});
+					}
 				});
 			}
 		});
@@ -47,12 +62,143 @@ exports.joinAnEvent = function(request, response, next){
 	}
 };
 
+exports.joinAnEvent = function(request, response, next){
+	if(request.user){
+		checkUserAndEvent(request.user, request.query.id)
+		.then(function(returnedInfo){
+      if(returnedInfo.hasOwnProperty('msg')){
+				//console.log("has problem msg");
+        response.json(returnedInfo);
+      }
+			var promises = [];
+			promises[0] = new Promise(function(resolve, reject){
+				Event.findByIdAndUpdate(returnedInfo.event, {
+					$addToSet : {
+						"who_join" : returnedInfo.user
+					},
+					$set : { "lastModified" : new moment() }
+				}, function(err, updatedEvent){
+						if(err){
+							var info = {};
+							info.msgEvent = "Event internal error.";
+							//console.error("error : joinAnEvent");
+							resolve(info);
+						}
+						else if(!updatedEvent){
+							var info = {};
+							info.msgEvent = "Event not found."
+							//console.error("error : joinAnEvent");
+							resolve(info);
+						}
+						else{
+							var info = {};
+							info.who_join = updatedEvent.who_join;
+							//console.log('no worries event');
+							resolve(info);
+						}
+			})});
+			promises[1] = new Promise(function(resolve, reject){
+					User.findByIdAndUpdate(returnedInfo.user, {
+	        $addToSet : {
+	          join_events : returnedInfo.event
+	        },
+	        $set : {"lastModified" : new moment(), "lastOnline" : new moment()}
+	      	},function(err, updatedUser){
+	        if(err){
+	          var info = {};
+	          info.msgUser = "User internal error.";
+						//console.error("error : joinAnEvent");
+	          resolve(info);
+	        }
+	        else if(!updatedUser){
+	          var info = {};
+	          info.msgUser = "User not found."
+						//console.error("error : joinAnEvent");
+	          resolve(info);
+	        }
+	        else{
+	          var info = {};
+	          info.join_events = updatedUser.join_events;
+						//console.log('no worries user');
+	          resolve(info);
+	        }
+	     })});
+      Promise.all(promises)
+      .then(function(returnedValue){
+        var info = {};
+        if(returnedValue[0].hasOwnProperty('msgEvent')){
 
-//in debugging process
+          console.log('error in joinAnEvent - user.controllers.js');
+          //we have to remove admin from model, too.
+          //this case should not happen since we have checked the data before.
+          info['msgEvent'] = returnedValue[0]['msgEvent'];
+        }
+        else{
+          info['who_join'] = returnedValue[0]['who_join'];
+        }
+        if(returnedValue[1].hasOwnProperty('msgUser')){
+          console.log('error in joinAnEvent - user.controllers.js');
+          //we have to remove admin from model, too.
+          //this case should not happen since we have checked the data before.
+          info['msgUser'] = returnedValue[1]['msgUser'];
+        }
+        else{
+          info['join_events'] = returnedValue[1]['join_events'];
+        }
+				checkNotification(request.user._id)
+				.catch(function(returnedInfo){
+						info = {};
+						info['err'] = returnedInfo.err;
+						response.status(returnedInfo.code).json(info);
+				})
+				.then(function(returnedInfo){
+						if(returnedInfo.length != 0){
+								info.notification = returnedInfo;
+								response.status(200).json(info);
+						}
+						else response.status(200).json(info);
+
+				});
+      });
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
+
+//in debugging process only
+//priority concern
 exports.listAll = function(request,response,next){
-	User.find({ password:'abc' } , function(err,users){
-		if(err) return next(err);
-		else response.json(users);
+	User.find({},function(err,users){
+		if(err) response.status(500).json({err:"internal error"});
+		else{
+			var info = users;
+			if(request.user){
+				checkNotification(request.user._id)
+				.catch(function(returnedInfo){
+						info = {};
+						info['err'] = returnedInfo.err;
+						response.status(returnedInfo.code).json(info);
+				})
+				.then(function(returnedInfo){
+						if(returnedInfo.length != 0){
+								info.notification = returnedInfo;
+								response.status(200).json(info);
+						}
+						else{
+							response.status(200).json(info);
+						}
+				});
+			}
+			else{
+				response.status(200).json(info);
+			}
+		}
 	});
 };
 
@@ -68,12 +214,15 @@ exports.getProfile = function(request, response){
 	var res = {};
 	var fields = ['_id','firstName','lastName','picture','picture_200px',
 	'gender','phone','shirt_size','brith_day','allergy','disease',
-	'regId','facebookId','twitterUsername','lineId'];
+	'regId','facebookId','twitterUsername','lineId','notification'];
 	if(user){
 		fields.forEach(function(field){
-			res[field] = user[field];
+			if(field != 'notification' || (field == 'notification' && (user[field] != undefined && user[field] != null))){
+					res[field] = user[field];
+			}
 		});
 		response.status(200).json(res);
+
 	}
 	else{
 		if(Object.keys(request.authen).length == 0 )
@@ -90,7 +239,7 @@ exports.putEditProfile = function(request, response){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
 		var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-													,'lineId','admin_channels','subscribe_channels','join_events','interest_events'];
+													,'lineId','admin_channels','subscribe_channels','join_events','interest_events','notification'];
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];
@@ -99,18 +248,35 @@ exports.putEditProfile = function(request, response){
 		//Actually we should check its content later, too. For security reason.
 		User.findByIdAndUpdate(user._id,{
 			$set:request.body						// update body
-		},function(err,updatedProvider){
+		},function(err,updatedUser){
 			if(err){
 				response.status(500).json({err:"internal error"});
-				console.error("error : editProfile");
+				console.error("error : putEditProfile");
 				return next(err);
 			}
-			else if(!updatedProvider){
-				info.err = "provider not found";
-				console.error("provider not found : postEditProfile - provider.controllers");
-				response.status(400).json(info);
+			else if(!updatedUser){
+				info.err = "user not found";
+				console.error("user not found : postEditProfile - user.controllers");
+				response.status(404).json(info);
 			}
-			else response.status(200).json({msg:"done"});
+			else {
+				var info={msg:"done"};
+				checkNotification(updatedUser._id)
+				.catch(function(returnedInfo){
+						info = {};
+						info['err'] = returnedInfo.err;
+						response.status(returnedInfo.code).json(info);
+				})
+				.then(function(returnedInfo){
+						if(returnedInfo.length != 0){
+								info.notification = returnedInfo;
+								response.status(200).json(info);
+						}
+						else{
+							response.status(200).json(info);
+						}
+				});
+			}
 		});
 	}
 	else{
@@ -125,9 +291,17 @@ exports.putEditProfile = function(request, response){
 var queryFindChannelForUser = function(id){
   return new Promise(function(resolve, reject){
 		Channel.findById(id,function(err, channel){
-			if(err) reject('error in finding channel');
+			if(err) {
+				var info={};
+				info.msg = 'internal error in finding channel';
+				info.code = 500;
+				reject(info);
+			}
 			else if(!channel){
-				reject('channel not found');
+				var info={};
+				info.msg = 'channel not found';
+				info.code = 404;
+				reject(info);
 			}
 			else{
         var info = {};
@@ -150,17 +324,14 @@ exports.getSubbedChannnel = function(request,response){
     var info = {};
     var promises = [];
     var channels = request.user.subscribe_channels;
-		if(channels.length > 0){
-
-		}
     for(var i=0; i<channels.length; i++){
       promises[promises.length] = new Promise(function(resolve, reject){
         queryFindChannelForUser(channels[i])
-        .catch(function(msg){
-          info.msg = msg;     // not sure
-          response.json(info);
+        .catch(function(returnedInfo){
+          info.msg = returnedInfo.msg;
+					info.code = returnedInfo.code;
 					console.log('error from queryFindChannelForUser');
-          resolve();
+          reject(info);
         })
         .then(function(channelInfo){
           info[channelInfo.name] = channelInfo.picture;
@@ -168,46 +339,74 @@ exports.getSubbedChannnel = function(request,response){
         });
       });
     }
-    Promise.all(promises).then(function(){
-			response.json(info);
+    Promise.all(promises)
+		.catch(function(returnedInfo){
+			response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+		})
+		.then(function(){
+			checkNotification(request.user._id)
+			.catch(function(returnedInfo){
+					info = {};
+					info['err'] = returnedInfo.err;
+					response.status(returnedInfo.code).json(info);
+			})
+			.then(function(returnedInfo){
+					if(returnedInfo.length != 0){
+							info.notification = returnedInfo;
+							response.status(200).json(info);
+					}
+					else{
+						response.status(200).json(info);
+					}
+			});
 		});
   }
-  else response.redirect('/user');
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
 }
 
 var queryFindEventForUser = function(id){
   return new Promise(function(resolve, reject){
     var info = {};
-		var promises = [];
 		var fields = ['title','channel','picture'];
     Event.findById(id, function(err, event){
       var thisEvent = event;
-      if(err) return next(err);
+      if(err) {
+				info.msg = "internal error : queryFindEventForUser"
+				info.code = 500;
+				reject(info);
+			}
   		else if(!event){
-  			info.msg = "event not found";
-  			response.status(404).json(info);
+  			info.msg = "event not found : queryFindEventForUser";
+				info.code = 404;
+				reject(info);
   		}
   		else{
         if(!event['tokenDelete']){
-          promises = new Promise(function(resolve, reject){
-            queryFindChannelForUser(event)
-            .catch(function(err){
-              info.msg = "error";
-              return next(err);
-            }).then(function(returnedInfo){
-              var value = {};
-              value['picture'] = thisEvent['picture'];
-              value['channel'] = returnedInfo['name'];
-              value['channel_picture'] = returnedInfo['picture']
-              info[thisEvent['title']] = value;
-            });
+          queryFindChannelForUser(event.channel)
+          .catch(function(err){
+            reject(err);
+          }).then(function(returnedInfo){
+            var value = {};
+            value['picture'] = thisEvent['picture'];
+            value['channel'] = returnedInfo['name'];
+            value['channel_picture'] = returnedInfo['picture'];
+						value['channel_id'] = event.channel;
+            info[thisEvent['title']] = value;
+						resolve(info);
           });
         }
+				else{
+					info.msg = "event deleted : queryFindEventForUser";
+					info.code = 404;
+					reject(info);
+				}
   		}
     });
-		Promise.all(promises).then(function(){
-			resolve(info);
-		});
 	});
 };
 
@@ -218,25 +417,44 @@ exports.getJoinedEvent = function(request,response){
     var promises = [];
     var events = request.user.join_events;
     for(var i=0; i<events.length; i++){
-      var index = i;
+			// console.log("events[i] = "+events[i]);
       promises[promises.length] = new Promise(function(resolve, reject){
+				var index = i;
         queryFindEventForUser(events[i])
-        .catch(function(msg){
-          info.msg = msg;     // not sure
-          response.json(info);
-          resolve();
+        .catch(function(returnedInfo){
+          response.status(returnedInfo.code).json({msg:returnedInfo.msg});
         })
         .then(function(eventInfo){
           info.events[index] = eventInfo;
+					// console.log('about to resolve');
           resolve();
         });
       });
     }
     Promise.all(promises).then(function(){
-			response.json(info);
+			checkNotification(request.user._id)
+			.catch(function(returnedInfo){
+					info = {};
+					info['err'] = returnedInfo.err;
+					response.status(returnedInfo.code).json(info);
+			})
+			.then(function(returnedInfo){
+					if(returnedInfo.length != 0){
+							info.notification = returnedInfo;
+							response.status(200).json(info);
+					}
+					else{
+						response.status(200).json(info);
+					}
+			});
 		});
   }
-  else response.redirect('/user');
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
 }
 
 exports.getInterestedEvent = function(request,response){
@@ -246,29 +464,44 @@ exports.getInterestedEvent = function(request,response){
     var promises = [];
     var events = request.user.interest_events;
     for(var i=0; i<events.length; i++){
-      var index = i;
+			// console.log("events[i] = "+events[i]);
       promises[promises.length] = new Promise(function(resolve, reject){
+				var index = i;
         queryFindEventForUser(events[i])
-        .catch(function(msg){
-          info.msg = msg;     // not sure
-          response.json(info);
-          resolve();
+        .catch(function(returnedInfo){
+          response.status(returnedInfo.code).json({msg:returnedInfo.msg});
         })
         .then(function(eventInfo){
           info.events[index] = eventInfo;
+					// console.log('about to resolve');
           resolve();
         });
       });
     }
     Promise.all(promises).then(function(){
-			response.json(info);
+			checkNotification(request.user._id)
+			.catch(function(returnedInfo){
+					info = {};
+					info['err'] = returnedInfo.err;
+					response.status(returnedInfo.code).json(info);
+			})
+			.then(function(returnedInfo){
+					if(returnedInfo.length != 0){
+							info.notification = returnedInfo;
+							response.status(200).json(info);
+					}
+					else{
+						response.status(200).json(info);
+					}
+			});
 		});
   }
-  else response.redirect('/user');
-}
-
-exports.getHelp = function(request,response){
-
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
 }
 
 //route DELETE /user/clear?id=...
@@ -352,6 +585,94 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 		}
 	});
 }
+
+var checkNotification = function(userID){
+	return new Promise(function(resolve, reject){
+		User.findById(userID,function(err, user){
+			if(err){
+				console.log("err in checkNotification");
+				reject({err:"internal error", code:500});
+			}
+			else if(!user || user['tokenDelete']){
+				console.log("user not found in checkNotification");
+				reject({err:"user not found", code:404});
+			}
+			else{
+				resolve(user.notification);
+			}
+		});
+	});
+};
+
+var checkUserAndEvent = function(user, event){
+	return new Promise(function(resolve, reject){
+    var info = {};
+    var promises = [];
+    promises[0] = new Promise(function(resolve, reject){
+      Event.findById(event, function(err, returnedInfo){
+        if(err){
+					//console.log('problem1');
+          var data = {};
+          data['msg'] = "error in finding event"
+          reject(data);
+        }
+        else if(!returnedInfo){
+					//console.log('problem2');
+          var data = {};
+          data['msg'] = "event not exist"
+          reject(data);
+        }
+        else if(returnedInfo['tokenDelete']){
+					//console.log('problem3');
+          var data = {};
+          data['msg'] = "event is deleted"
+          reject(data);
+        }
+        else{
+          resolve(returnedInfo);
+        }
+      });
+    });
+    promises[1] = new Promise(function(resolve, reject){
+      User.findById(user, function(err, returnedUser){
+        if(err){
+					//console.log('problem4');
+          var data = {};
+          data['msg'] = "error in finding user"
+          reject(data);
+        }
+        else if(!returnedUser){
+					//console.log('problem5');
+          var data = {};
+          data['msg'] = "no user exist"
+          reject(data);
+        }
+        else if(returnedUser['tokenDelete']){
+					//console.log('problem6');
+          var data = {};
+          data['msg'] = "user deleted"
+          reject(data);
+        }
+        else{
+          resolve(returnedUser);
+        }
+      });
+    });
+    Promise.all(promises)
+    .catch(function(err){
+      info['msg'] = [];
+      for(var i=0; i<err.length; i++){
+        info['msg'][i] = err[i];
+      }
+      resolve(info);
+    })
+    .then(function(returnedInfo){
+      info['event'] = returnedInfo[0]['_id'];
+      info['user'] = returnedInfo[1]['_id'];
+      resolve(info);
+    });
+  });
+};
 
 // not use for production
 /*

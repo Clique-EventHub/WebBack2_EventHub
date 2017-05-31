@@ -1,5 +1,6 @@
 var Event = require('mongoose').model('Event'); // collections
 var Channel = require('mongoose').model('Channel');
+var User = require('mongoose').model('User');
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');

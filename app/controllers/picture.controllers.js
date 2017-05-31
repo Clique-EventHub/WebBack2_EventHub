@@ -3,6 +3,7 @@ var multer = require('multer');
 var path = require('path');
 var Event = require('mongoose').model('Event');
 var Channel = require('mongoose').model('Channel');
+var User = require('mongoose').model('User');
 var mkdirp = require('mkdirp');
 var config = require('../../config/config');
 

@@ -1,6 +1,7 @@
 var Channel = require('mongoose').model('Channel');	// require model database
 var Event = require('mongoose').model('Event');		//
 var moment = require('moment-timezone');
+var User = require('mongoose').model('User');
 // list all channel
 exports.listAll = function(request,response,next){
 	Channel.find({},function(err,channel){

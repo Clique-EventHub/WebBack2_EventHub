@@ -158,7 +158,8 @@ var userSchema = new Schema({
 	lastOnline:{
 		type: 'Moment',
 		default: new Moment()
-	}
+	},
+	notification:[]
 });
 // do this before save
 userSchema.pre('save',function(next){

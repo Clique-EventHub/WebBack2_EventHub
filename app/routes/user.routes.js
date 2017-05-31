@@ -33,7 +33,9 @@ module.exports = function(app){
   // }));
 
   app.get('/user/subscribe', user.getSubbedChannnel);
-  app.get('/user/join', user.getJoinedEvent);
+  app.route('/user/join')
+      .get(user.getJoinedEvent)
+      .put(user.joinAnEvent);
   app.get('/user/interest', user.getInterestedEvent);
 
   app.delete('/user/clear', user.clear);   // use in test only removing user from database

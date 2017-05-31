@@ -69,7 +69,7 @@ var eventSchema = new Schema({
 		type:{},
 		default:{'male':0,'female':0}
 	},
-	visit_year:{}, // { '1':10 , '2':30  }
+	visit_year:{}, // { '58':10 , '59':30  }
 
 	interest:{
 		type:Number,
@@ -79,7 +79,7 @@ var eventSchema = new Schema({
 		type:{},
 		default:{'male':0,'female':0}
 	},
-	interested_year:{}, // { '1':10 , '2':30  }
+	interested_year:{}, // { '57':10 , '58':30  }
 
 	join:{
 		type:Number,
@@ -89,7 +89,7 @@ var eventSchema = new Schema({
 		type:{},
 		default:{'male':0,'female':0}
 	},
-	join_year:{}, // { '1':10 , '2':30  }
+	join_year:{}, // { '57':10 , '58':30  }
 	join_per_day:[], // {YYYY-MM-DD,number}
 	visit_per_day:[], // {YYYY-MM-DD,number}
 	momentum:{type:Number,default:0},

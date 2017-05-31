@@ -3,6 +3,7 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 
 var Event = require('mongoose').model('Event');
+var User = require('mongoose').model('User');
 
 //route POST /tags/modify
 exports.modifyTag = function(request,response){
