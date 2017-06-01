@@ -36,7 +36,12 @@ module.exports = function(app){
   app.route('/user/join')
       .get(user.getJoinedEvent)
       .put(user.joinAnEvent);
-  app.get('/user/interest', user.getInterestedEvent);
+
+  app.route('/user/interest')
+      .get(user.getInterestedEvent)
+      .put(user.interestAnEvent);
+
+  app.put('/user/uninterest', user.uninterestAnEvent);
 
   app.delete('/user/clear', user.clear);   // use in test only removing user from database
   // app.get('/user/help', user.getHelp);

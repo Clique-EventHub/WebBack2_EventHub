@@ -106,7 +106,13 @@ var eventSchema = new Schema({
 		default: new Moment()
 	},
 	Creator : Schema.Types.ObjectId,
-	lastModified: []
+	lastModified: [],
+	outsider_accessible : {
+		type : Boolean,
+		default : true
+	},
+	join_faculty:{},
+	interest_faculty:{}
  });
 
 

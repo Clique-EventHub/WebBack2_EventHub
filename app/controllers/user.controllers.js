@@ -62,7 +62,7 @@ exports.joinAnEvent = function(request, response, next){
 		.then(function(returnedInfo){
       if(returnedInfo.hasOwnProperty('msg')){
 				//console.log("has problem msg");
-        response.json(returnedInfo);
+        response.status(returnedInfo.code).json({msg:returnedInfo.msg});
       }
 			var promises = [];
 			promises[0] = new Promise(function(resolve, reject){
@@ -167,6 +167,46 @@ exports.joinAnEvent = function(request, response, next){
 	}
 };
 
+exports.interestAnEvent = function(request, response, next){
+	if(request.user){
+		checkUserAndEvent(request.user, request.query.id)
+		.then(function(returnedInfo){
+      if(returnedInfo.hasOwnProperty('msg')){
+        response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+      }
+			putInterest(returnedInfo.event, request.user,function(returnedValue){
+				response.status(returnedValue.code).json({msg:returnedValue.msg});
+			});
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
+
+exports.uninterestAnEvent = function(request, response, next){
+	if(request.user){
+		checkUserAndEvent(request.user, request.query.id)
+		.then(function(returnedInfo){
+			if(returnedInfo.hasOwnProperty('msg')){
+				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+			}
+			unputInterest(returnedInfo.event, request.user, function(returnedValue){
+				response.status(returnedValue.code).json({msg : returnedValue.msg});
+			});
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
 
 //in debugging process only
 //priority concern
@@ -228,7 +268,7 @@ exports.putEditProfile = function(request, response){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
 		var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-													,'lineId','admin_channels','subscribe_channels','join_events','interest_events','notification'];
+													,'lineId','admin_channels','subscribe_channels','notification'];
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];
@@ -483,10 +523,212 @@ exports.clear = function(request,response,next){
 	});
 }
 
+//increse interest number when interestAnEvent
+var unputInterest = function(event_id,user,callback){
+	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+	var gender = user.gender;
+	var interest_events = user.interest_events;
+	var lastOnline = date;
+	var notification = user.notification;
+	var regId = user.regId;
+	var year, faculty;
+	if(regId != null && regId != undefined){
+		year = regId.substring(0,2);
+		faculty = regId.substring(regId.length-2, regId.length);
+	}
 
-// exports.getSetting = function(request,response){
-//
-// }
+	Event.findById(event_id,function(err,event){
+		if(err){
+			console.error("error find event : putInterest - user.controllers");
+			var info = {};
+			info.msg = "internal error in putInterest";
+			info.code =  500;
+			callback(info);
+		}
+		// else if(!event || event.expire || event.tokenDelete){
+		// 	var info = {};
+		// 	info.msg = "event not found";
+		// 	info.code = 404;
+		// 	console.error("event not found");
+		// 	callback(info);
+		// }
+		else if((event.year_require.length != 0 && year == undefined) || (event.faculty_require.length != 0 && faculty == undefined)){
+			var info={};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
+		else if(!event.outsider_accessible && (regId == undefined || regId == null) ){
+			var info = {};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
+		else{
+			event.interest-=1;
+			event.interest_gender[gender]--;
+			if(year != undefined) { if(--event.interested_year[year] < 0) event.interested_year[year] = 0; }
+			else {if(--event.interested_year['outsider'] < 0) event.interested_year['outsider'] = 0;}
+			if(faculty != undefined) { if(--event.interest_faculty[faculty] < 0) event.interest_faculty[faculty] = 0;}
+			else { if(--event.interest_faculty['outsider'] < 0) event.interest_faculty['outsider'] = 0;}
+			for(let i=0;i<interest_events.length;i++){
+				if(interest_events[0] == event._id){
+					interest_events.shift();
+					break;
+				}
+				let tmp = interest_events[0];
+				interest_events.shift();
+				interest_events.push(tmp);
+			}
+			event.update(event,function(err){
+				if(err){
+					console.error("internal error : putInterest - user.controllers");
+					var info={};
+					info.msg = "internal error in putInterest";
+					info.code = 500;
+					callback(info);
+				}
+				else{
+					console.log("put interest done");
+					User.findById(user._id, function(err, returnedUser){
+						if(err){
+							var info={};
+							info.msg = "internal error in putInterest";
+							info.code = 500;
+							callback(info);
+						}
+						else if(!returnedUser){
+							var info={};
+							info.msg = "user not found.";
+							info.code= 404;
+							callback(info);
+						}
+						else{
+							returnedUser.interest_events = interest_events;
+							returnedUser.lastOnline = lastOnline;
+							returnedUser.update(returnedUser, function(err){
+								if(err){
+									var info={};
+									info.msg = "internal error in putInterest";
+									info.code = 500;
+									callback(info);
+								}
+								else{
+									var info = {};
+									info.msg = "done";
+									info.code = 201;
+									callback(info);
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+};
+
+var putInterest = function(event_id,user,callback){
+	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+	var gender = user.gender;
+	var interest_events = user.interest_events;
+	var lastOnline = date;
+	var notification = user.notification;
+	var regId = user.regId;
+	var year, faculty;
+	if(regId != null && regId != undefined){
+		year = regId.substring(0,2);
+		faculty = regId.substring(regId.length-2, regId.length);
+	}
+
+	Event.findById(event_id,function(err,event){
+		if(err){
+			console.error("error find event : putInterest - user.controllers");
+			var info = {};
+			info.msg = "internal error in putInterest";
+			info.code =  500;
+			callback(info);
+		}
+		else if(!event || event.expire || event.tokenDelete){
+			var info = {};
+			info.msg = "event not found";
+			info.code = 404;
+			console.error("event not found");
+			callback(info);
+		}
+		else if((event.year_require.length != 0 && year == undefined) || (event.faculty_require.length != 0 && faculty == undefined)){
+			var info={};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
+		else if(event.year_require.indexOf(year) == -1 || event.faculty_require.indexOf(faculty) == -1){
+			var info={};
+			info.msg = "no permission to attend this event.";
+			info.code = 403;
+			console.log("no permission to attend this event - putInterest");
+			callback(info);
+		}
+		else if(!event.outsider_accessible && (regId == undefined || regId == null) ){
+			var info = {};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
+		else{
+			event.interest+=1;
+			event.interest_gender[gender]++;
+			if(!event.interested_year.hasOwnProperty(year))	event.interested_year[year] = 1;
+			else event.interested_year[year]++;
+			if(!event.interest_faculty.hasOwnProperty(faculty)) event.interest_faculty[faculty] = 1;
+			else event.interest_faculty[faculty]++;
+			interest_events[interest_events.length-1] = event._id;
+			event.update(event,function(err){
+				if(err){
+					console.error("internal error : putInterest - user.controllers");
+					var info={};
+					info.msg = "internal error in putInterest";
+					info.code = 500;
+					callback(info);
+				}
+				else{
+					console.log("put interest done");
+					var info = {};
+					info.msg = "done";
+					info.code = 201;
+					User.findById(user._id, function(err, returnedUser){
+						if(err){
+							var info={};
+							info.msg = "internal error in putInterest";
+							info.code = 500;
+							callback(info);
+						}
+						else if(!returnedUser){
+							var info={};
+							info.msg = "user not found.";
+							info.code= 404;
+							callback(info);
+						}
+						else{
+							returnedUser.interest_events = interest_events;
+							returnedUser.lastOnline = lastOnline;
+							returnedUser.update(returnedUser, function(err){
+								if(err){
+									info.msg = "internal error in putInterest";
+									info.code = 500;
+									callback(info);
+								}
+								else{
+									callback(info);
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+};
 
 
 var generateToken = function(id,done){
@@ -555,19 +797,22 @@ var checkUserAndEvent = function(user, event){
         if(err){
 					//console.log('problem1');
           var data = {};
-          data['msg'] = "error in finding event"
+          data['msg'] = "error in finding event";
+					data['code'] = 500;
           reject(data);
         }
         else if(!returnedInfo){
 					//console.log('problem2');
           var data = {};
           data['msg'] = "event not exist"
+					data['code'] = 404;
           reject(data);
         }
         else if(returnedInfo['tokenDelete']){
 					//console.log('problem3');
           var data = {};
-          data['msg'] = "event is deleted"
+          data['msg'] = "event is deleted";
+					data['code'] = 404;
           reject(data);
         }
         else{
@@ -581,18 +826,21 @@ var checkUserAndEvent = function(user, event){
 					//console.log('problem4');
           var data = {};
           data['msg'] = "error in finding user"
-          reject(data);
+					data['code'] = 500;
+					reject(data);
         }
         else if(!returnedUser){
 					//console.log('problem5');
           var data = {};
           data['msg'] = "no user exist"
+					data['code'] = 404;
           reject(data);
         }
         else if(returnedUser['tokenDelete']){
 					//console.log('problem6');
           var data = {};
           data['msg'] = "user deleted"
+					data['code'] = 404;
           reject(data);
         }
         else{
@@ -602,10 +850,12 @@ var checkUserAndEvent = function(user, event){
     });
     Promise.all(promises)
     .catch(function(err){
-      info['msg'] = [];
-      for(var i=0; i<err.length; i++){
-        info['msg'][i] = err[i];
-      }
+			info.msg = err.msg;
+			ingo.code = err.code;
+      // info['msg'] = [];
+      // for(var i=0; i<err.length; i++){
+      //   info['msg'][i] = err[i];
+      // }
       resolve(info);
     })
     .then(function(returnedInfo){
