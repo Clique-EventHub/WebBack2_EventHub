@@ -43,6 +43,8 @@ module.exports = function(app){
 
   app.put('/user/uninterest', user.uninterestAnEvent);
 
+  app.put('/user/reg', user.checkRegChula);
+
   app.delete('/user/clear', user.clear);   // use in test only removing user from database
   // app.get('/user/help', user.getHelp);
   // app.get('/user/setting', user.getSetting);

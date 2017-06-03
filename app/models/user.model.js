@@ -159,7 +159,15 @@ var userSchema = new Schema({
 		type: 'Moment',
 		default: new Moment()
 	},
-	notification:[]
+	notification:[],
+	firstNameTH:{
+		type: String,
+		default: null
+	},
+	lastNameTH:{
+		type: String,
+		default: null
+	}
 });
 // do this before save
 userSchema.pre('save',function(next){

@@ -7,6 +7,7 @@ var http = require('http');
 var https = require('https');
 var passport = require('passport');
 var moment = require('moment-timezone');
+var querystring = require('querystring');
 
 
 exports.render = function(request, response){
@@ -243,7 +244,7 @@ exports.getProfile = function(request, response){
 	var res = {};
 	var fields = ['_id','firstName','lastName','picture','picture_200px',
 	'gender','phone','shirt_size','brith_day','allergy','disease',
-	'regId','facebookId','twitterUsername','lineId','notification'];
+	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
 	if(user){
 		fields.forEach(function(field){
 			if(field != 'notification' || (field == 'notification' && (user[field] != undefined && user[field] != null))){
@@ -908,6 +909,110 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 		}
 	});
 };*/
+
+exports.checkRegChula = function(request, response){
+	if(request.user){
+		// console.log('in 1');
+		var postData = querystring.stringify({
+			'appid' : config.regAppId,
+			'appsecret' : config.regAppSecret,
+			'username' : request.body.username,
+			'password' : request.body.password
+		});
+		// console.log('in 2');
+		var options = {
+			host: 'www.cas.chula.ac.th',
+			port: 443,
+			path: '/cas/api/?q=studentAuthenticate',
+			headers : {'Content-Type' : 'application/x-www-form-urlencoded'},
+			method : 'POST'
+		};
+		// console.log('in 3');
+		var req = https.request(options, function(res){
+			var str = '';
+			console.log(options.host + ':' + res.statusCode);
+			res.setEncoding('utf8');
+			res.on('data', function(chunk){
+				str+=chunk;
+				// console.log('BODY: ${chunk} = '+chunk);
+			});
+			res.on('end', function(){
+				// console.log('eieina');
+				var obj = JSON.parse(str);
+				if(!obj.hasOwnProperty('type') || obj.type == 'error'){
+					response.status(400).json(obj);
+					return ;
+				}
+				else{
+					console.log(obj);
+					if(obj.type == 'beanStudent'){
+						var info = {};
+						obj.content.name_th = obj.content.name_th.trim();
+						let arr = obj.content.name_th.split(" ");
+						if(obj.content.gender == 'ช')	{
+							info.gender = 'male';
+							info.firstNameTH = arr[0].substr(3, arr[0].length);
+							info.lastNameTH = arr[1];
+						}
+						else {
+							info.gender = 'female';
+							if(arr[0].substr(0,6) == 'นางสาว') info.firstNameTH = arr[0].substr(6, arr[0].length);
+							else info.firstNameTH = arr[0].substr(3, arr[0].length);
+							info.lastNameTH = arr[1];
+						}
+						obj.content.name_en = obj.content.name_en.trim();
+						arr = obj.content.name_en.split(" ");
+						info.firstName = arr[1];
+						info.lastName = arr[arr.length-1];
+
+						User.findByIdAndUpdate(request.user._id, {
+							$set: {"lastModified" : new moment(),
+											"lastOnline" : new moment(),
+											"firstName" : info.firstName,
+											"lastName" : info.lastName,
+											"firstNameTH" : info.firstNameTH,
+											"lastNameTH" : info.lastNameTH,
+											"gender" : info.gender,
+											"regId" : obj.content.studentid,
+										}
+						}, function(err, updatedUser){
+								if(err){
+									response.status(500).json({msg:"internal error in checkRegChula."});
+								}
+								else if(!updatedUser){
+									response.status(404).json({msg:"user not found."});
+								}
+								else{
+									var info = {};
+									info.firstName = updatedUser.firstName;
+									info.lastName = updatedUser.lastName;
+									info.firstNameTH = updatedUser.firstNameTH;
+									info.lastNameTH = updatedUser.lastNameTH;
+									info.gender = updatedUser.gender;
+									info.regId = updatedUser.regId;
+									response.status(201).json(info);
+								}
+						});
+					}
+					else{
+						var info = {};
+						info.msg = 'error connecting reg.';
+						response.status(400).json(info);
+					}
+			}
+			});
+		});
+		req.write(postData);
+		req.end();
+	}
+	else{
+		console.log('not in1');
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
 
 exports.login_fb = function(request,response){
 	var id = request.query.id;
