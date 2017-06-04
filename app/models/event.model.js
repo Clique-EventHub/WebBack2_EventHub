@@ -59,8 +59,18 @@ var eventSchema = new Schema({
 		type:Number,
 		default:0
 	},
-
-
+	joinable_start_time:Date,
+	joinable_end_time:Date,
+	time_start:Date,
+	time_end:Date,
+	optional_field:{
+		type:[],
+		default:[]
+	},
+	require_field:{
+		type:[],
+		default:[]
+	},
 	visit:{
 		type:Number,
 		default:0
@@ -71,6 +81,14 @@ var eventSchema = new Schema({
 	},
 	visit_year:{}, // { '58':10 , '59':30  }
 
+	joinable_amount:{
+		type:Number,
+		default:-1	//infinity
+	},
+	show:{
+		type:Boolean,
+		default:true
+	},
 	interest:{
 		type:Number,
 		default:0
@@ -116,5 +134,13 @@ var eventSchema = new Schema({
 	interest_faculty:{}
  });
 
+
+eventSchema.pre('save',function(next){
+	this.joinable_start_time = this.date_start;
+	this.joinable_end_time = this.date_end;
+	this.time_start = this.date_start;
+	this.time_end = this.date_end;
+	next();
+});
 
 mongoose.model('Event',eventSchema);

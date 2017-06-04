@@ -75,6 +75,10 @@ var userSchema = new Schema({
 		trim: true,
 		default:null
 	},
+	major:{
+		type:String,
+		default:null
+	},
 	picture:{
 		type:String,
 		default:null
@@ -88,6 +92,10 @@ var userSchema = new Schema({
 		default:null
 	},
 	phone:{
+		type:String,
+		default:null
+	},
+	emer_phone:{
 		type:String,
 		default:null
 	},
@@ -108,7 +116,7 @@ var userSchema = new Schema({
 		default:null
 	},
 	profileUrl:String,
-
+	religion:String,
 	regId:{
 		type:String,
 		default:null
@@ -135,6 +143,7 @@ var userSchema = new Schema({
 	join_events:[],
 	interest_events:[],
 	subscribe_channels:[],
+	already_joined_events:[],
 
 
 //stat
@@ -167,7 +176,10 @@ var userSchema = new Schema({
 	lastNameTH:{
 		type: String,
 		default: null
-	}
+	},
+	dorm_building:String,
+	dorm_room:String,
+	dorm_bed:String
 });
 // do this before save
 userSchema.pre('save',function(next){
