@@ -136,10 +136,10 @@ var eventSchema = new Schema({
 
 
 eventSchema.pre('save',function(next){
-	this.joinable_start_time = this.date_start;
-	this.joinable_end_time = this.date_end;
-	this.time_start = this.date_start;
-	this.time_end = this.date_end;
+	if(this.joinable_start_time == null) this.joinable_start_time = this.date_start;
+	if(this.joinable_end_time == null) this.joinable_end_time = this.date_end;
+	if(this.time_start == null)	this.time_start = this.date_start;
+	if(this.time_end == null) this.time_end = this.date_end;
 	next();
 });
 
