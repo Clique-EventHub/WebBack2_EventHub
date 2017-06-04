@@ -101,6 +101,7 @@ var eventSchema = new Schema({
 		default: false
 	},
 	who_join: [],
+	who_interest: [],
 	created_date:{
 		type:'Moment',
 		default: new Moment()

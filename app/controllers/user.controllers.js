@@ -524,7 +524,7 @@ exports.clear = function(request,response,next){
 	});
 }
 
-//increse interest number when interestAnEvent
+//uninterestAnEvent will call this function.
 var unputInterest = function(event_id,user,callback){
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	var gender = user.gender;
@@ -537,85 +537,93 @@ var unputInterest = function(event_id,user,callback){
 		year = regId.substring(0,2);
 		faculty = regId.substring(regId.length-2, regId.length);
 	}
-
-	Event.findById(event_id,function(err,event){
+	User.findById(user._id, function(err, returnedUser){
 		if(err){
-			console.error("error find event : putInterest - user.controllers");
-			var info = {};
-			info.msg = "internal error in putInterest";
-			info.code =  500;
-			callback(info);
-		}
-		// else if(!event || event.expire || event.tokenDelete){
-		// 	var info = {};
-		// 	info.msg = "event not found";
-		// 	info.code = 404;
-		// 	console.error("event not found");
-		// 	callback(info);
-		// }
-		else if((event.year_require.length != 0 && year == undefined) || (event.faculty_require.length != 0 && faculty == undefined)){
 			var info={};
-			info.msg = "Invalid reg ID.";
-			info.code = 403;
+			info.msg = "internal error in putInterest";
+			info.code = 500;
 			callback(info);
 		}
-		else if(!event.outsider_accessible && (regId == undefined || regId == null) ){
-			var info = {};
-			info.msg = "Invalid reg ID.";
-			info.code = 403;
+		else if(!returnedUser){
+			var info={};
+			info.msg = "user not found.";
+			info.code= 404;
 			callback(info);
 		}
 		else{
-			event.interest-=1;
-			event.interest_gender[gender]--;
-			if(year != undefined) { if(--event.interested_year[year] < 0) event.interested_year[year] = 0; }
-			else {if(--event.interested_year['outsider'] < 0) event.interested_year['outsider'] = 0;}
-			if(faculty != undefined) { if(--event.interest_faculty[faculty] < 0) event.interest_faculty[faculty] = 0;}
-			else { if(--event.interest_faculty['outsider'] < 0) event.interest_faculty['outsider'] = 0;}
-			for(let i=0;i<interest_events.length;i++){
-				if(interest_events[0] == event._id){
-					interest_events.shift();
-					break;
-				}
-				let tmp = interest_events[0];
-				interest_events.shift();
-				interest_events.push(tmp);
-			}
-			event.update(event,function(err){
+			interest_events.splice(interest_events.indexOf(event_id),1);
+			returnedUser.interest_events = interest_events;
+			returnedUser.lastOnline = lastOnline;
+			returnedUser.update(returnedUser, function(err){
 				if(err){
-					console.error("internal error : putInterest - user.controllers");
 					var info={};
 					info.msg = "internal error in putInterest";
 					info.code = 500;
 					callback(info);
 				}
 				else{
-					console.log("put interest done");
-					User.findById(user._id, function(err, returnedUser){
+					Event.findById(event_id,function(err,event){
 						if(err){
-							var info={};
-							info.msg = "internal error in putInterest";
-							info.code = 500;
+							console.error("error find event : unputInterest - user.controllers");
+							var info = {};
+							info.msg = "internal error in unputInterest";
+							info.code =  500;
 							callback(info);
 						}
-						else if(!returnedUser){
-							var info={};
-							info.msg = "user not found.";
-							info.code= 404;
+						else if(!event){
+							var info = {};
+							info.msg = "event not found";
+							info.code = 404;
+							console.error("event not found");
+							callback(info);
+						}
+						else if(event.who_interest.indexOf(user._id) == -1){
+							var info = {};
+							info.msg = "done";
+							info.code = 201;
+							console.log("user not found in updating event.");
+							callback(info);
+						}
+						else if((event.year_require.length != 0 && year == undefined) || (event.faculty_require.length != 0 && faculty == undefined)){
+							var info = {};
+							info.msg = "done";
+							info.code = 201;
+							console.log("user not found");
+							callback(info);
+						}
+						else if(!event.outsider_accessible && (regId == undefined || regId == null) ){
+							var info = {};
+							info.msg = "done";
+							info.code = 201;
+							console.log("user not found");
 							callback(info);
 						}
 						else{
-							returnedUser.interest_events = interest_events;
-							returnedUser.lastOnline = lastOnline;
-							returnedUser.update(returnedUser, function(err){
+							event.interest-=1;
+							if(event.interest < 0) event.interest = 0;
+
+							event.interest_gender[gender]--;
+							if(event.interest_gender[gender] < 0) event.interest_gender[gender] = 0;
+							
+							if(event.who_interest.indexOf(user._id) != -1)	event.who_interest.splice(event.who_interest.indexOf(user._id),1);
+
+							if(year != undefined) { if(--event.interested_year[year] < 0) event.interested_year[year] = 0; }
+							else {if(--event.interested_year['outsider'] < 0) event.interested_year['outsider'] = 0;}
+
+							if(faculty != undefined) { if(--event.interest_faculty[faculty] < 0) event.interest_faculty[faculty] = 0;}
+							else { if(--event.interest_faculty['outsider'] < 0) event.interest_faculty['outsider'] = 0;}
+
+							event.update(event,function(err){
 								if(err){
+									console.error("internal error : unputInterest - user.controllers");
 									var info={};
-									info.msg = "internal error in putInterest";
+									info.msg = "internal error";
 									info.code = 500;
 									callback(info);
 								}
 								else{
-									var info = {};
+									console.log("unput interest done");
+									var info={};
 									info.msg = "done";
 									info.code = 201;
 									callback(info);
@@ -627,6 +635,8 @@ var unputInterest = function(event_id,user,callback){
 			});
 		}
 	});
+
+
 };
 
 var putInterest = function(event_id,user,callback){
@@ -657,6 +667,12 @@ var putInterest = function(event_id,user,callback){
 			console.error("event not found");
 			callback(info);
 		}
+		else if(!event.outsider_accessible && (regId == undefined || regId == null) ){
+			var info = {};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
 		else if((event.year_require.length != 0 && year == undefined) || (event.faculty_require.length != 0 && faculty == undefined)){
 			var info={};
 			info.msg = "Invalid reg ID.";
@@ -670,20 +686,23 @@ var putInterest = function(event_id,user,callback){
 			console.log("no permission to attend this event - putInterest");
 			callback(info);
 		}
-		else if(!event.outsider_accessible && (regId == undefined || regId == null) ){
-			var info = {};
-			info.msg = "Invalid reg ID.";
-			info.code = 403;
-			callback(info);
-		}
 		else{
 			event.interest+=1;
 			event.interest_gender[gender]++;
-			if(!event.interested_year.hasOwnProperty(year))	event.interested_year[year] = 1;
-			else event.interested_year[year]++;
-			if(!event.interest_faculty.hasOwnProperty(faculty)) event.interest_faculty[faculty] = 1;
-			else event.interest_faculty[faculty]++;
-			interest_events[interest_events.length-1] = event._id;
+			if(regId == undefined || regId == null){
+				if(!event.interested_year.hasOwnProperty('outsider'))	event.interested_year['outsider'] = 1;
+				else event.interested_year['outsider']++;
+				if(!event.interest_faculty.hasOwnProperty('outsider')) event.interest_faculty['outsider'] = 1;
+				else event.interest_faculty['outsider']++;
+			}
+			else{
+				if(!event.interested_year.hasOwnProperty(year))	event.interested_year[year] = 1;
+				else event.interested_year[year]++;
+				if(!event.interest_faculty.hasOwnProperty(faculty)) event.interest_faculty[faculty] = 1;
+				else event.interest_faculty[faculty]++;
+			}
+			event.who_interest[who_interest.length] = user._id;
+			interest_events[interest_events.length] = event._id;
 			event.update(event,function(err){
 				if(err){
 					console.error("internal error : putInterest - user.controllers");
@@ -956,7 +975,7 @@ exports.checkRegChula = function(request, response){
 						}
 						else {
 							info.gender = 'female';
-							if(arr[0].substr(0,6) == 'นางสาว') info.firstNameTH = arr[0].substr(6, arr[0].length);
+							if(arr[0].substr(0,6) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
 							else info.firstNameTH = arr[0].substr(3, arr[0].length);
 							info.lastNameTH = arr[1];
 						}
