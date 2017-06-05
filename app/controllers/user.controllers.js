@@ -462,12 +462,12 @@ var putJoin = function(event_id, user, body, callback){
 			info.code = 404;
 			callback(info);
 		}
-		// else if(returnedEvent.who_join.indexOf(user._id) != -1){
-		// 	var info = {};
-		// 	info.msg = "already join this event.";
-		// 	info.code = 403;
-		// 	callback(info);
-		// }
+		else if(returnedEvent.who_join.indexOf(user._id) != -1){
+			var info = {};
+			info.msg = "already join this event.";
+			info.code = 403;
+			callback(info);
+		}
 		else if(returnedEvent.joinable_start_time > currentTime || currentTime > returnedEvent.joinable_end_time || returnedEvent.expire){
 			var info = {};
 			info.msg = "not in joinable period.";
