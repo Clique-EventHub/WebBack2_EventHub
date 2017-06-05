@@ -14,6 +14,6 @@ module.exports = function(){
 	require('../app/models/event.model');
 	require('../app/models/channel.model');
 	require('../app/models/user.model');
-
+	require('../app/models/form.model');
 	return db; // database with setting
 }
