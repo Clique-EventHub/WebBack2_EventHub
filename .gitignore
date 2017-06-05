@@ -2,6 +2,8 @@
 *.png
 *.JPG
 *.PNG
+*.un~
+*.swap
 node_modules/
 config/env
 data/
