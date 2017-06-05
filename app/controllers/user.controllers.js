@@ -65,98 +65,8 @@ exports.joinAnEvent = function(request, response, next){
 				//console.log("has problem msg");
         response.status(returnedInfo.code).json({msg:returnedInfo.msg});
       }
-			var promises = [];
-			promises[0] = new Promise(function(resolve, reject){
-				Event.findByIdAndUpdate(returnedInfo.event, {
-					$addToSet : {
-						"who_join" : returnedInfo.user
-					},
-					$set : { "lastModified" : new moment() }
-				}, function(err, updatedEvent){
-						if(err){
-							var info = {};
-							info.msg = "Event internal error.";
-							info.code = 500;
-							//console.error("error : joinAnEvent");
-							reject(info);
-						}
-						else if(!updatedEvent){
-							var info = {};
-							info.msg = "Event not found."
-							info.code = 404;
-							//console.error("error : joinAnEvent");
-							reject(info);
-						}
-						else{
-							var info = {};
-							info.who_join = updatedEvent.who_join;
-							//console.log('no worries event');
-							resolve(info);
-						}
-			})});
-			promises[1] = new Promise(function(resolve, reject){
-					User.findByIdAndUpdate(returnedInfo.user, {
-	        $addToSet : {
-	          join_events : returnedInfo.event
-	        },
-	        $set : {"lastModified" : new moment(), "lastOnline" : new moment()}
-	      	},function(err, updatedUser){
-	        if(err){
-	          var info = {};
-	          info.msg = "User internal error.";
-						info.code = 500;
-						//console.error("error : joinAnEvent");
-	          reject(info);
-	        }
-	        else if(!updatedUser){
-	          var info = {};
-	          info.msg = "User not found."
-						info.code = 404;
-						//console.error("error : joinAnEvent");
-	          reject(info);
-	        }
-	        else{
-	          var info = {};
-	          info.join_events = updatedUser.join_events;
-						//console.log('no worries user');
-	          resolve(info);
-	        }
-	     })});
-      Promise.all(promises)
-			.catch(function(returnedInfo){
-				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
-				return ;
-			})
-      .then(function(returnedValue){
-        var info = {};
-        // if(returnedValue[0].hasOwnProperty('msgEvent')){
-				//
-        //   console.log('error in joinAnEvent - user.controllers.js');
-        //   //we have to remove admin from model, too.
-        //   //this case should not happen since we have checked the data before.
-        //   info['msgEvent'] = returnedValue[0]['msgEvent'];
-        // }
-        // else{
-        //   info['who_join'] = returnedValue[0]['who_join'];
-        // }
-        // if(returnedValue[1].hasOwnProperty('msgUser')){
-        //   console.log('error in joinAnEvent - user.controllers.js');
-        //   //we have to remove admin from model, too.
-        //   //this case should not happen since we have checked the data before.
-        //   info['msgUser'] = returnedValue[1]['msgUser'];
-        // }
-        // else{
-        //   info['join_events'] = returnedValue[1]['join_events'];
-        // }
-				info.who_join = returnedValue[0]['who_join'];
-				info.join_events = returnedValue[1]['join_events'];
-				if(request.user.notification != undefined && request.user.notification != null){
-					info.notification = request.user.notification;
-					response.status(200).json(info);
-				}
-				else{
-					response.status(200).json(info);
-				}
+			putJoin(returnedInfo.event, request.user, request.body, function(info){
+					response.status(info.code).json({msg:info.msg});
 			});
 		});
 	}
@@ -524,6 +434,163 @@ exports.clear = function(request,response,next){
 	});
 }
 
+var putJoin = function(event_id, user, body, callback){
+	var regId = user.regId;
+	var year, faculty;
+	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+	var currentTime = new Date();
+	// user.lastModified = date;
+	if(regId != null && regId != undefined){
+		console.log('in generate year & faculty na');
+		year = regId.substring(0,2);
+		faculty = regId.substring(regId.length-2, regId.length);
+		console.log("yaer"+year);
+		console.log("faculty"+faculty);
+	}
+	var gender = user.gender;
+	if(user.join_events.indexOf(event_id) == -1) user.join_events.push(event_id);
+	Event.findById(event_id, function(err, returnedEvent){
+		if(err){
+			var info = {};
+			info.msg = "internal error.";
+			info.code = 500;
+			callback(info);
+		}
+		else if(!returnedEvent){
+			var info = {};
+			info.msg = "event not found.";
+			info.code = 404;
+			callback(info);
+		}
+		// else if(returnedEvent.who_join.indexOf(user._id) != -1){
+		// 	var info = {};
+		// 	info.msg = "already join this event.";
+		// 	info.code = 403;
+		// 	callback(info);
+		// }
+		else if(returnedEvent.joinable_start_time > currentTime || currentTime > returnedEvent.joinable_end_time || returnedEvent.expire){
+			var info = {};
+			info.msg = "not in joinable period.";
+			info.code = 403;
+			callback(info);
+		}
+		else if(returnedEvent.joinable_amount < 0 && returnedEvent.join == returnedEvent.joinable_amount){
+			var info={};
+			info.msg = "no more seats left.";
+			info.code = 403;
+			callback(info);
+		}
+		else if(!returnedEvent.outsider_accessible && user.regId == null){
+			var info = {};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
+		else if((returnedEvent.year_require.length != 0 && year == null) || (returnedEvent.faculty_require.length != 0 && faculty == null)){
+			var info = {};
+			info.msg = "Invalid reg ID.";
+			info.code = 403;
+			callback(info);
+		}
+		else if((returnedEvent.year_require.length != 0 && returnedEvent.year_require.indexOf(year) == -1)
+		|| (returnedEvent.faculty_require.length != 0 && returnedEvent.faculty_require.indexOf(faculty) == -1)){
+			var info={};
+			info.msg = "no permission to attend this event.";
+			info.code = 403;
+			callback(info);
+		}
+		else{
+			var data = {};
+			for(let i=0;i<returnedEvent.require_field.length;i++){
+				if(!body.require_field.hasOwnProperty(returnedEvent.require_field[i])){
+					var info = {};
+					info.msg = ""+returnedEvent.require_field[i]+" is required.";
+					info.code = 400;
+					callback(info);
+				}
+				data[returnedEvent.require_field[i]] = body.require_field[returnedEvent.require_field[i]];
+			}
+			for(let i=0;i<returnedEvent.optional_field.length;i++){
+				if(body.optional_field.hasOwnProperty(returnedEvent.optional_field[i])){
+					data[returnedEvent.optional_field[i]] = body.optional_field[returnedEvent.optional_field[i]];
+				}
+			}
+			data._id = user._id;
+			returnedEvent.join_data.push(data);
+			returnedEvent.join++;
+			returnedEvent.join_gender[user.gender]++;
+			if(year == undefined) year = 'outsider';
+			if(faculty == undefined) faculty = 'outsider';
+
+			if(returnedEvent.join_year == null) returnedEvent.join_year = {};
+			if(returnedEvent.join_faculty == null) returnedEvent.join_faculty = {};
+
+			if(!returnedEvent.join_year.hasOwnProperty(year)) returnedEvent.join_year[year] = 1;
+			else returnedEvent.join_year[year]++;
+
+			if(!returnedEvent.join_faculty.hasOwnProperty(faculty)) returnedEvent.join_faculty[faculty] = 1;
+			else returnedEvent.join_faculty[faculty]++;
+
+			if(returnedEvent.join_per_day.length==0){			//add object to empty array
+				returnedEvent.join_per_day.push({});
+				returnedEvent.join_per_day[0][date]=1;
+			}
+			else if(!returnedEvent.join_per_day[returnedEvent.join_per_day.length-1].hasOwnProperty(date)){
+				returnedEvent.join_per_day.push({});
+				returnedEvent.join_per_day[returnedEvent.join_per_day.length-1][date]=1;
+			}
+			else returnedEvent.join_per_day[returnedEvent.join_per_day.length-1][date]+=1;
+
+			returnedEvent.who_join.push(user._id);
+			returnedEvent.update(returnedEvent, function(err){
+				if(err){
+					var info = {};
+					info.msg = "internal error";
+					info.code = 500;
+					callback(info);
+				}
+				else{
+					user.lastOnline = date;
+					if(user.join_events.indexOf(returnedEvent._id) == -1) user.join_events.push(returnedEvent._id);
+					User.findById(user._id, function(err, returnedUser){
+						if(err){
+							var info = {};
+							info.msg = "internal error.";
+							info.code = 500;
+							callback(info);
+						}
+						else if(!returnedUser){
+							var info = {};
+							info.msg = "user not found.";
+							info.code = 404;
+							callback(info);
+						}
+						else{
+							returnedUser.lastOnline = date;
+							if(returnedUser.join_events.indexOf(returnedEvent._id) == -1) returnedUser.join_events.push(returnedEvent._id);
+							returnedUser.update(returnedUser, function(err){
+								if(err){
+									var info = {};
+									info.msg = "internal error.";
+									info.code = 500;
+									callback(info);
+								}
+								else{
+									var info = {};
+									info.msg = "done";
+									info.code = 201;
+									callback(info);
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+
+}
+
 //uninterestAnEvent will call this function.
 var unputInterest = function(event_id,user,callback){
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
@@ -604,7 +671,7 @@ var unputInterest = function(event_id,user,callback){
 
 							event.interest_gender[gender]--;
 							if(event.interest_gender[gender] < 0) event.interest_gender[gender] = 0;
-							
+
 							if(event.who_interest.indexOf(user._id) != -1)	event.who_interest.splice(event.who_interest.indexOf(user._id),1);
 
 							if(year != undefined) { if(--event.interested_year[year] < 0) event.interested_year[year] = 0; }
@@ -679,7 +746,8 @@ var putInterest = function(event_id,user,callback){
 			info.code = 403;
 			callback(info);
 		}
-		else if(event.year_require.indexOf(year) == -1 || event.faculty_require.indexOf(faculty) == -1){
+		else if((event.year_require.length != 0 && event.year_require.indexOf(year) == -1)
+		 || (event.faculty_require.length != 0 && event.faculty_require.indexOf(faculty) == -1)){
 			var info={};
 			info.msg = "no permission to attend this event.";
 			info.code = 403;
