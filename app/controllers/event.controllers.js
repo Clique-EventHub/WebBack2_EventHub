@@ -1,5 +1,6 @@
 var Event = require('mongoose').model('Event'); // collections
 var Channel = require('mongoose').model('Channel');
+var User = require('mongoose').model('User');
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
@@ -174,15 +175,20 @@ exports.postEvent = function(request,response,next){
 					response.status(400).json(info);
 				}
 				else{
-					console.log("post new Event");
-					returnedInfo = {"msg":"done","id":newEvent._id};
-					if(request.user && request.user.notification != undefined && request.user.notification != null){
-						returnedInfo.notification = request.user.notification;
-						response.status(201).json(returnedInfo);
-					}
-					else{
-						response.status(201).json(returnedInfo);
-					}
+					notiPostEvent(newEvent._id, channel.name, channel.picture, channel.who_subscribe, newEvent.tags, newEvent.picture)
+					.catch(function(info){
+							response.status(info.code).json(info.msg);
+					})
+					.then(function(info){
+						console.log("post new Event");
+						if(request.user && request.user.notification != undefined && request.user.notification != null){
+							info.notification = request.user.notification;
+							response.status(201).json(info);
+						}
+						else{
+							response.status(201).json(info);
+						}
+					});
 				}
 			});
 		}
@@ -294,6 +300,72 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 	});
 };
 
+var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscribe, tags, eventPicture){
+	return new Promise(function(resolve, reject){
+		var promises = [];
+		var noti = {};
+		noti.title = channel_name+" added a new event.";
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = channel_picture;
+		noti.source = channel_name;
+		var errorList = [];
+		for(let i=0;i<who_subscribe.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				User.findByIdAndUpdate(who_subscribe[i], {
+					$addToSet : {notification : noti}
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_subscribe[i]);
+					}
+					resolve();
+				});
+			}));
+		}
+		promises.push(new Promise(function(){
+			let promises2 = [];
+			User.find({tag_like : { $in : tags}}, function(users){
+				for(let i=0;i<users.length;i++){
+					if(who_subscribe.indexOf(users[i]._id) != -1){
+						promises2.push(new Promise(function(resolve, reject){
+							let index = i;
+							var noti2 = {};
+							noti2.title = "New event in tags you're interested in.";
+							noti2.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+							noti2.photo = eventPicture;
+							noti2.source = users[index].tag_like;
+							User.findByIdAndUpdate(users[index]._id, {
+								$addToSet : {notification : noti2}
+							}, function(err, user){
+								if(err || !user){
+									errorList.push(users[index]._id);
+								}
+								resolve();
+							});
+						}));
+					}
+				}
+				Promise.all(promises2).then(function(resolve, reject){
+					resolve();
+				});
+			});
+		}));
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				reject(info);
+			}
+		});
+	});
+};
+
 var notiDeleteEvent = function(eventId, callback){
 	var errorList = [];
 	Event.findById(eventId, function(err, returnedInfo){
@@ -316,7 +388,7 @@ var notiDeleteEvent = function(eventId, callback){
 				},function(err, user){
 					if(err || !user){
 						errorList.push(returnedInfo.who_join[i]);
-						reject();
+						resolve();
 					}
 					else{
 						resolve();
@@ -331,24 +403,26 @@ var notiDeleteEvent = function(eventId, callback){
 				},function(err, user){
 					if(err || !user){
 						errorList.push(returnedInfo.who_interest[i]);
-						reject();
+						resolve();
 					}
 					else resolve();
 					});
 				});
 			}
-			if(errorList.length == 0){
-				var info={};
-				info.msg = "done";
-				info.code = 201;
-				callback(info);
-			}
-			else{
-				var info={};
-				info.msg = "error";
-				info.code = 500;
-				callback(info);
-			}
+			Promise.all(promises).then(function(){
+				if(errorList.length == 0){
+					var info={};
+					info.msg = "done";
+					info.code = 201;
+					callback(info);
+				}
+				else{
+					var info={};
+					info.msg = "error";
+					info.code = 500;
+					callback(info);
+				}
+			});
 		}
 	});
 };

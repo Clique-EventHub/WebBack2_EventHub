@@ -251,6 +251,48 @@ var queryFindChannelForUser = function(id){
 	});
 };
 
+exports.subScribeChannel = function(request, response){
+	if(request.user){
+		checkUserAndChannel(request.user._id, request.query.id)
+		.then(function(returnedInfo){
+			if(returnedInfo.hasOwnProperty('msg')){
+				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+			}
+			Channel.findByIdAndUpdate(request.query.id, {
+				$addToSet : { who_subscribe : request.user._id }
+			}, function(err, updatedChannel){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else if(!updatedChannel){
+					response.status(404).json({msg:"channel not found."});
+				}
+				else{
+					User.findByIdAndUpdate(request.user._id, {
+							$addToSet : { subscribe_channels : request.query.id }
+					}, function(err, updatedUser){
+						if(err){
+							response.status(500).json({msg:"internal error."});
+						}
+						else if(!updatedUser){
+							response.status(404).json({msg:"user not found."});
+						}
+						else{
+							response.status(201).json({msg:"done."});
+						}
+					});
+				}
+			});
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
 exports.getSubbedChannnel = function(request,response){
   if(request.user){
     var info = {};
@@ -875,6 +917,80 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 		}
 	});
 }
+
+var checkUserAndChannel = function(user, channel){
+	return new Promise(function(resolve, reject){
+    var info = {};
+    var promises = [];
+    promises[0] = new Promise(function(resolve, reject){
+      Channel.findById(channel, function(err, returnedInfo){
+        if(err){
+					//console.log('problem1');
+          var data = {};
+          data['msg'] = "error in finding channel";
+					data['code'] = 500;
+          reject(data);
+        }
+        else if(!returnedInfo){
+					//console.log('problem2');
+          var data = {};
+          data['msg'] = "channel not exist"
+					data['code'] = 404;
+          reject(data);
+        }
+        else if(returnedInfo['tokenDelete']){
+					//console.log('problem3');
+          var data = {};
+          data['msg'] = "channel is deleted";
+					data['code'] = 404;
+          reject(data);
+        }
+        else{
+          resolve(returnedInfo);
+        }
+      });
+    });
+    promises[1] = new Promise(function(resolve, reject){
+      User.findById(user, function(err, returnedUser){
+        if(err){
+					//console.log('problem4');
+          var data = {};
+          data['msg'] = "error in finding user"
+					data['code'] = 500;
+					reject(data);
+        }
+        else if(!returnedUser){
+					//console.log('problem5');
+          var data = {};
+          data['msg'] = "no user exist"
+					data['code'] = 404;
+          reject(data);
+        }
+        else if(returnedUser['tokenDelete']){
+					//console.log('problem6');
+          var data = {};
+          data['msg'] = "user deleted"
+					data['code'] = 404;
+          reject(data);
+        }
+        else{
+          resolve(returnedUser);
+        }
+      });
+    });
+    Promise.all(promises)
+    .catch(function(err){
+			info.msg = err.msg;
+			ingo.code = err.code;
+      resolve(info);
+    })
+    .then(function(returnedInfo){
+      info['channel'] = returnedInfo[0]['_id'];
+      info['user'] = returnedInfo[1]['_id'];
+      resolve(info);
+    });
+  });
+};
 
 var checkUserAndEvent = function(user, event){
 	return new Promise(function(resolve, reject){
