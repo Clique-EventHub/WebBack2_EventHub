@@ -305,29 +305,49 @@ var notiDeleteEvent = function(eventId, callback){
 		}
 		else{
 			var noti = {};
+			var promises = [];
 			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
 			noti.photo = returnedInfo.picture;
 			noti.source = returnedInfo.title;
 			for(let i=0;i<returnedInfo.who_join;i++){
-				User.findByIdAndUpdate(returnedInfo.who_join[i],{
+				promises[promises.length] = new Promise(function(resolve, reject){
+					User.findByIdAndUpdate(returnedInfo.who_join[i],{
 					$addToSet : { notification : noti }
 				},function(err, user){
 					if(err || !user){
 						errorList.push(returnedInfo.who_join[i]);
+						reject();
 					}
+					else{
+						resolve();
+					}
+					});
 				});
-				if(errorList.length == 0){
-					var info={};
-					info.msg = "done";
-					info.code = 201;
-					callback(info);
-				}
-				else{
-					var info={};
-					info.msg = "error";
-					info.code = 500;
-					callback(info);
-				}
+			}
+			for(let i=0;i<returnedInfo.who_interest;i++){
+				promises[promises.length] = new Promise(function(resolve, reject){
+					User.findByIdAndUpdate(returnedInfo.who_interest[i],{
+					$addToSet : { notification : noti }
+				},function(err, user){
+					if(err || !user){
+						errorList.push(returnedInfo.who_interest[i]);
+						reject();
+					}
+					else resolve();
+					});
+				});
+			}
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				callback(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				callback(info);
 			}
 		}
 	});
