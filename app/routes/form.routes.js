@@ -1,5 +1,5 @@
-export default function(app){
-	let form = ('../controllers/form.controllers');
+module.exports =  function(app){
+	let form = require('../controllers/form.controllers');
 	
 	app.route('/form')
 		.get(form.getForm)
