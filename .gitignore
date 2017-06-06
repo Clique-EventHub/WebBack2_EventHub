@@ -2,9 +2,9 @@
 *.png
 *.JPG
 *.PNG
-*.*.un~
-*.*.~
-*.*.swap
+*.un~
+*.*~
+*.swp
 node_modules/
 config/env
 data/
