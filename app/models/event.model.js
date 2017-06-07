@@ -97,7 +97,10 @@ var eventSchema = new Schema({
 		type:{},
 		default:{'male':0,'female':0}
 	},
-	interested_year:{}, // { '57':10 , '58':30  }
+	interested_year:{
+		type : {},
+		default : {}
+	}, // { '57':10 , '58':30  }
 
 	join:{
 		type:Number,
@@ -122,19 +125,31 @@ var eventSchema = new Schema({
 		default: false
 	},
 	who_join: [],
-	who_interest: [],
+	who_interest: {
+		type:[],
+		default:[]
+	},
 	created_date:{
 		type:'Moment',
 		default: new Moment()
 	},
 	Creator : Schema.Types.ObjectId,
-	lastModified: [],
+	lastModified:{
+		type:[],
+		default:[]
+	},
 	outsider_accessible : {
 		type : Boolean,
 		default : true
 	},
-	join_faculty:{},
-	interest_faculty:{},
+	join_faculty:{
+		type:{},
+		default:{}
+	},
+	interest_faculty:{
+		type:{},
+		default : {}
+	},
 	join_data:{
 		type: [],
 		default : []

@@ -61,10 +61,16 @@ exports.joinAnEvent = function(request, response, next){
 	if(request.user){
 		checkUserAndEvent(request.user, request.query.id)
 		.then(function(returnedInfo){
+			var promises = [];
       if(returnedInfo.hasOwnProperty('msg')){
 				//console.log("has problem msg");
         response.status(returnedInfo.code).json({msg:returnedInfo.msg});
       }
+			if(request.user.interest_events.indexOf(request.query.id) != -1){
+				unputInterest(returnedInfo.event, request.user, function(returnedValue){
+					console.log(returnedValue);
+				});
+			}
 			putJoin(returnedInfo.event, request.user, request.body, function(info){
 					response.status(info.code).json({msg:info.msg});
 			});
@@ -811,8 +817,8 @@ var putInterest = function(event_id,user,callback){
 				if(!event.interest_faculty.hasOwnProperty(faculty)) event.interest_faculty[faculty] = 1;
 				else event.interest_faculty[faculty]++;
 			}
-			event.who_interest[who_interest.length] = user._id;
-			interest_events[interest_events.length] = event._id;
+			event.who_interest[event.who_interest.length] = user._id;
+			if(interest_events.indexOf(event._id) != -1) interest_events[interest_events.length] = event._id;
 			event.update(event,function(err){
 				if(err){
 					console.error("internal error : putInterest - user.controllers");
@@ -844,11 +850,15 @@ var putInterest = function(event_id,user,callback){
 							returnedUser.lastOnline = lastOnline;
 							returnedUser.update(returnedUser, function(err){
 								if(err){
+									var info = {};
 									info.msg = "internal error in putInterest";
 									info.code = 500;
 									callback(info);
 								}
 								else{
+									var info = {};
+									info.msg = "done";
+									info.code = 201;
 									callback(info);
 								}
 							});
