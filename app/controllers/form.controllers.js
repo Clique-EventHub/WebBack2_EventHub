@@ -35,19 +35,18 @@ function checkPermission (request, channel, callback) {
 function findForm(id,callback){
 		Form.findById(id,function(err,returnedForm){
 			if(err){
-				console.error({"err":"fining form error","code":500});
-				callback ({"err":"fining form error","code":500});
+				console.error({"err":"finding form error","code":500});
+				callback ({"err":"fining form error",code:500});
 				//return ({"err":"fining form error","code":500});
 			}
 			else if(!returnedForm){
 				console.error({"err":"form not found","code":400});
-				callback ({"err":"form not found","code":400});
+				callback ({"err":"form not found",code:400});
 				//return ({"err":"form not found","code":400});
 			}
 			else{
 				console.log("form found");
-				callback (null,returnedForm);	
-				//return (returnedForm);	
+				callback (returnedForm);	
 			}
 		});
 }
@@ -62,19 +61,22 @@ exports.getForm = function (request,response){
 
 	process.then( () => { 
 		// findForm
+		console.log('find form');
 		return new Promise( (resolve,reject) => {
-			findForm(request.query.id, function(err,returnedForm){
-				//		console.log('returnedForm:',returnedForm);
-				if(returnedForm === undefined) reject(returnedForm);	
-				else return resolve(returnedForm);
+			findForm(request.query.id, function(returnedForm){
+				if(!returnedForm || returnedForm.err) {
+					reject(returnedForm);	
+				}
+				else resolve(returnedForm);
 			});
 		});
 
 	}).then( (returnedForm) => {
 		// check permission
+		console.log('check permission');
 		if(!returnedForm) {
 			console.error('err', returnedForm);
-			return Promise.reject({err:"form not found"});
+			return Promise.reject({err:"form not found",code:404});
 		}
 		else if(request.query.opt === 'answers' || request.query.opt === 'export'){
 			return new Promise( (resolve,reject) => {
@@ -94,15 +96,23 @@ exports.getForm = function (request,response){
 		else
 			return Promise.reject({err:"invalid option",code:400});
 
+	}).catch( (err) => {
+		console.error('catch1',err);
+		return Promise.reject(err);
 	}).then( (info) => {
 		// response
-		if(!info || info.err !== undefined) return Promise.reject(info);
-		else response.status(200).json(info);	
-		console.log('success',info);
-	}).catch( (info) => {
-		response.status(info.code ? info.code : 500).json(info);
-		console.error(info);	
-	});
+		console.log('prepare data');
+		if(!info || info.err !== undefined) return Promise.resolve({err:'internal error',code:500});
+		else {
+			info.code=200;
+			return Promise.resolve(info);	
+		}
+	}).catch( (err) => {
+		console.error('catch2',err);
+		code = !err && err.code ? err.code : 500;
+		err = err ? err : {err:'internal error'};
+		return Promise.resolve(err);	
+	}).then( (info) => response.status(info.code).json(info) );
 
 }
 
@@ -113,7 +123,7 @@ exports.getForm = function (request,response){
 // edit form
 // PUT /form
 exports.createForm = function(request, response){
-	let process = new Promise((resolve,reject) => {
+	let process = new Promise((resolve) => {
 		resolve();
 	});	
 
