@@ -18,6 +18,7 @@ module.exports = function(app){
  	app.get('/update/perday',event.updateStatperDay);
  	app.get('/update/hot',event.updatehotEvent);
 	app.post('/event/join/message',event.sendMessageToJoin);
+	app.post('/event/personal/message',event.personalNotification);
 
 //--------------------------------------------------//
  	app.get('/event/search',event.searchEvent);

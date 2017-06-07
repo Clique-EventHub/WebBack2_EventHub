@@ -386,6 +386,34 @@ exports.sendMessageToJoin = function(request, response){
 	});
 };
 
+exports.personalNotification = function(request, response){
+	check_permission(request, function(code, err, event){
+		if(code!=200) response.status(code).json(err);
+		else{
+			Event.findById(request.query.id, function(err, event){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else if(!event){
+					response.status(404).json({msg:"event not found."});
+				}
+				else{
+					let people = [];
+					for(let i=0;i<request.body.people.length;i++){
+						if(event.who_join.indexOf(request.body.people[i]) != -1 || event.who_interest.indexOf(request.body.people[i]) != -1){
+							people.push(request.body.people[i]);
+						}
+					}
+					notiInfoForJoinPeople(request.query.id, people, request.body.description, event.picture, event.title)
+					.then(function(info){
+						response.status(info.code).json({msg:info.msg});
+					});
+				}
+			});
+		}
+	});
+};
+
 //route PUT /event/stat?id=...
 /*
 exports.putStat = function(request,response,next){
