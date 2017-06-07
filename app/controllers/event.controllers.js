@@ -362,7 +362,29 @@ exports.getStat = function(request,response,next){
 			}
 		}
 	});
-}
+};
+
+exports.sendMessageToJoin = function(request, response){
+	check_permission(request, function(code,err,event){
+		if(code!=200) response.status(code).json(err);
+		else{
+			Event.findById(request.query.id, function(err, event){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else if(!event){
+					response.status(404).json({msg:"event not found."});
+				}
+				else{
+					notiInfoForJoinPeople(request.query.id, event.who_join, request.body.description, event.picture, event.title)
+					.then(function(info){
+						response.status(info.code).json({msg:info.msg});
+					});
+				}
+			});
+		}
+	});
+};
 
 //route PUT /event/stat?id=...
 /*
@@ -552,7 +574,7 @@ var notiPutEvent = function(eventId, who_join, who_interest, eventTitle, eventPi
 		noti.source = eventTitle;
 		var errorList = [];
 		var promises2 = [];
-		for(let i=0;i<who_interest;i++){
+		for(let i=0;i<who_interest.length;i++){
 			promises2.push(new Promise(function(resolve, reject){
 				let index = i;
 				User.findByIdAndUpdate(who_interest[index], {
@@ -568,7 +590,7 @@ var notiPutEvent = function(eventId, who_join, who_interest, eventTitle, eventPi
 				});
 			}));
 		}
-		for(let i=0;i<who_join;i++){
+		for(let i=0;i<who_join.length;i++){
 			promises2.push(new Promise(function(resolve, reject){
 				let index = i;
 				User.findByIdAndUpdate(who_join[index], {
@@ -616,7 +638,7 @@ var notiDeleteEvent = function(eventId, callback){
 			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
 			noti.photo = returnedInfo.picture;
 			noti.source = returnedInfo.title;
-			for(let i=0;i<returnedInfo.who_join;i++){
+			for(let i=0;i<returnedInfo.who_join.length;i++){
 				promises[promises.length] = new Promise(function(resolve, reject){
 					let index = i;
 					User.findByIdAndUpdate(returnedInfo.who_join[index],{
@@ -632,7 +654,7 @@ var notiDeleteEvent = function(eventId, callback){
 					});
 				});
 			}
-			for(let i=0;i<returnedInfo.who_interest;i++){
+			for(let i=0;i<returnedInfo.who_interest.length;i++){
 				promises[promises.length] = new Promise(function(resolve, reject){
 					let index = i;
 					User.findByIdAndUpdate(returnedInfo.who_interest[index],{
@@ -661,6 +683,46 @@ var notiDeleteEvent = function(eventId, callback){
 				}
 			});
 		}
+	});
+};
+
+var notiInfoForJoinPeople = function(eventId, who_join, description, eventPicture, eventTitle){
+	return new Promise(function(resolve, reject){
+		var info = {};
+		var noti = {};
+		noti.title = description;
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = eventPicture;
+		noti.source = eventTitle;
+		var errorList = [];
+		var promises = [];
+		for(let i=0;i<who_join.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_join[index], {
+					$addToSet : {notification : noti}
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_join[index]);
+					}
+					resolve();
+				});
+			}));
+		}
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				resolve(info);
+			}
+		});
 	});
 };
 
@@ -1115,6 +1177,9 @@ var check_permission = function(request,callback){
 		}
 		else{
 			if(request.user.admin_channels.indexOf(event.channel) == -1){
+				callback(403,{err:"Need permission to edit this event"});
+			}
+			else if(event.admins.indexOf(request.user._id) == -1){
 				callback(403,{err:"Need permission to edit this event"});
 			}
 			else{
