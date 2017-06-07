@@ -207,9 +207,13 @@ exports.putEvent = function(request,response,next){
 	var editableFields = ['about','video','location','date_start','date_end',
 		'picture','picture_large','year_require','faculty_require','tags',
 		'agreement','contact_information'];
+	var detail = [];
 	for(var i=0;i<keys.length;i++){
 		if(editableFields.indexOf(keys[i]) == -1){
 			delete request.body[keys[i]];
+		}
+		else{
+			detail.push(keys[i]);
 		}
 	}
 	check_permission(request,function(code,err,event){
@@ -234,13 +238,16 @@ exports.putEvent = function(request,response,next){
 						if(request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
 							response.status(200).json(info);
+							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 						else{
 							response.status(200).json(info);
+							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 					}
 					else{
 						response.status(200).json(info);
+						notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 					}
 				}
 			});
@@ -294,133 +301,6 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 							response.status(500).json({msg:info.msg});
 						}
 					});
-				}
-			});
-		}
-	});
-};
-
-var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscribe, tags, eventPicture){
-	return new Promise(function(resolve, reject){
-		var promises = [];
-		var noti = {};
-		noti.title = channel_name+" added a new event.";
-		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
-		noti.photo = channel_picture;
-		noti.source = channel_name;
-		var errorList = [];
-		for(let i=0;i<who_subscribe.length;i++){
-			promises.push(new Promise(function(resolve, reject){
-				User.findByIdAndUpdate(who_subscribe[i], {
-					$addToSet : {notification : noti}
-				}, function(err, user){
-					if(err || !user){
-						errorList.push(who_subscribe[i]);
-					}
-					resolve();
-				});
-			}));
-		}
-		promises.push(new Promise(function(){
-			let promises2 = [];
-			User.find({tag_like : { $in : tags}}, function(users){
-				for(let i=0;i<users.length;i++){
-					if(who_subscribe.indexOf(users[i]._id) != -1){
-						promises2.push(new Promise(function(resolve, reject){
-							let index = i;
-							var noti2 = {};
-							noti2.title = "New event in tags you're interested in.";
-							noti2.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
-							noti2.photo = eventPicture;
-							noti2.source = users[index].tag_like;
-							User.findByIdAndUpdate(users[index]._id, {
-								$addToSet : {notification : noti2}
-							}, function(err, user){
-								if(err || !user){
-									errorList.push(users[index]._id);
-								}
-								resolve();
-							});
-						}));
-					}
-				}
-				Promise.all(promises2).then(function(resolve, reject){
-					resolve();
-				});
-			});
-		}));
-		Promise.all(promises).then(function(){
-			if(errorList.length == 0){
-				var info={};
-				info.msg = "done";
-				info.code = 201;
-				resolve(info);
-			}
-			else{
-				var info={};
-				info.msg = "error";
-				info.code = 500;
-				reject(info);
-			}
-		});
-	});
-};
-
-var notiDeleteEvent = function(eventId, callback){
-	var errorList = [];
-	Event.findById(eventId, function(err, returnedInfo){
-		if(err){
-			response.status(500).json({msg:"internal error."});
-		}
-		else if(!returnedInfo){
-			response.status(404).json({msg:"event not found."});
-		}
-		else{
-			var noti = {};
-			var promises = [];
-			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
-			noti.photo = returnedInfo.picture;
-			noti.source = returnedInfo.title;
-			for(let i=0;i<returnedInfo.who_join;i++){
-				promises[promises.length] = new Promise(function(resolve, reject){
-					User.findByIdAndUpdate(returnedInfo.who_join[i],{
-					$addToSet : { notification : noti }
-				},function(err, user){
-					if(err || !user){
-						errorList.push(returnedInfo.who_join[i]);
-						resolve();
-					}
-					else{
-						resolve();
-					}
-					});
-				});
-			}
-			for(let i=0;i<returnedInfo.who_interest;i++){
-				promises[promises.length] = new Promise(function(resolve, reject){
-					User.findByIdAndUpdate(returnedInfo.who_interest[i],{
-					$addToSet : { notification : noti }
-				},function(err, user){
-					if(err || !user){
-						errorList.push(returnedInfo.who_interest[i]);
-						resolve();
-					}
-					else resolve();
-					});
-				});
-			}
-			Promise.all(promises).then(function(){
-				if(errorList.length == 0){
-					var info={};
-					info.msg = "done";
-					info.code = 201;
-					callback(info);
-				}
-				else{
-					var info={};
-					info.msg = "error";
-					info.code = 500;
-					callback(info);
 				}
 			});
 		}
@@ -593,6 +473,198 @@ var putStat = function(id,callback){
 	});
 };
 
+//==============================notification==============================
+
+var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscribe, tags, eventPicture){
+	return new Promise(function(resolve, reject){
+		var promises = [];
+		var noti = {};
+		noti.title = channel_name+" added a new event.";
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = channel_picture;
+		noti.source = channel_name;
+		var errorList = [];
+		for(let i=0;i<who_subscribe.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_subscribe[index], {
+					$addToSet : {notification : noti}
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_subscribe[index]);
+					}
+					resolve();
+				});
+			}));
+		}
+		promises.push(new Promise(function(){
+			let promises2 = [];
+			User.find({tag_like : { $in : tags}}, function(users){
+				for(let i=0;i<users.length;i++){
+					if(who_subscribe.indexOf(users[i]._id) != -1){
+						promises2.push(new Promise(function(resolve, reject){
+							let index = i;
+							var noti2 = {};
+							noti2.title = "New event in tags you're interested in.";
+							noti2.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+							noti2.photo = eventPicture;
+							noti2.source = users[index].tag_like;
+							User.findByIdAndUpdate(users[index]._id, {
+								$addToSet : {notification : noti2}
+							}, function(err, user){
+								if(err || !user){
+									errorList.push(users[index]._id);
+								}
+								resolve();
+							});
+						}));
+					}
+				}
+				Promise.all(promises2).then(function(resolve, reject){
+					resolve();
+				});
+			});
+		}));
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				reject(info);
+			}
+		});
+	});
+};
+
+var notiPutEvent = function(eventId, who_join, who_interest, eventTitle, eventPicture, detail){
+	return new Promise(function(resolve, reject) {
+		var fields = detail.join(", ");
+		var noti = {};
+		noti.title = eventTitle+" has changed its "+fields;
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = eventPicture;
+		noti.source = eventTitle;
+		var errorList = [];
+		var promises2 = [];
+		for(let i=0;i<who_interest;i++){
+			promises2.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_interest[index], {
+					$addToSet : { notification : noti }
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_interest[index]);
+						resolve();
+					}
+					else{
+						resolve();
+					}
+				});
+			}));
+		}
+		for(let i=0;i<who_join;i++){
+			promises2.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_join[index], {
+					$addToSet : { notification : noti }
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_join[index]);
+						resolve();
+					}
+					else{
+						resolve();
+					}
+				});
+			}));
+		}
+		Promise.all(promises2).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				reject(info);
+			}
+		});
+	});
+};
+
+var notiDeleteEvent = function(eventId, callback){
+	var errorList = [];
+	Event.findById(eventId, function(err, returnedInfo){
+		if(err){
+			response.status(500).json({msg:"internal error."});
+		}
+		else if(!returnedInfo){
+			response.status(404).json({msg:"event not found."});
+		}
+		else{
+			var noti = {};
+			var promises = [];
+			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
+			noti.photo = returnedInfo.picture;
+			noti.source = returnedInfo.title;
+			for(let i=0;i<returnedInfo.who_join;i++){
+				promises[promises.length] = new Promise(function(resolve, reject){
+					let index = i;
+					User.findByIdAndUpdate(returnedInfo.who_join[index],{
+					$addToSet : { notification : noti }
+				},function(err, user){
+					if(err || !user){
+						errorList.push(returnedInfo.who_join[index]);
+						resolve();
+					}
+					else{
+						resolve();
+					}
+					});
+				});
+			}
+			for(let i=0;i<returnedInfo.who_interest;i++){
+				promises[promises.length] = new Promise(function(resolve, reject){
+					let index = i;
+					User.findByIdAndUpdate(returnedInfo.who_interest[index],{
+					$addToSet : { notification : noti }
+				},function(err, user){
+					if(err || !user){
+						errorList.push(returnedInfo.who_interest[index]);
+						resolve();
+					}
+					else resolve();
+					});
+				});
+			}
+			Promise.all(promises).then(function(){
+				if(errorList.length == 0){
+					var info={};
+					info.msg = "done";
+					info.code = 201;
+					callback(info);
+				}
+				else{
+					var info={};
+					info.msg = "error";
+					info.code = 500;
+					callback(info);
+				}
+			});
+		}
+	});
+};
+
+//==============================notification==============================
 
 var findChannelForEvent = function(id){
 	return new Promise(function(resolve, reject){
