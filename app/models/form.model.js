@@ -40,6 +40,11 @@ let formSchema = new Schema({
 		answers:{}
 	}],
 
+	tokenDelete : {
+		type : Boolean,
+		default: false
+	},
+
 	created_date:{
 		type: 'Moment',
 		default: new Moment()

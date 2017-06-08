@@ -39,9 +39,9 @@ function findForm(id,callback){
 				callback ({"err":"fining form error",code:500});
 				//return ({"err":"fining form error","code":500});
 			}
-			else if(!returnedForm){
-				console.error({"err":"form not found","code":400});
-				callback ({"err":"form not found",code:400});
+			else if(!returnedForm || returnedForm.tokenDelete){
+				console.error({"err":"form not found","code":404});
+				callback ({"err":"form not found",code:404});
 				//return ({"err":"form not found","code":400});
 			}
 			else{
@@ -217,7 +217,23 @@ exports.exportForm = function(request,response){
 
 // delete form
 exports.deleteForm = function(request,response){
-	
+		Form.findByIdAndUpdate(request.query.id,{
+			tokenDelete : true
+		}, (err,returnedForm) => {
+			if(err){
+				console.error('response form error:', request);
+				response.status(500).json({err:'Internal error'});
+			}
+			else if(!returnedForm){
+				console.error('response form : form not found', request);
+				response.status(404).json({err:'Form not found'});
+			}
+			else{
+				console.log('response form success');
+				console.log(returnedForm);
+				response.status(200).json({msg:"done"});
+			}
+		});	
 }
 
 exports.clearForm = function(request,response){
