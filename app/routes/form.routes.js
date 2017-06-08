@@ -6,5 +6,5 @@ module.exports =  function(app){
 		.put(form.responseForm)
 		.post(form.createForm)
 		.delete(form.deleteForm);	
-	app.get('/clear',form.clearForm);
+	app.get('/form/clear',form.clearForm);
 }

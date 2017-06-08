@@ -1,10 +1,13 @@
 var Event = require('mongoose').model('Event'); // collections
 var Form = require('mongoose').model('Form');
-var fs = require('fs');
+
 var path = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment-timezone');
 
+var bluebird = require("bluebird");
+var jsonexport = require('jsonexport');
+var fs = require('fs');
 
 exports.listall = function(request,response){
 	Form.find({}, (err,forms) =>{
@@ -12,6 +15,48 @@ exports.listall = function(request,response){
 		else response.json(forms);
 	});
 }
+//
+// export form
+function exportForm (data,callback){
+	const fileName = data.title;
+	//	const url = `api.cueventhub.com/download/form/${fileName}.csv`;
+	const url = fileName+'.csv';	
+	console.log('data responses',data.responses);	
+	bluebird.map(data.responses, element => {
+		let temp = {};
+		temp["_firstName"] = element.firstName;
+		temp["_lastName"] = element.lastName;
+
+		for(let attName in element.answers)
+			temp[attName] = element.answers[attName];
+
+		return temp;
+		
+	}).then( pass => {
+		return new Promise( (resolve,reject) => {
+			jsonexport(pass,function(err, csv){
+				if(err)	reject(err); 
+				else resolve(csv);	
+			});	
+		});
+	}).then( file => {
+		fs.writeFile(url, file, function(err){
+			if(err){
+				callback(err);
+				console.error(err);
+			}	
+			else{
+				console.log('done');
+				callback(null,url);
+			}
+		});	
+	}).catch( (err) => {
+		console.error(err);
+		callback(err);
+	});
+	
+}
+
 
 function checkPermission (request, channel, callback) {
 	let user = request.user;
@@ -83,7 +128,13 @@ exports.getForm = function (request,response){
 				checkPermission(request, returnedForm.channel, function(data){
 					if(data.err !== undefined) return reject(data);
 					data.form = returnedForm;
-					return resolve(data);
+					if(request.query.opt === 'export'){
+						exportForm(returnedForm, (err, url) => {
+							if(err) return reject({err:err});
+							else return resolve({msg:"OK",url:url});
+						});	
+					}
+					else return resolve(data);
 				});
 			});
 			
@@ -154,7 +205,7 @@ exports.createForm = function(request, response){
 						}
 						else{
 							console.log("Edit form success");
-							resolve({msg:"done",code:200});
+							resolve(result);
 						}
 					});
 				});
@@ -164,7 +215,7 @@ exports.createForm = function(request, response){
 		else return Promise.reject(info);
 	}).then( (newForm) => {
 		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"}); 
-		else response.status(201).json({msg:'done'});
+		else response.status(200).json({msg:'done',id:newForm._id});
 	}).catch( (info) => {
 		console.error(info);
 		response.status(info.code ? info.code : 500).json(info ? info : {err:"Internal error"});
@@ -183,6 +234,7 @@ exports.responseForm = function(request, response){
 		data.firstName = request.user.firstName;
 		data.lastName = request.user.lastName;
 		data.user_id = request.user._id;
+		data._id = undefined;
 
 		Form.findByIdAndUpdate(request.query.id,{
 			$push : {responses: data}		
@@ -210,10 +262,7 @@ exports.responseForm = function(request, response){
 }
 
 
-// export form
-exports.exportForm = function(request,response){
 
-}
 
 // delete form
 exports.deleteForm = function(request,response){
