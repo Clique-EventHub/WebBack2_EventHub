@@ -1,6 +1,7 @@
 var Channel = require('mongoose').model('Channel');	// require model database
 var Event = require('mongoose').model('Event');		//
 var moment = require('moment-timezone');
+var User = require('mongoose').model('User');
 // list all channel
 exports.listAll = function(request,response,next){
 	Channel.find({},function(err,channel){
@@ -39,7 +40,7 @@ exports.getChannel = function(request,response){
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){
-						if(channel[fields[i]].length>0)
+	;					if(channel[fields[i]].length>0)
 							info[fields[i]]=channel[fields[i]];
 					}
 					else
@@ -65,16 +66,24 @@ exports.getChannel = function(request,response){
 //route POST /channel with json body (information of new channel)
 exports.postChannel = function(request,response,next){
 	var newChannel = new Channel(request.body);	// create new channel
+	newChannel.admins.push(request.user._id);
 	var info = {};
 	newChannel.save(function(err){
 		if(err) {
+			console.error(err);
 			info.msg = "err";
 			response.status(500).json(info);
 			// return next(err);
 		}
 		else {
 			info.id = newChannel._id;
+
 			if(request.user){
+
+				User.findByIdAndUpdate(request.user._id,{
+					$push : {admin_channels: newChannel._id}
+				},(err) => console.error(err));
+
 				if(request.user.notification != undefined && request.user.notification != null){
 					info.notification = request.user.notification;
 					response.status(201).json(info);

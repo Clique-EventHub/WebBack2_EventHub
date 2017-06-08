@@ -27,6 +27,7 @@ var channelSchema = new Schema({
 		type:Boolean,
 		default:false
 	},
+
 	lastModified:{
 		type: 'Moment',
 		default: new Moment()
