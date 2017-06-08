@@ -26,17 +26,24 @@ let formSchema = new Schema({
 			required: true,
 			default: null
 		},
+		question : String,
 		choices:[String]
 	}],
 
-	answers:[{
-		name : String,
-		id : {
+	responses:[{
+		firstName : String,
+		lastName : String,
+		user_id : {
 			type:Schema.Types.ObjectId,
 			required : true
 		},
-		
+		answers:{}
 	}],
+
+	tokenDelete : {
+		type : Boolean,
+		default: false
+	},
 
 	created_date:{
 		type: 'Moment',
