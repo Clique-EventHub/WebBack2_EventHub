@@ -180,10 +180,9 @@ exports.responseForm = function(request, response){
 	if(request.user){
 		let data = {};
 		data.answers = request.body;
-		data.firstName = request.user.fistName;
+		data.firstName = request.user.firstName;
 		data.lastName = request.user.lastName;
 		data.user_id = request.user._id;
-		console.log(data);
 
 		Form.findByIdAndUpdate(request.query.id,{
 			$push : {responses: data}		
@@ -218,5 +217,9 @@ exports.exportForm = function(request,response){
 
 // delete form
 exports.deleteForm = function(request,response){
+	
+}
 
+exports.clearForm = function(request,response){
+	Form.findByIdAndRemove(request.query.id, () => response.send('done'));
 }

@@ -26,11 +26,13 @@ let formSchema = new Schema({
 			required: true,
 			default: null
 		},
+		question : String,
 		choices:[String]
 	}],
 
 	responses:[{
-		name : String,
+		firstName : String,
+		lastName : String,
 		user_id : {
 			type:Schema.Types.ObjectId,
 			required : true
