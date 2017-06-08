@@ -29,13 +29,13 @@ let formSchema = new Schema({
 		choices:[String]
 	}],
 
-	answers:[{
+	responses:[{
 		name : String,
-		id : {
+		user_id : {
 			type:Schema.Types.ObjectId,
 			required : true
 		},
-		
+		answers:{}
 	}],
 
 	created_date:{

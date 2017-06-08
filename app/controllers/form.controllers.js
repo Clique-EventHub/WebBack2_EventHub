@@ -52,7 +52,7 @@ function findForm(id,callback){
 }
 
 // get form
-// GET /form?id=[..]&opt=[answers,export]
+// GET /form?id=[..]&opt=[responses,export]
 exports.getForm = function (request,response){
 
 	let process = new Promise((resolve,reject) => {
@@ -78,7 +78,7 @@ exports.getForm = function (request,response){
 			console.error('err', returnedForm);
 			return Promise.reject({err:"form not found",code:404});
 		}
-		else if(request.query.opt === 'answers' || request.query.opt === 'export'){
+		else if(request.query.opt === 'responses' || request.query.opt === 'export'){
 			return new Promise( (resolve,reject) => {
 				checkPermission(request, returnedForm.channel, function(data){
 					if(data.err !== undefined) return reject(data);
@@ -89,8 +89,8 @@ exports.getForm = function (request,response){
 			
 		}
 		else if(Object.keys(request.query).length == 1 && request.query.id){
-			returnedForm.answers = undefined;	
-			console.log('return no answers', returnedForm);
+			returnedForm.responses = undefined;	
+			console.log('return no responses', returnedForm);
 			return Promise.resolve({msg:"OK",form:returnedForm});
 		}
 		else
@@ -121,36 +121,93 @@ exports.getForm = function (request,response){
 
 
 // edit form
-// PUT /form
+// POST /form?id=
 exports.createForm = function(request, response){
 	let process = new Promise((resolve) => {
 		resolve();
 	});	
-
+	let form_id = request.query.id;
 	process.then( () => {
 		if(request.body.channel === undefined) {
 			console.error("channel is undefined");
 			return Promise.reject({err:"Please Provide channel",code:400});	
 		}
-		else return Promise.resolve(checkPermission(request, request.user, request.body.channel));
+		else return new Promise( (resolve,reject) => {
+			checkPermission(request, request.body.channel, 
+			(data) => {
+				if(data.err) reject(data);
+				else resolve(data);
+			})
+		});
 	}).then( (info) => {
 		if(info.msg === "OK"){
-			return Promise.resolve(new Form(request.body).save());	
+			if(form_id !== undefined){
+				return new Promise( (resolve,reject) => {
+					Form.findByIdAndUpdate(form_id,request.body, (err,result) => {
+						if(err){
+							console.error('create form:find form error', request);
+							reject({err:"Internal error",code:500});
+						}
+						else if(!result){
+							console.error("form not found");
+							reject({err:"Form not found",code:404});
+						}
+						else{
+							console.log("Edit form success");
+							resolve({msg:"done",code:200});
+						}
+					});
+				});
+			}
+			else return Promise.resolve(new Form(request.body).save());	
 		}
 		else return Promise.reject(info);
 	}).then( (newForm) => {
-		if(newForm.err !== undefined) return Promise.reject(newForm);
+		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"}); 
 		else response.status(201).json({msg:'done'});
 	}).catch( (info) => {
 		console.error(info);
-		response.status(info.code).json(info);
+		response.status(info.code ? info.code : 500).json(info ? info : {err:"Internal error"});
 	});
 }
 
 
 // response form
+// PUT /form?id=[form's id]
+// body is answers 
 exports.responseForm = function(request, response){
 
+	if(request.user){
+		let data = {};
+		data.answers = request.body;
+		data.firstName = request.user.fistName;
+		data.lastName = request.user.lastName;
+		data.user_id = request.user._id;
+		console.log(data);
+
+		Form.findByIdAndUpdate(request.query.id,{
+			$push : {responses: data}		
+		}, (err,returnedForm) => {
+			if(err){
+				console.error('response form error:', request);
+				response.status(500).json({err:'Internal error'});
+			}
+			else if(!returnedForm){
+				console.error('response form : form not found', request);
+				response.status(404).json({err:'Form not found'});
+			}
+			else{
+				console.log('response form success');
+				console.log(returnedForm);
+				response.status(200).json({msg:"done"});
+			}
+		});			
+	}
+
+	else{
+		response.status(403).json({err:'Please login'});
+	}
+	
 }
 
 
