@@ -18,7 +18,6 @@ exports.listAll = function(request,response,next){
 				}
 			}
 			else{
-				console.log('jing vjv');
 				response.status(200).json(info);
 			}
 		}

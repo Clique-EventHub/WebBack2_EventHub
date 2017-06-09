@@ -32,7 +32,10 @@ module.exports = function(app){
   //   successRedirect : '/'
   // }));
 
-  app.get('/user/subscribe', user.getSubbedChannnel);
+  app.route('/user/subscribe')
+      .get(user.getSubbedChannnel)
+      .put(user.subScribeChannel);
+      
   app.route('/user/join')
       .get(user.getJoinedEvent)
       .put(user.joinAnEvent);
