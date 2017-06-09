@@ -144,7 +144,7 @@ var userSchema = new Schema({
 	interest_events:[],
 	subscribe_channels:[],
 	already_joined_events:[],
-
+	tag_like:[String],
 
 //stat
 	tag_visit:{},

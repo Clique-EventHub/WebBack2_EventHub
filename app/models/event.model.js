@@ -62,10 +62,10 @@ var eventSchema = new Schema({
 		type:Number,
 		default:0
 	},
-	joinable_start_time:Date,
-	joinable_end_time:Date,
-	time_start:Date,
-	time_end:Date,
+	joinable_start_time:Date,   //the period that user can join.
+	joinable_end_time:Date,			//the period that user can join.
+	time_start:Date,				//the actual time that this event will start.
+	time_end:Date,					//the actual time that this event will end.
 	optional_field:{
 		type:[],
 		default:[]
@@ -84,11 +84,11 @@ var eventSchema = new Schema({
 	},
 	visit_year:{}, // { '58':10 , '59':30  }
 
-	joinable_amount:{
+	joinable_amount:{					// the max number of people that can join this event.
 		type:Number,
 		default:-1	//infinity
 	},
-	show:{
+	show:{								// show this event to public or not.
 		type:Boolean,
 		default:true
 	},
@@ -100,7 +100,10 @@ var eventSchema = new Schema({
 		type:{},
 		default:{'male':0,'female':0}
 	},
-	interested_year:{}, // { '57':10 , '58':30  }
+	interested_year:{
+		type : {},
+		default : {}
+	}, // { '57':10 , '58':30  }
 
 	join:{
 		type:Number,
@@ -110,7 +113,10 @@ var eventSchema = new Schema({
 		type:{},
 		default:{'male':0,'female':0}
 	},
-	join_year:{}, // { '57':10 , '58':30  }
+	join_year:{
+		type:{},
+		default:null
+	}, // { '57':10 , '58':30  }
 	join_per_day:[], // {YYYY-MM-DD,number}
 	visit_per_day:[], // {YYYY-MM-DD,number}
 	momentum:{type:Number,default:0},
@@ -122,19 +128,35 @@ var eventSchema = new Schema({
 		default: false
 	},
 	who_join: [],
-	who_interest: [],
+	who_interest: {
+		type:[],
+		default:[]
+	},
 	created_date:{
 		type:'Moment',
 		default: new Moment()
 	},
 	Creator : Schema.Types.ObjectId,
-	lastModified: [],
+	lastModified:{
+		type:[],
+		default:[]
+	},
 	outsider_accessible : {
 		type : Boolean,
 		default : true
 	},
-	join_faculty:{},
-	interest_faculty:{}
+	join_faculty:{
+		type:{},
+		default:{}
+	},
+	interest_faculty:{
+		type:{},
+		default : {}
+	},
+	join_data:{
+		type: [],
+		default : []
+	}
  });
 
 

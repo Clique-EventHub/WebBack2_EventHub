@@ -32,6 +32,10 @@ var channelSchema = new Schema({
 		type: 'Moment',
 		default: new Moment()
 	},
+	who_subscribe:{
+		type: [],
+		default: []
+	},
 
 	//stat--------------
 	visit:Number

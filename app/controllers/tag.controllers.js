@@ -10,20 +10,20 @@ exports.modifyTag = function(request,response){
 	mkdirp(path.join(__dirname,'../data/'),function(err){
 		if(err){
             info.msg ="error";
-            response.json(info);
+            response.status(500).json(info);
             return next(err);
 		}
         else{
             // modify tags type in file
 			fs.writeFile(path.join(__dirname,'../../data/tags.json'),JSON.stringify(request.body,null,2),function(err){
 				if(err){
+                    console.log(err);
                     info.msg = "error2";
-                    response.json(info);
-                    return next(err);
+                    response.status(500).json(info);
 				}
                 else {
                     info.msg = 'done';
-                    response.json(info);
+                    response.status(200).json(info);
 			    }
             });
 		}

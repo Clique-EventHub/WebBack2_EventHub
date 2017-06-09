@@ -1,5 +1,6 @@
 var Event = require('mongoose').model('Event'); // collections
 var Channel = require('mongoose').model('Channel');
+var User = require('mongoose').model('User');
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
@@ -174,15 +175,20 @@ exports.postEvent = function(request,response,next){
 					response.status(400).json(info);
 				}
 				else{
-					console.log("post new Event");
-					returnedInfo = {"msg":"done","id":newEvent._id};
-					if(request.user && request.user.notification != undefined && request.user.notification != null){
-						returnedInfo.notification = request.user.notification;
-						response.status(201).json(returnedInfo);
-					}
-					else{
-						response.status(201).json(returnedInfo);
-					}
+					notiPostEvent(newEvent._id, channel.name, channel.picture, channel.who_subscribe, newEvent.tags, newEvent.picture)
+					.catch(function(info){
+							response.status(info.code).json(info.msg);
+					})
+					.then(function(info){
+						console.log("post new Event");
+						if(request.user && request.user.notification != undefined && request.user.notification != null){
+							info.notification = request.user.notification;
+							response.status(201).json(info);
+						}
+						else{
+							response.status(201).json(info);
+						}
+					});
 				}
 			});
 		}
@@ -201,9 +207,13 @@ exports.putEvent = function(request,response,next){
 	var editableFields = ['about','video','location','date_start','date_end',
 		'picture','picture_large','year_require','faculty_require','tags',
 		'agreement','contact_information'];
+	var detail = [];
 	for(var i=0;i<keys.length;i++){
 		if(editableFields.indexOf(keys[i]) == -1){
 			delete request.body[keys[i]];
+		}
+		else{
+			detail.push(keys[i]);
 		}
 	}
 	check_permission(request,function(code,err,event){
@@ -228,13 +238,16 @@ exports.putEvent = function(request,response,next){
 						if(request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
 							response.status(200).json(info);
+							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 						else{
 							response.status(200).json(info);
+							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 					}
 					else{
 						response.status(200).json(info);
+						notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 					}
 				}
 			});
@@ -269,18 +282,25 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 					// return next(err);
 				}
 				else {
-					if(request.user){
-						if(request.user.notification != undefined && request.user.notification != null){
-							info.notification = request.user.notification;
-							response.status(200).json(info);
+					notiDeleteEvent(eventId, function(info){
+						if(info.code == 201){
+							if(request.user){
+								if(request.user.notification != undefined && request.user.notification != null){
+									info.notification = request.user.notification;
+									response.status(200).json({msg:info.msg});
+								}
+								else{
+									response.status(200).json({msg:info.msg});
+								}
+							}
+							else{
+								response.status(200).json({msg:info.msg});
+							}
 						}
 						else{
-							response.status(200).json(info);
+							response.status(500).json({msg:info.msg});
 						}
-					}
-					else{
-						response.status(200).json(info);
-					}
+					});
 				}
 			});
 		}
@@ -342,7 +362,57 @@ exports.getStat = function(request,response,next){
 			}
 		}
 	});
-}
+};
+
+exports.sendMessageToJoin = function(request, response){
+	check_permission(request, function(code,err,event){
+		if(code!=200) response.status(code).json(err);
+		else{
+			Event.findById(request.query.id, function(err, event){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else if(!event){
+					response.status(404).json({msg:"event not found."});
+				}
+				else{
+					notiInfoForJoinPeople(request.query.id, event.who_join, request.body.description, event.picture, event.title)
+					.then(function(info){
+						response.status(info.code).json({msg:info.msg});
+					});
+				}
+			});
+		}
+	});
+};
+
+exports.personalNotification = function(request, response){
+	check_permission(request, function(code, err, event){
+		if(code!=200) response.status(code).json(err);
+		else{
+			Event.findById(request.query.id, function(err, event){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else if(!event){
+					response.status(404).json({msg:"event not found."});
+				}
+				else{
+					let people = [];
+					for(let i=0;i<request.body.people.length;i++){
+						if(event.who_join.indexOf(request.body.people[i]) != -1 || event.who_interest.indexOf(request.body.people[i]) != -1){
+							people.push(request.body.people[i]);
+						}
+					}
+					notiInfoForJoinPeople(request.query.id, people, request.body.description, event.picture, event.title)
+					.then(function(info){
+						response.status(info.code).json({msg:info.msg});
+					});
+				}
+			});
+		}
+	});
+};
 
 
 // increase stat when getEvent
@@ -402,6 +472,281 @@ var putStat = function(id,callback){
 	});
 };
 
+//==============================notification==============================
+
+var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscribe, tags, eventPicture){
+	return new Promise(function(resolve, reject){
+		var promises = [];
+		var noti = {};
+		noti.title = channel_name+" added a new event.";
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = channel_picture;
+		noti.source = channel_name;
+		var errorList = [];
+		for(let i=0;i<who_subscribe.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_subscribe[index], {
+					$addToSet : {notification : noti}
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_subscribe[index]);
+					}
+					resolve();
+				});
+			}));
+		}
+		promises.push(new Promise(function(){
+			let promises2 = [];
+			User.find({tag_like : { $in : tags}}, function(users){
+				for(let i=0;i<users.length;i++){
+					if(who_subscribe.indexOf(users[i]._id) != -1){
+						promises2.push(new Promise(function(resolve, reject){
+							let index = i;
+							var noti2 = {};
+							noti2.title = "New event in tags you're interested in.";
+							noti2.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+							noti2.photo = eventPicture;
+							noti2.source = users[index].tag_like;
+							User.findByIdAndUpdate(users[index]._id, {
+								$addToSet : {notification : noti2}
+							}, function(err, user){
+								if(err || !user){
+									errorList.push(users[index]._id);
+								}
+								resolve();
+							});
+						}));
+					}
+				}
+				Promise.all(promises2).then(function(resolve, reject){
+					resolve();
+				});
+			});
+		}));
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				reject(info);
+			}
+		});
+	});
+};
+
+var notiPutEvent = function(eventId, who_join, who_interest, eventTitle, eventPicture, detail){
+	return new Promise(function(resolve, reject) {
+		var fields = detail.join(", ");
+		var noti = {};
+		noti.title = eventTitle+" has changed its "+fields;
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = eventPicture;
+		noti.source = eventTitle;
+		var errorList = [];
+		var promises2 = [];
+		for(let i=0;i<who_interest.length;i++){
+			promises2.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_interest[index], {
+					$addToSet : { notification : noti }
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_interest[index]);
+						resolve();
+					}
+					else{
+						resolve();
+					}
+				});
+			}));
+		}
+		for(let i=0;i<who_join.length;i++){
+			promises2.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_join[index], {
+					$addToSet : { notification : noti }
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_join[index]);
+						resolve();
+					}
+					else{
+						resolve();
+					}
+				});
+			}));
+		}
+		Promise.all(promises2).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				reject(info);
+			}
+		});
+	});
+};
+
+var notiDeleteEvent = function(eventId, callback){
+	var errorList = [];
+	Event.findById(eventId, function(err, returnedInfo){
+		if(err){
+			response.status(500).json({msg:"internal error."});
+		}
+		else if(!returnedInfo){
+			response.status(404).json({msg:"event not found."});
+		}
+		else{
+			var noti = {};
+			var promises = [];
+			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
+			noti.photo = returnedInfo.picture;
+			noti.source = returnedInfo.title;
+			for(let i=0;i<returnedInfo.who_join.length;i++){
+				promises[promises.length] = new Promise(function(resolve, reject){
+					let index = i;
+					User.findByIdAndUpdate(returnedInfo.who_join[index],{
+					$addToSet : { notification : noti }
+				},function(err, user){
+					if(err || !user){
+						errorList.push(returnedInfo.who_join[index]);
+						resolve();
+					}
+					else{
+						resolve();
+					}
+					});
+				});
+			}
+			for(let i=0;i<returnedInfo.who_interest.length;i++){
+				promises[promises.length] = new Promise(function(resolve, reject){
+					let index = i;
+					User.findByIdAndUpdate(returnedInfo.who_interest[index],{
+					$addToSet : { notification : noti }
+				},function(err, user){
+					if(err || !user){
+						errorList.push(returnedInfo.who_interest[index]);
+						resolve();
+					}
+					else resolve();
+					});
+				});
+			}
+			Promise.all(promises).then(function(){
+				if(errorList.length == 0){
+					var info={};
+					info.msg = "done";
+					info.code = 201;
+					callback(info);
+				}
+				else{
+					var info={};
+					info.msg = "error";
+					info.code = 500;
+					callback(info);
+				}
+			});
+		}
+	});
+};
+
+var notiInfoForJoinPeople = function(eventId, who_join, description, eventPicture, eventTitle){
+	return new Promise(function(resolve, reject){
+		var info = {};
+		var noti = {};
+		noti.title = description;
+		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+		noti.photo = eventPicture;
+		noti.source = eventTitle;
+		var errorList = [];
+		var promises = [];
+		for(let i=0;i<who_join.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				User.findByIdAndUpdate(who_join[index], {
+					$addToSet : {notification : noti}
+				}, function(err, user){
+					if(err || !user){
+						errorList.push(who_join[index]);
+					}
+					resolve();
+				});
+			}));
+		}
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				var info={};
+				info.msg = "done";
+				info.code = 201;
+				resolve(info);
+			}
+			else{
+				var info={};
+				info.msg = "error";
+				info.code = 500;
+				resolve(info);
+			}
+		});
+	});
+};
+
+exports.updateNotificationInterest = function(request, response){
+	var date = new moment().tz('Asia/Bangkok');
+	var date1 = new moment().tz('Asia/Bangkok');
+	var current = date.toDate();
+	var tmr = date1.toDate();
+	var errorList = [];
+	tmr.setDate(tmr.getDate()+1);
+	Event.find({
+		$and : [{joinable_end_time : {$lte : tmr}}, {joinable_end_time : {$gte : current}}
+			, {tokenDelete : {$ne:true}}, {expire : {$ne : true}}]
+	}, function(err, events){
+		if(err){
+			response.status(500).json({msg:"internal error."});
+		}
+		else{
+			var promises = [];
+			for(let i=0;i<events.length;i++){
+					var index = i;
+					var title = events[i].title+" will close the registration within 24 hours!";
+					promises.push(new Promise(function(resolve, reject){
+						var index = i;
+						var title = events[i].title+" will close the registration within 24 hours!";
+						notiInfoForJoinPeople(events[index]._id, events[index].who_interest, title, events[index].picture, events[index].title)
+						.then(function(info){
+							if(info.code != 201){
+								errorList.push(events[index]._id);
+							}
+							resolve();
+						});
+					}));
+			}
+			Promise.all(promises).then(function(info){
+				if(errorList.length == 0){
+					response.status(201).json({msg:"done."});
+				}
+				else{
+					response.status(500).json({msg:"error."});
+				}
+			});
+		}
+	});
+};
+
+//==============================notification==============================
 
 var findChannelForEvent = function(id){
 	return new Promise(function(resolve, reject){
@@ -817,6 +1162,9 @@ var check_permission = function(request,callback){
 		}
 		else{
 			if(request.user.admin_channels.indexOf(event.channel) == -1){
+				callback(403,{err:"Need permission to edit this event"});
+			}
+			else if(event.admins.indexOf(request.user._id) == -1){
 				callback(403,{err:"Need permission to edit this event"});
 			}
 			else{
