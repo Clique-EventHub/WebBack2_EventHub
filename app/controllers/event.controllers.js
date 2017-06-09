@@ -344,57 +344,6 @@ exports.getStat = function(request,response,next){
 	});
 }
 
-//route PUT /event/stat?id=...
-/*
-exports.putStat = function(request,response,next){
-	var id = request.query.id;
-	//var d = new time.Date().setTimezone('Asia/Bangkok');
-	//var d = moment().tz('Asia/Bangkok');
-	//var date = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear();
-	var date = moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
-	var info={};
-	Event.findById(id,function(err,event){
-		if(err){
-			info.msg = "error";
-			response.status(500).json(info);
-			console.error("error find event : putStat - event.controllers");
-			return next(err);
-		}
-		else if(!event){
-			info.msg = "event not found";
-			response.status(404).json(info);
-		}
-		else{
-			event.lastModified = new moment();
-			event.visit+=1;								//add visit
-			if(event.visit_per_day.length==0){			//add object to empty array
-				event.visit_per_day.push({});
-				event.visit_per_day[0][date]=1;
-			}
-			// add date for the first visit for the day
-			else if(!event.visit_per_day[event.visit_per_day.length-1].hasOwnProperty(date)){
-				event.visit_per_day.push({});
-				event.visit_per_day[event.visit_per_day.length-1][date]=1;
-			}
-			// add visit_per_day
-			else event.visit_per_day[event.visit_per_day.length-1][date]+=1;
-
-			event.update(event,function(err){
-				if(err){
-					info.msg = "error1";
-					response.json(info);
-					console.error("error1 update event : putStat - event.controllers");
-					return next(err);
-				}
-				else{
-					info.msg = "done";
-					response.json(info);
-				}
-			});
-		}
-	});
-}
-*/
 
 // increase stat when getEvent
 var putStat = function(id,callback){
@@ -797,41 +746,6 @@ exports.searchEvent = function(request,response,next){
 	});
 }
 
-/*exports.searchByDate = function(request,response,next){
-	var info = {};
- 	Event.find({
-		$and : [{tokenDelete:{$ne:true}}, {expire:{$ne:true}} ]
-	}, function(err, events){
- 		if(err){
- 			info.msg = "error.";
- 			response.json(info);
- 			return next(err);
- 		}
- 		else if(events.length==0){
- 			info.msg = "no event match.";
-			response.status(404).json(info);
- 		}
- 		else {
-			var fields = ['_id','title','picture','channel','location','date_start', 'date_end'];
-			info.events = [];
-			for(var j=0; j<events.length;j++){
-				// add found event in array info.events
-				if(request.query.date_start <= Date.parse(event.date_start).getTime()/1000
-				&& request.query.date_start + request.query.interval <= Date.parse(event.date_end).getTime()/1000){
-
-					info.events.push({});
-					for(var i=0; i<fields.length; i++){
-						info.events[j][fields[i]] = events[j][fields[i]];
-					}
-				}
-			}
- 			// info is {events:[ {},{},.. ]}
- 			response.json(info);
- 		}
-	});
-}*/
-
-
 //This is made my Tun(onepiecetime)
 exports.searchByDate = function(request,response,next){
 	var info = {};
@@ -912,3 +826,4 @@ var check_permission = function(request,callback){
 		}
 	});
 }
+

@@ -50,6 +50,9 @@ var eventSchema = new Schema({
 		default:false
 	},
 	admins : [],
+
+	forms : [], // list of objects
+	
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,

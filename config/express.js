@@ -68,7 +68,7 @@ module.exports = function(){
 	require('../app/routes/tag.routes')(app);
 	require('../app/routes/provider.routes')(app);
 	require('../app/routes/user.routes')(app);
-
+	require('../app/routes/form.routes')(app);
 	//end setting up routing -------------------------------------
  	app.use(express.static('./public'));
 
