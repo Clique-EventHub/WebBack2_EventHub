@@ -754,6 +754,49 @@ var notiInfoForJoinPeople = function(eventId, who_join, description, eventPictur
 	});
 };
 
+exports.updateNotificationInterest = function(request, response){
+	var date = new moment().tz('Asia/Bangkok');
+	var date1 = new moment().tz('Asia/Bangkok');
+	var current = date.toDate();
+	var tmr = date1.toDate();
+	var errorList = [];
+	tmr.setDate(tmr.getDate()+1);
+	Event.find({
+		$and : [{joinable_end_time : {$lte : tmr}}, {joinable_end_time : {$gte : current}}
+			, {tokenDelete : {$ne:true}}, {expire : {$ne : true}}]
+	}, function(err, events){
+		if(err){
+			response.status(500).json({msg:"internal error."});
+		}
+		else{
+			var promises = [];
+			for(let i=0;i<events.length;i++){
+					var index = i;
+					var title = events[i].title+" will close the registration within 24 hours!";
+					promises.push(new Promise(function(resolve, reject){
+						var index = i;
+						var title = events[i].title+" will close the registration within 24 hours!";
+						notiInfoForJoinPeople(events[index]._id, events[index].who_interest, title, events[index].picture, events[index].title)
+						.then(function(info){
+							if(info.code != 201){
+								errorList.push(events[index]._id);
+							}
+							resolve();
+						});
+					}));
+			}
+			Promise.all(promises).then(function(info){
+				if(errorList.length == 0){
+					response.status(201).json({msg:"done."});
+				}
+				else{
+					response.status(500).json({msg:"error."});
+				}
+			});
+		}
+	});
+};
+
 //==============================notification==============================
 
 var findChannelForEvent = function(id){

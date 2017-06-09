@@ -11,7 +11,7 @@ module.exports = function(app){
 		.delete(event.deleteEvent);	// delete event
 	app.route('/event/stat')
 		.get(event.getStat);
-
+	
 	app.get('/event/new',event.newEvent);
  	app.get('/event/hot',event.gethotEvent);
 
@@ -19,6 +19,7 @@ module.exports = function(app){
  	app.get('/update/hot',event.updatehotEvent);
 	app.post('/event/join/message',event.sendMessageToJoin);
 	app.post('/event/personal/message',event.personalNotification);
+	app.get('/update/notification',event.updateNotificationInterest);
 
 //--------------------------------------------------//
  	app.get('/event/search',event.searchEvent);
