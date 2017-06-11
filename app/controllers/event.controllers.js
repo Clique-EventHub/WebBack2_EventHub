@@ -1157,11 +1157,11 @@ var check_permission = function(request,callback){
 			callback(500,{err:"internal error"});
 		}
 		else if(!event){
-			console.error("event not found - put event");
-			callback(400,{err:"event not found"});
+			console.error("event not found");
+			callback(404,{err:"event not found"});
 		}
 		else{
-			if(request.user.admin_channels.indexOf(event.channel) == -1){
+			if(request.user.admin_events.indexOf(event._id) == -1){
 				callback(403,{err:"Need permission to edit this event"});
 			}
 			else if(event.admins.indexOf(request.user._id) == -1){
@@ -1174,4 +1174,3 @@ var check_permission = function(request,callback){
 		}
 	});
 }
-

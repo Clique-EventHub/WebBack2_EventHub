@@ -119,14 +119,14 @@ exports.changePassword = function(request,response){
               response.status(500).json({'msg':'error'});
             }
             else response.status(200).json({'msg':'done'});
-          });        
+          });
         }
         else{
           var detail = {
             name : "Untorized",
             message : "old password is invalid"
           };
-          response.status(403).json({'msg':"error",'err':detail});  
+          response.status(403).json({'msg':"error",'err':detail});
         }
       }
     });
@@ -448,15 +448,29 @@ exports.changeAuthentication = function(request, response){
 var checkUserValid = function(user){
 	return new Promise(function(resolve, reject){
 		User.findById(user,function(err, returnedUser){
-			if(err) reject('error in finding user');
+			if(err){
+				var info={};
+				info.code = 500;
+				info.msg = "internal error.";
+				reject(info);
+			}
 			else if(!returnedUser){
-				reject('user not found');
+				var info = {};
+				info.code  = 404;
+				info.msg = 'user not found.';
+				reject(info);
+			}
+			else if(returnedUser[tokenDelete]){
+				var info = {};
+				info.code = 404;
+				info.msg = 'user not found.';
+				reject(info);
 			}
 			else{
-				if(!returnedUser[tokenDelete]){
-					resolve(returnedUser._id);
-				}
-				else resolve(null);
+				var info = {};
+				info.code = 200;
+				info.msg = "done.";
+				resolve(info);
 			}
 		});
 	});
