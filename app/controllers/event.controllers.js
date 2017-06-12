@@ -482,6 +482,9 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 		noti.photo = channel_picture;
 		noti.source = channel_name;
+		noti.seen = false;
+		var d = new Date();
+		noti.timestamp = d.getTime();
 		var errorList = [];
 		for(let i=0;i<who_subscribe.length;i++){
 			promises.push(new Promise(function(resolve, reject){
@@ -508,6 +511,9 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 							noti2.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 							noti2.photo = eventPicture;
 							noti2.source = users[index].tag_like;
+							noti2.seen = false;
+							var date = new Date();
+							noti2.timestamp = date.getTime();
 							User.findByIdAndUpdate(users[index]._id, {
 								$addToSet : {notification : noti2}
 							}, function(err, user){
@@ -549,6 +555,9 @@ var notiPutEvent = function(eventId, who_join, who_interest, eventTitle, eventPi
 		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 		noti.photo = eventPicture;
 		noti.source = eventTitle;
+		noti.seen = false;
+		var date = new Date();
+		noti.timestamp = date.getTime();
 		var errorList = [];
 		var promises2 = [];
 		for(let i=0;i<who_interest.length;i++){
@@ -615,6 +624,9 @@ var notiDeleteEvent = function(eventId, callback){
 			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
 			noti.photo = returnedInfo.picture;
 			noti.source = returnedInfo.title;
+			noti.seen = false;
+			var date = new Date();
+			noti.timestamp = date.getTime();
 			for(let i=0;i<returnedInfo.who_join.length;i++){
 				promises[promises.length] = new Promise(function(resolve, reject){
 					let index = i;
@@ -671,6 +683,9 @@ var notiInfoForJoinPeople = function(eventId, who_join, description, eventPictur
 		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 		noti.photo = eventPicture;
 		noti.source = eventTitle;
+		noti.seen = false;
+		var date = new Date();
+		noti.timestamp = date.getTime();
 		var errorList = [];
 		var promises = [];
 		for(let i=0;i<who_join.length;i++){
@@ -1174,4 +1189,3 @@ var check_permission = function(request,callback){
 		}
 	});
 }
-
