@@ -66,7 +66,8 @@ module.exports = function(){
 	require('../app/routes/event.routes')(app);
 	require('../app/routes/channel.routes')(app);
 	require('../app/routes/tag.routes')(app);
-	require('../app/routes/provider.routes')(app);
+	require('../app/routes/admin.routes')(app);
+	// require('../app/routes/provider.routes')(app);
 	require('../app/routes/user.routes')(app);
 	require('../app/routes/form.routes')(app);
 	//end setting up routing -------------------------------------
