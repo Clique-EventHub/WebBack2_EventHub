@@ -59,7 +59,7 @@ exports.render = function(request, response){
 
 exports.joinAnEvent = function(request, response, next){
 	if(request.user){
-		checkUserAndEvent(request.user, request.query.id)
+		checkUserAndEvent(request.user._id, request.query.id)
 		.then(function(returnedInfo){
 			var promises = [];
       if(returnedInfo.hasOwnProperty('msg')){
@@ -86,7 +86,7 @@ exports.joinAnEvent = function(request, response, next){
 
 exports.interestAnEvent = function(request, response, next){
 	if(request.user){
-		checkUserAndEvent(request.user, request.query.id)
+		checkUserAndEvent(request.user._id, request.query.id)
 		.then(function(returnedInfo){
       if(returnedInfo.hasOwnProperty('msg')){
         response.status(returnedInfo.code).json({msg:returnedInfo.msg});
@@ -107,7 +107,7 @@ exports.interestAnEvent = function(request, response, next){
 
 exports.uninterestAnEvent = function(request, response, next){
 	if(request.user){
-		checkUserAndEvent(request.user, request.query.id)
+		checkUserAndEvent(request.user._id, request.query.id)
 		.then(function(returnedInfo){
 			if(returnedInfo.hasOwnProperty('msg')){
 				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
@@ -978,7 +978,7 @@ var checkUserAndChannel = function(user, channel){
         else if(!returnedInfo){
 					//console.log('problem2');
           var data = {};
-          data['msg'] = "channel not exist"
+          data['msg'] = "channel not exist";
 					data['code'] = 404;
           reject(data);
         }
@@ -999,21 +999,21 @@ var checkUserAndChannel = function(user, channel){
         if(err){
 					//console.log('problem4');
           var data = {};
-          data['msg'] = "error in finding user"
+          data['msg'] = "error in finding user";
 					data['code'] = 500;
 					reject(data);
         }
         else if(!returnedUser){
 					//console.log('problem5');
           var data = {};
-          data['msg'] = "no user exist"
+          data['msg'] = "no user exist";
 					data['code'] = 404;
           reject(data);
         }
         else if(returnedUser['tokenDelete']){
 					//console.log('problem6');
           var data = {};
-          data['msg'] = "user deleted"
+          data['msg'] = "user deleted";
 					data['code'] = 404;
           reject(data);
         }
@@ -1052,7 +1052,7 @@ var checkUserAndEvent = function(user, event){
         else if(!returnedInfo){
 					//console.log('problem2');
           var data = {};
-          data['msg'] = "event not exist"
+          data['msg'] = "event not exist";
 					data['code'] = 404;
           reject(data);
         }
@@ -1073,21 +1073,21 @@ var checkUserAndEvent = function(user, event){
         if(err){
 					//console.log('problem4');
           var data = {};
-          data['msg'] = "error in finding user"
+          data['msg'] = "error in finding user";
 					data['code'] = 500;
 					reject(data);
         }
         else if(!returnedUser){
 					//console.log('problem5');
           var data = {};
-          data['msg'] = "no user exist"
+          data['msg'] = "no user exist";
 					data['code'] = 404;
           reject(data);
         }
         else if(returnedUser['tokenDelete']){
 					//console.log('problem6');
           var data = {};
-          data['msg'] = "user deleted"
+          data['msg'] = "user deleted";
 					data['code'] = 404;
           reject(data);
         }

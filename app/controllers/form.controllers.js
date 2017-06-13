@@ -1,5 +1,6 @@
 var Event = require('mongoose').model('Event'); // collections
 var Form = require('mongoose').model('Form');
+var Admin = require('./admin.controllers');
 
 var path = require('path');
 var mkdirp = require('mkdirp');
@@ -19,8 +20,8 @@ exports.listall = function(request,response){
 // export form
 function exportForm (data,callback){
 	const fileName = data.title;
-	//	const url = `api.cueventhub.com/download/form/${fileName}.csv`;
-	const url = fileName+'.csv';	
+	//const url = `api.cueventhub.com/download/form/${fileName}.csv`;
+	//const url = fileName+'.csv';	
 	console.log('data responses',data.responses);	
 	bluebird.map(data.responses, element => {
 		let temp = {};
@@ -58,12 +59,13 @@ function exportForm (data,callback){
 }
 
 
-function checkPermission (request, channel, callback) {
+function checkPermission (request, event, callback) {
 	let user = request.user;
 	//console.log('user',user);
 	if(user){
 
-		if(user.admin_channels.indexOf(channel) == -1){
+		if(user.admin_events.indexOf(event) === -1){
+			console.error('no permission');
 			callback ({err:"No permission","code":403});
 		}
 		else callback({msg:'OK'});
@@ -179,12 +181,13 @@ exports.createForm = function(request, response){
 	});	
 	let form_id = request.query.id;
 	process.then( () => {
-		if(request.body.channel === undefined) {
-			console.error("channel is undefined");
-			return Promise.reject({err:"Please Provide channel",code:400});	
+		if(request.body.event === undefined || request.body.channel === undefined) {
+			console.error("channel or event is undefined");
+			return Promise.reject({err:"channel or event is not provided",code:400});	
 		}
+
 		else return new Promise( (resolve,reject) => {
-			checkPermission(request, request.body.channel, 
+			checkPermission(request, request.body.event, 
 			(data) => {
 				if(data.err) reject(data);
 				else resolve(data);
@@ -215,7 +218,11 @@ exports.createForm = function(request, response){
 		else return Promise.reject(info);
 	}).then( (newForm) => {
 		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"}); 
-		else response.status(200).json({msg:'done',id:newForm._id});
+		else{
+			if(form_id !== undefined) status = 200;
+			else status = 201;
+			response.status(status).json({msg:'done',id:newForm._id});
+		}
 	}).catch( (info) => {
 		console.error(info);
 		response.status(info.code ? info.code : 500).json(info ? info : {err:"Internal error"});
@@ -262,27 +269,32 @@ exports.responseForm = function(request, response){
 }
 
 
-
-
 // delete form
 exports.deleteForm = function(request,response){
-		Form.findByIdAndUpdate(request.query.id,{
-			tokenDelete : true
-		}, (err,returnedForm) => {
-			if(err){
-				console.error('response form error:', request);
-				response.status(500).json({err:'Internal error'});
-			}
-			else if(!returnedForm){
-				console.error('response form : form not found', request);
-				response.status(404).json({err:'Form not found'});
-			}
-			else{
-				console.log('response form success');
-				console.log(returnedForm);
-				response.status(200).json({msg:"done"});
-			}
-		});	
+	Form.findByIdAndUpdate(request.query.id,{
+		tokenDelete : true
+	}, (err,returnedForm) => {
+		if(err){
+			console.error('response form error:', request);
+			response.status(500).json({err:'Internal error'});
+		}
+		else if(!returnedForm){
+			console.error('response form : form not found', request);
+			response.status(404).json({err:'Form not found'});
+		}
+		else{
+			checkPermission(request,returnedForm.event, (res) => {
+				if(res.err){
+					response.status(res.code).json({res});
+				}
+				else{
+					console.log('response form success');
+					console.log(returnedForm);
+					response.status(200).json({msg:"done"});
+				}
+			});
+		}
+	});	
 }
 
 exports.clearForm = function(request,response){

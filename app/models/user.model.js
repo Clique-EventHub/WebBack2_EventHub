@@ -139,7 +139,14 @@ var userSchema = new Schema({
 		default:null
 	},
 
-	admin_channels:[],
+	admin_channels:{
+		type : [],
+		default : []
+	},
+	admin_events:{
+		type : [],
+		default : []
+	},
 	join_events:[],
 	interest_events:[],
 	subscribe_channels:[],
