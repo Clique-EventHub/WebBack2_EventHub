@@ -257,6 +257,40 @@ var queryFindChannelForUser = function(id){
 	});
 };
 
+exports.sawNoti = function(request, response){
+	if(request.user){
+		for(let i=0;i<request.body.notification.length;i++){
+			for(let j=0;j<request.user.notification.length;j++){
+				if(request.user.notification[j]['timestamp'] == request.body.notification[i]['timestamp'] &&
+						request.user.notification[j]['link'] == request.body.notification[i]['link'] &&
+						request.user.notification[j]['title'] == request.body.notification[i]['title']){
+					request.user.notification[j]['seen'] = true;
+					break;
+				}
+			}
+		}
+		User.findByIdAndUpdate(request.user._id, {
+			notification : request.user.notification
+		}, function(err, updatedUser){
+			if(err){
+				response.status(500).json({msg:"internal error."});
+			}
+			else if(!updatedUser){
+				response.status(404).json({msg:"user not found."});
+			}
+			else{
+				response.status(201).json({msg:"done."});
+			}
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
 exports.subScribeChannel = function(request, response){
 	if(request.user){
 		checkUserAndChannel(request.user._id, request.query.id)

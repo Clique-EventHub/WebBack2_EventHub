@@ -168,7 +168,10 @@ var userSchema = new Schema({
 		type: 'Moment',
 		default: new Moment()
 	},
-	notification:[],
+	notification:{
+		type:[],
+		default:[]
+	},
 	firstNameTH:{
 		type: String,
 		default: null

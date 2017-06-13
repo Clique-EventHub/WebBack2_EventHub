@@ -477,18 +477,18 @@ var putStat = function(id,callback){
 var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscribe, tags, eventPicture){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var noti = {};
-		noti.title = channel_name+" added a new event.";
-		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
-		noti.photo = channel_picture;
-		noti.source = channel_name;
-		noti.seen = false;
-		var d = new Date();
-		noti.timestamp = d.getTime();
 		var errorList = [];
 		for(let i=0;i<who_subscribe.length;i++){
 			promises.push(new Promise(function(resolve, reject){
 				let index = i;
+				var noti = {};
+				noti.title = channel_name+" added a new event.";
+				noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+				noti.photo = channel_picture;
+				noti.source = channel_name;
+				noti.seen = false;
+				var d = new Date();
+				noti.timestamp = d.getTime();
 				User.findByIdAndUpdate(who_subscribe[index], {
 					$addToSet : {notification : noti}
 				}, function(err, user){
@@ -499,11 +499,11 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 				});
 			}));
 		}
-		promises.push(new Promise(function(){
+		promises.push(new Promise(function(resolve, reject){
 			let promises2 = [];
 			User.find({tag_like : { $in : tags}}, function(users){
-				for(let i=0;i<users.length;i++){
-					if(who_subscribe.indexOf(users[i]._id) != -1){
+				for(let i=0;users != null && i<users.length;i++){
+					if(who_subscribe.indexOf(users[i]._id) == -1){
 						promises2.push(new Promise(function(resolve, reject){
 							let index = i;
 							var noti2 = {};
@@ -525,9 +525,14 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 						}));
 					}
 				}
-				Promise.all(promises2).then(function(resolve, reject){
+				if(users != null){
+					Promise.all(promises2).then(function(){
+						resolve();
+					});
+				}
+				else{
 					resolve();
-				});
+				}
 			});
 		}));
 		Promise.all(promises).then(function(){

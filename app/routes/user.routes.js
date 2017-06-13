@@ -16,6 +16,7 @@ module.exports = function(app){
     scope : 'email'
   }));
 
+  app.put('/saw-noti', user.sawNoti);
 
   app.get('/oauth/facebook/callback', function(req, res, next) {
     // generate the authenticate method and pass the req/res
@@ -35,7 +36,7 @@ module.exports = function(app){
   app.route('/user/subscribe')
       .get(user.getSubbedChannnel)
       .put(user.subScribeChannel);
-      
+
   app.route('/user/join')
       .get(user.getJoinedEvent)
       .put(user.joinAnEvent);
