@@ -219,9 +219,17 @@ exports.createForm = function(request, response){
 	}).then( (newForm) => {
 		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"}); 
 		else{
-			if(form_id !== undefined) status = 200;
-			else status = 201;
-			response.status(status).json({msg:'done',id:newForm._id});
+			Event.findByIdAndUpdate(request.body.event,{
+				$push : {forms: newForm._id}
+			}, (err) => {
+				if(err){
+					response.status(500).json({msg:"Internal error"});
+					console.error("update form to event error");
+				}
+				if(form_id !== undefined) status = 200;
+				else status = 201;
+				response.status(status).json({msg:'done',id:newForm._id});
+			});	
 		}
 	}).catch( (info) => {
 		console.error(info);
