@@ -477,15 +477,18 @@ var putStat = function(id,callback){
 var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscribe, tags, eventPicture){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var noti = {};
-		noti.title = channel_name+" added a new event.";
-		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
-		noti.photo = channel_picture;
-		noti.source = channel_name;
 		var errorList = [];
 		for(let i=0;i<who_subscribe.length;i++){
 			promises.push(new Promise(function(resolve, reject){
 				let index = i;
+				var noti = {};
+				noti.title = channel_name+" added a new event.";
+				noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
+				noti.photo = channel_picture;
+				noti.source = channel_name;
+				noti.seen = false;
+				var d = new Date();
+				noti.timestamp = d.getTime();
 				User.findByIdAndUpdate(who_subscribe[index], {
 					$addToSet : {notification : noti}
 				}, function(err, user){
@@ -496,11 +499,11 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 				});
 			}));
 		}
-		promises.push(new Promise(function(){
+		promises.push(new Promise(function(resolve, reject){
 			let promises2 = [];
 			User.find({tag_like : { $in : tags}}, function(users){
-				for(let i=0;i<users.length;i++){
-					if(who_subscribe.indexOf(users[i]._id) != -1){
+				for(let i=0;users != null && i<users.length;i++){
+					if(who_subscribe.indexOf(users[i]._id) == -1){
 						promises2.push(new Promise(function(resolve, reject){
 							let index = i;
 							var noti2 = {};
@@ -508,6 +511,9 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 							noti2.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 							noti2.photo = eventPicture;
 							noti2.source = users[index].tag_like;
+							noti2.seen = false;
+							var date = new Date();
+							noti2.timestamp = date.getTime();
 							User.findByIdAndUpdate(users[index]._id, {
 								$addToSet : {notification : noti2}
 							}, function(err, user){
@@ -519,9 +525,14 @@ var notiPostEvent = function(eventId, channel_name, channel_picture, who_subscri
 						}));
 					}
 				}
-				Promise.all(promises2).then(function(resolve, reject){
+				if(users != null){
+					Promise.all(promises2).then(function(){
+						resolve();
+					});
+				}
+				else{
 					resolve();
-				});
+				}
 			});
 		}));
 		Promise.all(promises).then(function(){
@@ -549,6 +560,9 @@ var notiPutEvent = function(eventId, who_join, who_interest, eventTitle, eventPi
 		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 		noti.photo = eventPicture;
 		noti.source = eventTitle;
+		noti.seen = false;
+		var date = new Date();
+		noti.timestamp = date.getTime();
 		var errorList = [];
 		var promises2 = [];
 		for(let i=0;i<who_interest.length;i++){
@@ -615,6 +629,9 @@ var notiDeleteEvent = function(eventId, callback){
 			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
 			noti.photo = returnedInfo.picture;
 			noti.source = returnedInfo.title;
+			noti.seen = false;
+			var date = new Date();
+			noti.timestamp = date.getTime();
 			for(let i=0;i<returnedInfo.who_join.length;i++){
 				promises[promises.length] = new Promise(function(resolve, reject){
 					let index = i;
@@ -671,6 +688,9 @@ var notiInfoForJoinPeople = function(eventId, who_join, description, eventPictur
 		noti.link = 'https://www.cueventhub.com/event?id='+eventId+'&stat=true';
 		noti.photo = eventPicture;
 		noti.source = eventTitle;
+		noti.seen = false;
+		var date = new Date();
+		noti.timestamp = date.getTime();
 		var errorList = [];
 		var promises = [];
 		for(let i=0;i<who_join.length;i++){
