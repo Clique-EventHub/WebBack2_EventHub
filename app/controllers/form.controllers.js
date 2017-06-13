@@ -27,7 +27,7 @@ function exportForm (data,callback){
 		let temp = {};
 		temp["_firstName"] = element.firstName;
 		temp["_lastName"] = element.lastName;
-
+		check box/spinner
 		for(let attName in element.answers)
 			temp[attName] = element.answers[attName];
 
