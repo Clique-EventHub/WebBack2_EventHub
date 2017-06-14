@@ -1,12 +1,16 @@
 # **FORM**
-API about form
+
 
 ## Get form
 
 Return detail of form.
+
 **parameters:**
+
 *no param:* return title,event,channel,questions
+
 *responses:* include responses
+
 *export:* return csv of responses
 
 
