@@ -59,7 +59,9 @@ Return detail of form.
 ## Create/Edit form  
 
 If id is provide in params then API will edit the form.
+
 Otherwise, API will create a new form by use body as data.
+
 New form will automatically attach to event detail.
 
 * **URL**
@@ -89,8 +91,11 @@ New form will automatically attach to event detail.
 	*__Optional fields__: questions*
 
 	*__questions template__:* object with following fields
+
     "question": *STRING here*
+
     "type" : *short answer/bullet/check box/spinner*
+
     "choices": []  *left this field as empty list if question's type has no choice*
     
 	
@@ -116,7 +121,7 @@ New form will automatically attach to event detail.
 
 * **URL**
 
-  `/form'
+  `/form`
 
 * **Method:**
 
@@ -156,7 +161,7 @@ New form will automatically attach to event detail.
 
 * **URL**
 
-  `/form'
+  `/form`
 
 * **Method:**
 
@@ -174,7 +179,7 @@ New form will automatically attach to event detail.
 
 * **Body**
 
-  None
+  `None`
 
 * **Success Response:**
 
