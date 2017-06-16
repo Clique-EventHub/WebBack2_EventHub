@@ -1,6 +1,7 @@
 var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
+var mongoose = require('mongoose');
 
 exports.addAdminChannel = function(request, response){
   checkUserAndChannel(request.body.user, request.query.id)
@@ -419,9 +420,8 @@ exports.checkJoinPeopleIn = function(request, response){
           Event.findById(request.query.id, function(err, event){
             var join_users = [];
             for(let i=0;i<request.body.users.length;i++){
-              if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(request.body.users[i]);
+              if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
             }
-            console.log("join_users = "+join_users);
             Event.findByIdAndUpdate(event._id, {
               $addToSet : {who_completed : {$each : join_users}},
               $pull : {who_join : {$in : join_users}}
@@ -433,8 +433,6 @@ exports.checkJoinPeopleIn = function(request, response){
                 response.status(404).json({msg:"event not found."});
               }
               else{
-                console.log("updatedEvent.who_completed = "+updatedEvent.who_completed);
-                console.log("updatedEvent.who_join = "+updatedEvent.who_join);
                 var errorList = [];
                 var noti = {};
             		noti.title = "You have attended "+event.title+".";
@@ -443,14 +441,15 @@ exports.checkJoinPeopleIn = function(request, response){
             		noti.source = event.title;
                 noti.seen = false;
                 let date = new Date();
-                // noti.timestamp = date.getTime();
+                noti.timestamp = date.getTime();
                 var promises = [];
+                var theEvent = mongoose.Types.ObjectId(request.query.id);
                 for(let i=0;i<join_users.length;i++){
                   promises.push(new Promise(function(resolve, reject){
                       var index = i;
                       User.findByIdAndUpdate(join_users[index], {
-                        $pull : {join_events : request.query.id},
-                        $addToSet : {already_joined_events : request.query.id, notification : noti}
+                        $pull : {join_events : theEvent},
+                        $addToSet : {already_joined_events : theEvent, notification : noti}
                       }, function(err, updatedUser){
                         if(err || !updatedUser){
                           errorList.push(join_users[index]);
@@ -484,11 +483,9 @@ exports.checkJoinPeopleIn = function(request, response){
       Event.findById(request.query.id, function(err, event){
         var join_users = [];
         for(let i=0;i<request.body.users.length;i++){
-          if(event.who_join.indexOf(request.body.users[i]) != -1){
-            join_users.push(request.body.users[i]);
-          }
+          if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
         }
-        event.update(event, {
+        Event.findByIdAndUpdate(event._id, {
           $addToSet : {who_completed : {$each : join_users}},
           $pull : {who_join : {$in : join_users}}
         }, function(err, updatedEvent){
@@ -501,20 +498,21 @@ exports.checkJoinPeopleIn = function(request, response){
           else{
             var errorList = [];
             var noti = {};
-        		noti.title = "You have attended "+event.title+".";
-        		noti.link = undefined;
-        		noti.photo = event.picture;
-        		noti.source = event.title;
+            noti.title = "You have attended "+event.title+".";
+            noti.link = undefined;
+            noti.photo = event.picture;
+            noti.source = event.title;
             noti.seen = false;
             let date = new Date();
             noti.timestamp = date.getTime();
             var promises = [];
+            var theEvent = mongoose.Types.ObjectId(request.query.id);
             for(let i=0;i<join_users.length;i++){
               promises.push(new Promise(function(resolve, reject){
                   var index = i;
                   User.findByIdAndUpdate(join_users[index], {
-                    $pull : {join_events : event._id},
-                    $addToSet : {already_joined_events : request.query.id, notification : noti}
+                    $pull : {join_events : theEvent},
+                    $addToSet : {already_joined_events : theEvent, notification : noti}
                   }, function(err, updatedUser){
                     if(err || !updatedUser){
                       errorList.push(join_users[index]);

@@ -489,11 +489,8 @@ var putJoin = function(event_id, user, body, callback){
 	var currentTime = new Date();
 	// user.lastModified = date;
 	if(regId != null && regId != undefined){
-		console.log('in generate year & faculty na');
 		year = regId.substring(0,2);
 		faculty = regId.substring(regId.length-2, regId.length);
-		console.log("yaer"+year);
-		console.log("faculty"+faculty);
 	}
 	var gender = user.gender;
 	if(user.join_events.indexOf(event_id) == -1) user.join_events.push(event_id);
