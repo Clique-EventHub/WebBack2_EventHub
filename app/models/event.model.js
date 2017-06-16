@@ -52,7 +52,7 @@ var eventSchema = new Schema({
 	admins : [],
 
 	forms : [], // list of objects
-	
+
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,
@@ -131,6 +131,10 @@ var eventSchema = new Schema({
 	who_interest: {
 		type:[],
 		default:[]
+	},
+	who_completed : {
+		type : [],
+		default : []
 	},
 	created_date:{
 		type:'Moment',
