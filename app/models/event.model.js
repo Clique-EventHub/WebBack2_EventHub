@@ -49,10 +49,10 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default:false
 	},
-	admins : [],
+	admins : [Schema.Types.ObjectId],
 
 	forms : [], // list of objects
-	
+
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,
@@ -127,10 +127,14 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default: false
 	},
-	who_join: [],
+	who_join: [Schema.Types.ObjectId],
 	who_interest: {
-		type:[],
+		type:[Schema.Types.ObjectId],
 		default:[]
+	},
+	who_completed : {
+		type : [Schema.Types.ObjectId],
+		default : []
 	},
 	created_date:{
 		type:'Moment',

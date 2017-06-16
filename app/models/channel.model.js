@@ -33,7 +33,7 @@ var channelSchema = new Schema({
 		default: new Moment()
 	},
 	who_subscribe:{
-		type: [],
+		type: [Schema.Types.ObjectId],
 		default: []
 	},
 
