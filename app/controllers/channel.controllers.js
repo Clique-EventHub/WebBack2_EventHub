@@ -101,58 +101,85 @@ exports.postChannel = function(request,response,next){
 // route PUT /channel?id=...
 exports.putChannel = function(request,response,next){
 	var id = request.query.id;
-	var info = {};
-
 	// validate input data
 	if(id === undefined ){
 			response.status(400).json({err:"invalid channel"});
 			return;
 	}
-
-	// chcek permission
-	if(request.user){
-		if(request.user.admin_channels.indexOf(id) == -1){
-			response.status(403).json({err:"No permission for edit channel"});
-			return;
-		}
-	}
-	else{
-		if(Object.keys(request.authen).length == 0 )
-			response.status(403).json({err:"Please login"});
-		else
-			response.status(403).json({err:request.authen});
-		return;
-	}
-
-	Channel.findByIdAndUpdate(id,{
-		 // $set : use request body as updated information
-		// same field will be overwritten , new field will be created
-		$set:request.body,
-		// write current date in formate "Date" in field lastModified
-		$currentDate:{lastModified:"Date"}
-	},function(err,channel){
-		if(err){
-			info.msg = "error";
-			response.status(500).json(info);
-			// return next(err);
-		}
-		else if(!channel){
-			info.msg = "channel not found"
-			response.status(400).json(info);
+	checkChannelAvailable(id).catch(function(info){
+		response.status(info.code).json({msg:info.msg});
+	}).then(function(info){
+		// chcek permission
+		if(request.user){
+			if(request.user.admin_channels.indexOf(id) == -1){
+				response.status(403).json({err:"No permission for edit channel"});
+				return;
+			}
 		}
 		else{
-			info.msg = "done";
-			if(request.user){
-				if(request.user.notification != undefined && request.user.notification != null){
-					info.notification = request.user.notification;
-					response.status(200).json(info);
+			if(Object.keys(request.authen).length == 0 )
+				response.status(403).json({err:"Please login"});
+			else
+				response.status(403).json({err:request.authen});
+			return;
+		}
+		var editableFields = ['name', 'picture', 'picture_large'];
+		var editObj = {};
+		for(let i=0;i<editableFields.length;i++){
+			if(request.body.hasOwnProperty(editableFields[i])){
+				editObj[editableFields[i]] = request.body[editableFields[i]];
+			}
+		}
+		if(!(Object.keys(editObj).length === 0 && editObj.constructor === Object)){
+			Channel.findByIdAndUpdate(id,{
+				 // $set : use request body as updated information
+				// same field will be overwritten , new field will be created
+				$set:editObj,
+				// write current date in formate "Date" in field lastModified
+				$currentDate:{lastModified:"Date"}
+			},function(err,channel){
+				if(err){
+					var info = {};
+					info.msg = "error";
+					response.status(500).json(info);
+				}
+				else if(!channel){
+					var info = {};
+					info.msg = "channel not found.";
+					response.status(404).json(info);
 				}
 				else{
-					response.status(200).json(info);
+					var info = {};
+					info.msg = "done";
+					if(request.user){
+						if(request.user.notification != undefined && request.user.notification != null){
+							info.notification = request.user.notification;
+							response.status(201).json(info);
+						}
+						else{
+							response.status(201).json(info);
+						}
+					}
+					else{
+						response.status(201).json(info);
+					}
+				}
+			});
+		}
+		else{
+			if(request.user){
+				var info = {};
+				info.msg = "done.";
+				if(request.user.notification != undefined && request.user.notification != null){
+					info.notification = request.user.notification;
+					response.status(201).json(info);
+				}
+				else{
+					response.status(201).json(info);
 				}
 			}
 			else{
-				response.status(200).json(info);
+				response.status(201).json(info);
 			}
 		}
 	});
@@ -353,3 +380,29 @@ exports.searchChannel = function(request,response,next){
 			}
 	});
 }
+
+var checkChannelAvailable = function(channelId){
+	return new Promise(function(resolve,reject){
+		Channel.findById(channelId, function(err, channel){
+			if(err){
+				var info = {};
+				info.code = 500;
+				info.msg = "internal error.";
+				reject(info);
+			}
+			else if(!channel || channel['tokenDelete'] ){
+				var info = {};
+				info.code = 404;
+				info.msg = "channel not found.";
+				reject(info);
+			}
+			else{
+				var info = {};
+				info.code = 200;
+				info.msg = "done.";
+				resolve(info);
+			}
+		});
+	});
+
+};
