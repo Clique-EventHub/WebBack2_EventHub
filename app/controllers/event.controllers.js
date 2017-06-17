@@ -206,7 +206,9 @@ exports.putEvent = function(request,response,next){
 	var keys = Object.keys(request.body);
 	var editableFields = ['about','video','location','date_start','date_end',
 		'picture','picture_large','year_require','faculty_require','tags',
-		'agreement','contact_information'];
+		'agreement','contact_information','joinable_start_time','joinable_end_time',
+		'joinable_amount','time_start','time_end','optional_field','require_field',
+		'show','outsider_accessible'];
 	var detail = [];
 	for(var i=0;i<keys.length;i++){
 		if(editableFields.indexOf(keys[i]) == -1){
@@ -230,23 +232,23 @@ exports.putEvent = function(request,response,next){
 			},function(err){
 				if(err){
 					console.error(err);
-					response.status(500).json({err:"internal error"});
+					response.status(500).json({err:"internal error."});
 				}
 				else{
-					var info = {"msg":"done"};
+					var info = {"msg":"done."};
 					if(request.user){
 						if(request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
-							response.status(200).json(info);
+							response.status(201).json(info);
 							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 						else{
-							response.status(200).json(info);
+							response.status(201).json(info);
 							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 					}
 					else{
-						response.status(200).json(info);
+						response.status(201).json(info);
 						notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 					}
 				}
