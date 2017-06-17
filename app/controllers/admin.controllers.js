@@ -141,8 +141,9 @@ exports.deleteAdminChannel = function(request, response){
           response.status(code).json(err);
         }
         else{
+          var queryId = mongoose.Types.ObjectId(request.query.id);
           User.findByIdAndUpdate(request.body.user, {
-            $pull : {admin_channels : request.query.id}
+            $pull : {admin_channels : queryId}
           }, {multi : true}, function(err, updatedUser){
             if(err){
               response.status(500).json({msg:"internal error."});
@@ -151,8 +152,9 @@ exports.deleteAdminChannel = function(request, response){
               response.status(404).json({msg : "user not found."});
             }
             else{
+              var bodyUser = mongoose.Types.ObjectId(request.body.user);
               Channel.findByIdAndUpdate(request.query.id, {
-                $pull : {admins : request.body.user}
+                $pull : {admins : bodyUser}
               }, {multi : true}, function(err, updatedChannel){
                 if(err){
                   response.status(500).json({msg:"internal error."});
@@ -186,8 +188,9 @@ exports.deleteAdminEvent = function(request, response){
               response.status(code1).json(err1);
             }
             else{
+              var queryId = mongoose.Types.ObjectId(request.query.id);
               User.findByIdAndUpdate(request.body.user, {
-                $pull : {admin_events : request.query.id}
+                $pull : {admin_events : queryId}
               }, {multi : true}, function(err, updatedUser){
                 if(err){
                   response.status(500).json({msg:"internal error."});
@@ -196,8 +199,9 @@ exports.deleteAdminEvent = function(request, response){
                   response.status(404).json({msg : "user not found."});
                 }
                 else{
+                  var bodyUser = mongoose.Types.ObjectId(request.body.user);
                   Event.findByIdAndUpdate(request.query.id, {
-                    $pull : {admins : request.body.user}
+                    $pull : {admins : bodyUser}
                   }, {multi : true}, function(err, updatedEvent){
                     if(err){
                       response.status(500).json({msg:"internal error."});
@@ -218,8 +222,9 @@ exports.deleteAdminEvent = function(request, response){
           response.status(code).json(err);
         }
         else{
+          var queryId = mongoose.Types.ObjectId(request.query.id);
           User.findByIdAndUpdate(request.body.user, {
-            $pull : {admin_events : request.query.id}
+            $pull : {admin_events : queryId}
           }, {multi : true}, function(err, updatedUser){
             if(err){
               response.status(500).json({msg:"internal error."});
@@ -228,8 +233,9 @@ exports.deleteAdminEvent = function(request, response){
               response.status(404).json({msg : "user not found."});
             }
             else{
+              var bodyUser = mongoose.Types.ObjectId(request.body.user);
               Event.findByIdAndUpdate(request.query.id, {
-                $pull : {admins : request.body.user}
+                $pull : {admins : bodyUser}
               }, {multi : true}, function(err, updatedEvent){
                 if(err){
                   response.status(500).json({msg:"internal error."});
