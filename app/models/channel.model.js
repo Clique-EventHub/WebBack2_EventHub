@@ -18,8 +18,11 @@ var channelSchema = new Schema({
 		type: 'Moment',
 		default: new Moment()
 	},
-	picture: String,
-	picture_large: String,
+	picture: {
+		type: String,
+		default: null
+	}
+	picture_large: [String],
 	events : [Schema.Types.ObjectId],
 	events_bin : [Schema.Types.ObjectId],
 	admins : [Schema.Types.ObjectId],
@@ -27,7 +30,6 @@ var channelSchema = new Schema({
 		type:Boolean,
 		default:false
 	},
-
 	lastModified:{
 		type: 'Moment',
 		default: new Moment()
@@ -38,7 +40,10 @@ var channelSchema = new Schema({
 	},
 
 	//stat--------------
-	visit:Number
+	visit: {
+		type:Number,
+		default: 0
+	}
 	//stat--------------
 
 
