@@ -9,7 +9,7 @@ var checkPermission = require('../../config/utility').checkPermission;
 var findMODEL = require('../../config/utility').findMODEL;
 
 const picturePath = path.join(__dirname,'../../','data/pictures/');
-
+const mongoIDsize = 24;
 
 //route POST /picture?size=...&field=... with req body
 exports.postPicture= function(request,response,next){
@@ -41,8 +41,7 @@ exports.postPicture= function(request,response,next){
 		}
 		var PORT = config.PORT === 80 ? '' : ':'+config.PORT;
 		info = {};
-		dest = field;
-		dest += (size==='large') ? '/large' : '/small';
+		dest = `${field}/${id}`;
 		//such a callback hell
 		info.msg = 'file is not valid';
 		console.log('uploading...');
@@ -85,21 +84,26 @@ exports.postPicture= function(request,response,next){
 								// 	return next(err);
 							}
 							else{
-								let url = config.URL +'/picture/'+field[0] + size[0] +request.file.filename;
+								let url = config.URL + '/picture/'+ field[0] + id +request.file.filename;
 								//save picture url to model 
 								new Promise( (resolve,reject) => {
 									console.log('check size');
 									if(size=='small'){
-										let len = `${config.URL}/picture/`.length;
-										name = model.picture.substr(len+2,model.picture.length);
-
-										deletePicture(id, field, size, name, (err) => {
-											if(err) reject(err);	
-											else{
-												model.picture = url;
-												resolve();
-											}
-										});
+										let len = `${config.URL}/picture/x${id}`.length;
+										if(!model.picture){
+											model.picture = url;
+											resolve();
+										} 
+										else{
+											name = model.picture.substr(len,model.picture.length);
+											deletePicture(id, field, size, name, (err) => {
+												if(err) reject(err);	
+												else{
+													model.picture = url;
+													resolve();
+												}
+											});
+										}
 									} 
 									else if(size === 'large'){
 										model.picture_large.push(url);
@@ -146,18 +150,13 @@ exports.getPicture = function(request,response,next){
 
 	if(request.params.name[0] === 'e') dest += 'event/';
 	else if (request.params.name[0] === 'c') dest += 'channel/';
-	else dest = '';	
 
 	if(dest === '') response.status(403).json({err:"invalid url"});
-
-	if(request.params.name[1] === 's') dest += 'small/';
-	else if (request.params.name[1] === 'l') dest += 'large/';
-	else dest = '';
-
-	if(dest === '') response.status(403).json({err:"invalid url"});
-
-	else 
-	response.sendFile(path.join(picturePath,dest,request.params.name.substr(2,request.params.name.length)),function(err){
+	
+	dest += request.params.name.substr(1,1+mongoIDsize) + '/';
+	dest += request.params.name.substr(1+mongoIDsize,request.params.name.length);
+	 
+	response.sendFile(path.join(picturePath,dest),function(err){
     if(err){
       var error = {};
       error.msg = "error in sending file";
@@ -262,3 +261,4 @@ function deletePicture(id, field, size, name, callback){
 		});
 	});
 }
+
