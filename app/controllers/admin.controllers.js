@@ -61,11 +61,9 @@ exports.addAdminEvent = function(request, response){
           }
           check_permission_channel_vol2(request.user, returnedInfo, function(code1, err1, channel){
             if(code1 != 200){
-              console.log("noq yaq");
               response.status(code1).json(err1);
             }
             else{
-              console.log('tang nee q');
               Event.findByIdAndUpdate(request.query.id, {
                 $addToSet : {admins : request.body.user}
               }, function(err, updatedEvent){
@@ -417,7 +415,6 @@ exports.checkJoinPeopleIn = function(request, response){
 	}
   check_permission(request, function(code, err, returnedInfo){
     if(code == 403){
-      console.log(returnedInfo);
       check_permission_channel_vol2(request.user, returnedInfo, function(code1, err1, channel){
         if(code1 != 200){
           response.status(code1).json(err1);
@@ -459,7 +456,6 @@ exports.checkJoinPeopleIn = function(request, response){
                       }, function(err, updatedUser){
                         if(err || !updatedUser){
                           errorList.push(join_users[index]);
-                          console.log(err);
                           resolve();
                         }
                         else{
