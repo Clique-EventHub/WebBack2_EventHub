@@ -230,13 +230,13 @@ exports.deleteChannel = function(request,response,next){
 				},function(err,event){
 					if (err){
 						info.msg = "internal error : deleteChannel";
-						response.status(500).json(info);
+						// response.status(500).json(info);
 						console.error("error while find event : deleteChannel-channel.controllers");
 						// return next(err);
 					}
 					else if(!event){
 						info.msg = "event not found";
-						response.status(404).json(info);
+						// response.status(404).json(info);
 						console.error('event not found:'+channel.events[i]+"deleteChannel-channel.controllers");
 					}
 				});
@@ -246,14 +246,14 @@ exports.deleteChannel = function(request,response,next){
 		if(request.user){
 			if(request.user.notification != undefined && request.user.notification != null){
 				info.notification = request.user.notification;
-				response.status(200).json(info);
+				response.status(201).json(info);
 			}
 			else{
-				response.status(200).json(info);
+				response.status(201).json(info);
 			}
 		}
 		else{
-			response.status(200).json(info);
+			response.status(201).json(info);
 		}
 	});
 }
