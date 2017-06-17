@@ -5,165 +5,157 @@ var Event = require('mongoose').model('Event');
 var Channel = require('mongoose').model('Channel');
 var mkdirp = require('mkdirp');
 var config = require('../../config/config');
+var checkPermission = require('../../config/utility').checkPermission;
+var findMODEL = require('../../config/utility').findMODEL;
 
 const picturePath = path.join(__dirname,'../../','data/pictures/');
-const baseUrl = 'api.cuevethub.com/';
+
 
 //route POST /picture?size=...&field=... with req body
 exports.postPicture= function(request,response,next){
-	var info={};
-	var PORT = config.PORT === 80 ? '' : ':'+config.PORT;
-	dest = 'request.query.field';
-	dest += (request.query.size=='large') ? '/large' : '/small';
-	//such a callback hell
-	info.msg = 'file is not valid';
-	mkdirp(`${picturePath}${dest}`,function(err){ // save picture on filesystem
-		if(err){
-			info.msg = "internal error postPicture";
-			console.error("error mkdirp : postPicture - picture.controllers");
-			response.status(500).json(info);
-			// return next(err);
+	
+	let id = request.query.id;
+	let field = request.query.field;
+	let size = request.query.size;
+
+	if(!id || !field || !size){
+		response.status(403).json({err:"Please provide id, field and size"});
+		return;
+	}
+	else if(["event","channel"].indexOf(field) < 0){
+		response.status(403).json({err:"invalid field"});
+		return;
+	}
+	else if(["small","large"].indexOf(size) < 0){
+		response.status(403).json({err:"invalid field"});
+		return;
+	}
+
+	
+	// sorry for callback hell
+	checkPermission(request, id, field, (info) => {
+		console.log('post picture...',new Date());
+		if(info.err){
+			response.status(403).json(info);
+			return;
 		}
-		else{
-			//path to save picture
-			var storage = multer.diskStorage({
-				destination: function(request,file,callback){
-					callback(null,dest);
-				},
-				filename: function(request,file,callback){
-					callback(null,(Math.random()+1).toString(36).substring(7)+Date.now()+path.extname(file.originalname));
-				}
-			});
-			//upload is first-class function
-			var upload = multer({storage:storage}).single('picture');
-			//upload to event folder
-			if(request.query.field=='event'){
-				Event.findById(request.query.id,function(err,event){
-					if(err) {
-						info.msg = "error find event : postPicture - picture.controllers";
-						console.error("error find event : postPicture - picture.controllers");
-						response.status(500).json(info);
-						// return next(err);
+		var PORT = config.PORT === 80 ? '' : ':'+config.PORT;
+		info = {};
+		dest = field;
+		dest += (size==='large') ? '/large' : '/small';
+		//such a callback hell
+		info.msg = 'file is not valid';
+		console.log('uploading...');
+
+		mkdirp(`${picturePath}${dest}`,function(err){ // save picture on filesystem
+			if(err){
+				info.msg = "internal error postPicture";
+				console.error("error mkdirp : postPicture - picture.controllers");
+				response.status(500).json(info);
+				// return next(err);
+			}
+			else{
+				//path to save picture
+				var storage = multer.diskStorage({
+					destination: function(request,file,callback){
+						callback(null,`${picturePath}${dest}`);
+					},
+					filename: function(request,file,callback){
+						callback(null,(Math.random()+1).toString(36).substring(7)+Date.now()+path.extname(file.originalname).toLowerCase());
 					}
-					else if(!event){
-						console.error("event not found : postPicture - picture.controllers");
-						info.msg = "event not found : postPicture - picture.controllers";
-						response.status(404).json(info);
+				});
+				//upload is first-class function
+				var upload = multer({storage:storage}).single('picture');
+				//upload to model folder
+
+				findMODEL(id,field,(err,model) =>{
+					if(err){
+						response.status(err.code).json(err);
+						return;
 					}
 					else{
 						// upload picture
 						upload(request,response,function(err){
-						 	if(err){
-						 		info.msg = "something went wrong";
-						 		console.error("error upload0 : postPicture - picture.controllers");
-						 		response.status(500).json(info);
-								// 	return next(err);
-						 	}
-						 	else{
-								let url = config.URL +'/picture/'+request.query.field[0] + request.query.size[0] +request.file.filename;
-								//save picture url to event
-								if(request.query.size=='small') event.picture = url;
-								else event.picture_large.push(url);
-								//update event
-								event.update(event,function(err){
-									if(err){
-										info.msg = "something went wrong";
-										response.status(500).json(info);
-										console.error("error update event : postPicture - picture.controllers");
-										// return next(err);
-									}
-									else {
-										info.msg = 'done';
-										info.url = url;
-										if(request.user){
-											if(request.user.notification != undefined && request.user.notification != null){
-												info.notification = request.user.notification;
-												response.status(201).json(info);
-											}
-											else{
-												response.status(201).json(info);
-											}
-										}
-										else{
-											response.status(201).json(info);
-										}
-									}
-								});
-							}
-						});
-					}
-				});
-			}
-			// upload to channel folder
-			else{
-				Channel.findById(request.query.id,function(err,channel){
-					if(err){
-						info.msg = 'error';
-						response.status(500).json(info);
-						console.error("error find channel : postPicture - picture.controllers");
-						// return next(err);
-					}
-					else if(!channel){
-						info.msg = 'channel not found';
-						response.status(404).json(info);
-						console.error("channel not found : postPicture - picture.controllers");
-					}
-					else{
-						upload(request,response,function(err){
 							if(err){
+
 								info.msg = "something went wrong";
+								console.error("error upload0 : postPicture - picture.controllers");
+								console.error(err);
 								response.status(500).json(info);
-								console.error("error upload1 : postPicture - picture.controllers");
-								// return next(err);
+								// 	return next(err);
 							}
 							else{
-								let url = config.URL +'/picture/'+request.query.field[0] + request.query.size[0] +request.file.filename;
-								// save picture url to channels
-								if(request.query.size=='small')	channel['picture']=url
-								else channel['picture_large']=url;
-								// update channel
-								channel.update(channel,function(err){
-									if(err) {
-										info.msg = "something went wrong";
-										reponse.status(500).json(info);
-										// return next(err);
-									}
-									else{
-										info.msg = "done";
-										info.url = url;
-										if(request.user){
-											if(request.user.notification != undefined && request.user.notification != null){
-												info.notification = request.user.notification;
-												response.status(201).json(info);
-											}
+								let url = config.URL +'/picture/'+field[0] + size[0] +request.file.filename;
+								//save picture url to model 
+								new Promise( (resolve,reject) => {
+									console.log('check size');
+									if(size=='small'){
+										let len = `${config.URL}/picture/`.length;
+										name = model.picture.substr(len+2,model.picture.length);
+
+										deletePicture(id, field, size, name, (err) => {
+											if(err) reject(err);	
 											else{
-												response.status(201).json(info);
+												model.picture = url;
+												resolve();
 											}
+										});
+									} 
+									else if(size === 'large'){
+										model.picture_large.push(url);
+										resolve();									
+									}
+									else reject({err:"invalid size"});
+								}).then( () => {
+									//update model
+									console.log('updating model...');
+									model.update(model,function(err){
+										if(err){
+											info.msg = "something went wrong";
+											response.status(500).json(info);
+											console.error("error update model : postPicture - picture.controllers");
+											// return next(err);
 										}
-										else{
+										else {
+											info.msg = 'done';
+											info.url = url;
+											if(request.user){
+												if(request.user.notification != undefined && request.user.notification != null){
+													info.notification = request.user.notification;
+												}
+											}
 											response.status(201).json(info);
 										}
-									}
+									});
+								}).catch( (err) => {
+									console.log(err);
+									response.status(err.code ? err.code : 500).json(err);
 								});
 							}
 						});
 					}
 				});
 			}
-		}
+		});
 	});
 }
 
 // route GET /picture/:name
 exports.getPicture = function(request,response,next){
 	let	dest = '';
+
 	if(request.params.name[0] === 'e') dest += 'event/';
-	else if (request.params.name[0] === 'e') dest += 'channel';
+	else if (request.params.name[0] === 'c') dest += 'channel/';
 	else dest = '';	
-	if(request.params.name[1] === 's') dest += 'small/';
-	else if (request.params.name[1] === 's') dest += 'large/';
-	else dest = '';
+
 	if(dest === '') response.status(403).json({err:"invalid url"});
+
+	if(request.params.name[1] === 's') dest += 'small/';
+	else if (request.params.name[1] === 'l') dest += 'large/';
+	else dest = '';
+
+	if(dest === '') response.status(403).json({err:"invalid url"});
+
 	else 
 	response.sendFile(path.join(picturePath,dest,request.params.name.substr(2,request.params.name.length)),function(err){
     if(err){
@@ -181,8 +173,9 @@ exports.getPicture = function(request,response,next){
   });
 }
 
-// route DELETE /picture/:name?id=...(event's id)
-exports.deletePicture = function(request,response,next){
+// route DELETE /picture/:name?id=...(channel/event's id)
+exports.deletePictureHandle = function(request,response,next){
+
 	let id = request.query.id;
 	let field = '';
 	let size = '';
@@ -190,6 +183,7 @@ exports.deletePicture = function(request,response,next){
 	
 	let info = {};
 	let PORT = config.PORT === 80 ? '' : ':'+config.PORT;
+	
 	//move picture to folder bin
 	if(request.params.name[0] === 'e') field += 'event/';
 	else if (request.params.name[0] === 'e') field += 'channel';
@@ -197,9 +191,13 @@ exports.deletePicture = function(request,response,next){
 	if(request.params.name[1] === 's') size += 'small/';
 	else if (request.params.name[1] === 's') size += 'large/';
 
-	let oldpath = path.join(picturePath,field,size,name);
-	let newpath = path.join(picturePath,'bin/',name);
-	
+
+
+	if(!id || !field || !size){
+		response.status(400).json({err:"invalid url"});
+		return;
+	}
+
 	mkdirp(path.join(picturePath,'bin'),function(err){
 		if(err){
 			info.msg = "error";
@@ -208,63 +206,59 @@ exports.deletePicture = function(request,response,next){
 			// return next(err);
 		}
 		else{
-			//remove picture url in event
-			Event.findById(request.query.id,function(err,event){
-				if(err){
-					info.msg = 'error';
-					response.status(500).json(info);
-					// return next(err);
+			checkPermission(request,id,field, (info) => {
+				if(info.err){
+					response.status(403).json(info);
+					return;
 				}
-				else if(!event) {
-					info.msg = 'event not found'
-					response.status(404).json(info);
-				}
-				else{
-					if(size=='small') event.picture=null;
-					else {
-						let index = event.picture_large.indexOf(config.URL+'/picture/'+request.params.name);
+				else deletePicture(id,field,size, name, (err) => {
+					if(err) response.status(500).json(err);
+					else{
+						info.msg = 'done';
+						info.id = id;
+						if(request.user){
+							if(request.user.notification != undefined && request.user.notification != null){
+								info.notification = request.user.notification;
+							}
+						}
+						response.status(200).json(info);
+					} 
+				});
+			});			
+		}		
+	});
+}
 
-						if(index>-1) event.picture_large.splice(index,1);
-					}
-					event.update(event,function(err){
+function deletePicture(id, field, size, name, callback){
+	// model is USER / CHANNEL
+	let oldpath = path.join(picturePath,field,size,name);
+	let newpath = path.join(picturePath,'bin/',name);
+
+	findMODEL(id, field, (err,model) => {
+		if(size=='small') model.picture=null;
+		else {
+			let index = model.picture_large.indexOf(config.URL+'/picture/'+name);
+			if(index>-1) model.picture_large.splice(index,1);
+		}
+		model.update(model,function(err){
+			if(err){
+				callback({err:'error1',code:500});
+				// return next(err);
+			}
+			else{
+				if(fs.existsSync(oldpath)){
+					fs.rename(oldpath,newpath,function(err){
 						if(err){
-							info.msg = 'error1';
-							response.status(500).json(info);
+							callback({err:'error2',code:500});
 							// return next(err);
 						}
-						else{
-							if(fs.existsSync(oldpath)){
-								fs.rename(oldpath,newpath,function(err){
-									if(err){
-										info.msg = 'error2'
-										response.status(500).json(info);
-										// return next(err);
-									}
-									else{
-										info.msg = 'done';
-										if(request.user){
-											if(request.user.notification != undefined && request.user.notification != null){
-												info.notification = request.user.notification;
-												response.status(200).json(info);
-											}
-											else{
-												response.status(200).json(info);
-											}
-										}
-										else{
-											response.status(200).json(info);
-										}
-									}
-								});
-							}
-							else{
-								info.msg = 'picture is not found';
-								response.status(404).json(info);
-							}
-						}
+						else callback(null);
 					});
 				}
-			});
-		}
+				else{
+					callback({err:'picture is not found',code:404});
+				}
+			}
+		});
 	});
 }

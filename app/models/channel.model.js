@@ -21,7 +21,7 @@ var channelSchema = new Schema({
 	picture: {
 		type: String,
 		default: null
-	}
+	},
 	picture_large: [String],
 	events : [Schema.Types.ObjectId],
 	events_bin : [Schema.Types.ObjectId],
