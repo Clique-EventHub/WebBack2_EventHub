@@ -288,6 +288,20 @@ var calStat = function(channel,callback){
 //route GET /channel/stat?id=...
 //return sum of visit in every events in the channel
 exports.getStat = function(request,response,next){
+	// chcek permission
+	if(request.user){
+		if(request.user.admin_channels.indexOf(request.query.id) == -1){
+			response.status(403).json({err:"No permission to access data."});
+			return;
+		}
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+		return;
+	}
 	var id = request.query.id;
 	var info = {};
 	Channel.findById(id,function(err,channel){
