@@ -27,21 +27,21 @@ Change details of channel
 
   `{fields : data}`
 
-  *__fields__: name,picture,picture_large,events,events_bin,admins,tokenDelete*
+  *__fields__: name,picture,picture_large*
 
 * **Success Response:**
 
-  * **Code:** 200
+  * **Code:** 201
 
     **Content:** `{fields : data}`
 
-    *__fields__: name,verified,picture,picture_large,events*
+    *__fields__: msg, notification*
 
 * **Error Response:**
 
-  * **Code:** 403,404,410,500
+  * **Code:** 400,403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** `{msg : error detail}`
 ---
 ## Get channel stat
 
@@ -79,18 +79,18 @@ Change details of channel
 
 * **Error Response:**
 
-  * **Code:** 403,404,410,500
+  * **Code:** 403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** `{msg : error detail}`
 ---
 
 ## Add admin channel
 
- Add colleagues to be admin channel.
+ Add colleagues to be an admin channel.
 
 * **URL**
 
-  `/user/add-admin'
+  `/admin/channel/add'
 
 * **Method:**
 
@@ -114,13 +114,13 @@ Change details of channel
 
 * **Success Response:**
 
-  * **Code:** 202
+  * **Code:** 201
 
-    **Content:** `{ "msg":"done" }`
+    **Content:** `{ "msg":"done." }`
 
 * **Error Response:**
 
-  * **Code:** 403,404,410,500
+  * **Code:** 403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** `{msg : error detail}`
 ---
