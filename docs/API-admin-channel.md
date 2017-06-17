@@ -364,7 +364,7 @@ Change details of channel
 
 * **Error Response:**
 
-  * **Code:** 403,404,500
+  * **Code:** 400,403,404,500
 
     **Content:** `{msg : error detail}`
 ---
