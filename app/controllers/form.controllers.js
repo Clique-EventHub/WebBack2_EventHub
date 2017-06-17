@@ -9,7 +9,7 @@ var bluebird = require("bluebird");
 var jsonexport = require('jsonexport');
 var fs = require('fs');
 
-const filePath = path.join(__dirname,'../..',`data/export/`);
+const filePath = path.join(__dirname,'../..',`data/exportCSV/`);
 
 exports.listall = function(request,response){
 	Form.find({}, (err,forms) =>{
@@ -23,12 +23,12 @@ function exportForm (data,callback){
 	const fileName = `${data.title}-${data.event}.csv`;
 
 	//const url = `api.cueventhub.com/download/form/${fileName}.csv`;
-	console.log('data responses',data.responses);	
+	console.log('data responses',data.responses);
 	bluebird.map(data.responses, element => {
 		let temp = {};
 		temp["_firstName"] = element.firstName;
 		temp["_lastName"] = element.lastName;
-		
+
 		for(let attName in element.answers)
 			temp[attName] = element.answers[attName];
 
@@ -46,8 +46,8 @@ function exportForm (data,callback){
 	}).then( file => {
 		return new Promise( (resolve,reject) => {
 			mkdirp(filePath, function (err) {
-				if (err) reject(err); 
-				else resolve(file); 
+				if (err) reject(err);
+				else resolve(file);
 			});
 		});
 	}).catch( (err) => {
@@ -150,7 +150,7 @@ exports.getForm = function (request,response){
 					else return resolve(data);
 				});
 			});
-			
+
 		}
 		else if(Object.keys(request.query).length == 1 && request.query.id){
 			returnedForm.responses = undefined;
@@ -175,7 +175,7 @@ exports.getForm = function (request,response){
 		console.error('catch2',err);
 		code = !err && err.code ? err.code : 500;
 		err = err ? err : {err:'internal error'};
-		return Promise.resolve(err);	
+		return Promise.resolve(err);
 	}).then( (info) => {
 		if(!info.err && request.query.opt==='export') response.status(200).sendFile(info.url);
 		else	response.status(info.code).json(info);
