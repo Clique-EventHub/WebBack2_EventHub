@@ -84,18 +84,18 @@ exports.postPicture= function(request,response,next){
 								// 	return next(err);
 							}
 							else{
-								let url = config.URL + '/picture/'+ field[0] + id +request.file.filename;
+								let url = config.URL + '/picture/'+ field[0] + size[0] + id + request.file.filename;
 								//save picture url to model 
 								new Promise( (resolve,reject) => {
 									console.log('check size');
 									if(size=='small'){
-										let len = `${config.URL}/picture/x${id}`.length;
+										let len = `${config.URL}/picture/fs${id}`.length;
 										if(!model.picture){
 											model.picture = url;
 											resolve();
 										} 
 										else{
-											name = model.picture.substr(len,model.picture.length);
+											name = model.picture.substr(len ,model.picture.length );
 											deletePicture(id, field, size, name, (err) => {
 												if(err) reject(err);	
 												else{
@@ -152,9 +152,10 @@ exports.getPicture = function(request,response,next){
 	else if (request.params.name[0] === 'c') dest += 'channel/';
 
 	if(dest === '') response.status(403).json({err:"invalid url"});
-	
-	dest += request.params.name.substr(1,mongoIDsize) + '/';
-	dest += request.params.name.substr(1+mongoIDsize,request.params.name.length);
+
+	// name[1] is size , we don't use size in managing directory
+	dest += request.params.name.substr(2,mongoIDsize) + '/';
+	dest += request.params.name.substr(2+mongoIDsize,request.params.name.length);
 	 
 	response.sendFile(path.join(picturePath,dest),function(err){
     if(err){
@@ -172,10 +173,10 @@ exports.getPicture = function(request,response,next){
   });
 }
 
-// route DELETE /picture/:name?id=...(channel/event's id)
+// route DELETE /picture/:name
 exports.deletePictureHandle = function(request,response,next){
 
-	let id = request.query.id;
+	let id = request.params.name.substr(1,mongoIDsize);
 	let field = '';
 	let size = '';
 	let name = request.params.name.substr(2,request.params.name.length);
@@ -184,54 +185,43 @@ exports.deletePictureHandle = function(request,response,next){
 	let PORT = config.PORT === 80 ? '' : ':'+config.PORT;
 	
 	//move picture to folder bin
-	if(request.params.name[0] === 'e') field += 'event/';
-	else if (request.params.name[0] === 'e') field += 'channel';
+	if(request.params.name[0] === 'e') field = 'event';
+	else if (request.params.name[0] === 'c') field = 'channel';
 
-	if(request.params.name[1] === 's') size += 'small/';
-	else if (request.params.name[1] === 's') size += 'large/';
+	if(request.params.name[1] === 's') size = 'small';
+	else if (request.params.name[1] === 'l') size = 'large';
 
-
-
-	if(!id || !field || !size){
+	if(!id || !field || !name || !size){
 		response.status(400).json({err:"invalid url"});
 		return;
 	}
 
-	mkdirp(path.join(picturePath,'bin'),function(err){
-		if(err){
-			info.msg = "error";
-			console.error("error mkdirp : deletePicture - picture.controllers");
-			response.status(500).json(info);
-			// return next(err);
+	checkPermission(request,id,field, (info) => {
+		if(info.err){
+			response.status(403).json(info);
+			return;
 		}
-		else{
-			checkPermission(request,id,field, (info) => {
-				if(info.err){
-					response.status(403).json(info);
-					return;
+		else deletePicture(id, field, size, name, (err) => {
+			if(err) response.status(500).json(err);
+			else{
+				info.msg = 'done';
+				info.id = id;
+				if(request.user){
+					if(request.user.notification != undefined && request.user.notification != null){
+						info.notification = request.user.notification;
+					}
 				}
-				else deletePicture(id,field,size, name, (err) => {
-					if(err) response.status(500).json(err);
-					else{
-						info.msg = 'done';
-						info.id = id;
-						if(request.user){
-							if(request.user.notification != undefined && request.user.notification != null){
-								info.notification = request.user.notification;
-							}
-						}
-						response.status(200).json(info);
-					} 
-				});
-			});			
-		}		
-	});
+				response.status(200).json(info);
+			} 
+		});
+	});			
 }
 
 function deletePicture(id, field, size, name, callback){
 	// model is USER / CHANNEL
-	let oldpath = path.join(picturePath,field,size,name);
-	let newpath = path.join(picturePath,'bin/',name);
+	let oldpath = path.join(picturePath,field,id,name);
+	let newpath = path.join(picturePath,'bin/',field,id,name);
+	console.log(oldpath,newpath);
 
 	findMODEL(id, field, (err,model) => {
 		if(size=='small') model.picture=null;
@@ -245,18 +235,31 @@ function deletePicture(id, field, size, name, callback){
 				// return next(err);
 			}
 			else{
-				if(fs.existsSync(oldpath)){
-					fs.rename(oldpath,newpath,function(err){
-						if(err){
-							callback({err:'error2',code:500});
-							// return next(err);
+				mkdirp(path.join(picturePath,'bin',field,id),function(err){
+					if(err){
+						info.msg = "error";
+						info.code = 500;
+						console.error("error mkdirp : deletePicture - picture.controllers");
+						callback(info);
+					}				
+					else{
+						if(fs.existsSync(oldpath)){
+							fs.rename(oldpath,newpath,function(err){
+								if(err){
+									console.error(new Date(),"error: rename picture");
+									console.error(err);
+									callback({err:'error2',code:500});
+									// return next(err);
+								}
+								else callback(null);
+							});
 						}
-						else callback(null);
-					});
-				}
-				else{
-					callback({err:'picture is not found',code:404});
-				}
+						else{
+							console.error(new Date(),"error:picture for deleting not found");
+							callback({err:'picture for deleting is not found',code:404});
+						}
+					}
+				});
 			}
 		});
 	});
