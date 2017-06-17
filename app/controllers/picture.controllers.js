@@ -153,7 +153,7 @@ exports.getPicture = function(request,response,next){
 
 	if(dest === '') response.status(403).json({err:"invalid url"});
 	
-	dest += request.params.name.substr(1,1+mongoIDsize) + '/';
+	dest += request.params.name.substr(1,mongoIDsize) + '/';
 	dest += request.params.name.substr(1+mongoIDsize,request.params.name.length);
 	 
 	response.sendFile(path.join(picturePath,dest),function(err){
