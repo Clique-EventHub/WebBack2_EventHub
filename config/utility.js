@@ -60,7 +60,7 @@ exports.findMODEL = function(id,opt,callback){
 				callback({code:500,err:'find channel error'});
 				console.error(err);
 			}
-			else if(!event) {
+			else if(!channel) {
 				console.error(new Date(),{
 					err : "channel not found",
 					func : "utility - findMODEL"	
@@ -78,7 +78,7 @@ exports.findMODEL = function(id,opt,callback){
 				callback({code:500,err:'find form error'});
 				console.error(err);
 			}
-			else if(!event) {
+			else if(!form) {
 				console.error(new Date(),{
 					err : "form not found",
 					func : "utility - findMODEL"	
@@ -96,7 +96,7 @@ exports.findMODEL = function(id,opt,callback){
 				callback({code:500,err:'find user error'});
 				console.error(err);
 			}
-			else if(!event) {
+			else if(!user) {
 				console.error(new Date(),{
 					err : "user not found",
 					func : "utility - findMODEL"	
