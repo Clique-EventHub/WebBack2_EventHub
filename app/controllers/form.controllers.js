@@ -1,7 +1,6 @@
 var Event = require('mongoose').model('Event'); // collections
 var Form = require('mongoose').model('Form');
 var Admin = require('./admin.controllers');
-
 var path = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment-timezone');
@@ -9,6 +8,8 @@ var moment = require('moment-timezone');
 var bluebird = require("bluebird");
 var jsonexport = require('jsonexport');
 var fs = require('fs');
+
+const filePath = path.join(__dirname,'../..',`data/export/`);
 
 exports.listall = function(request,response){
 	Form.find({}, (err,forms) =>{
@@ -19,10 +20,10 @@ exports.listall = function(request,response){
 //
 // export form
 function exportForm (data,callback){
-	const fileName = data.title;
+	const fileName = `${data.title}-${data.event}.csv`;
+
 	//const url = `api.cueventhub.com/download/form/${fileName}.csv`;
-	//const url = fileName+'.csv';
-	console.log('data responses',data.responses);
+	console.log('data responses',data.responses);	
 	bluebird.map(data.responses, element => {
 		let temp = {};
 		temp["_firstName"] = element.firstName;
@@ -40,22 +41,32 @@ function exportForm (data,callback){
 				else resolve(csv);
 			});
 		});
+	}).catch( (err) => {
+		return Promise.reject(err);
 	}).then( file => {
-		fs.writeFile(url, file, function(err){
+		return new Promise( (resolve,reject) => {
+			mkdirp(filePath, function (err) {
+				if (err) reject(err); 
+				else resolve(file); 
+			});
+		});
+	}).catch( (err) => {
+		return Promise.reject(err);
+	}).then( file => {
+		fs.writeFile(`${filePath}${fileName}`, file, function(err){
 			if(err){
 				callback(err);
 				console.error(err);
 			}
 			else{
 				console.log('done');
-				callback(null,url);
+				callback(null,`${filePath}${fileName}`);
 			}
 		});
 	}).catch( (err) => {
 		console.error(err);
 		callback(err);
 	});
-
 }
 
 
@@ -127,7 +138,7 @@ exports.getForm = function (request,response){
 		}
 		else if(request.query.opt === 'responses' || request.query.opt === 'export'){
 			return new Promise( (resolve,reject) => {
-				checkPermission(request, returnedForm.channel, function(data){
+				checkPermission(request, returnedForm.event, function(data){
 					if(data.err !== undefined) return reject(data);
 					data.form = returnedForm;
 					if(request.query.opt === 'export'){
@@ -139,7 +150,7 @@ exports.getForm = function (request,response){
 					else return resolve(data);
 				});
 			});
-
+			
 		}
 		else if(Object.keys(request.query).length == 1 && request.query.id){
 			returnedForm.responses = undefined;
@@ -164,8 +175,12 @@ exports.getForm = function (request,response){
 		console.error('catch2',err);
 		code = !err && err.code ? err.code : 500;
 		err = err ? err : {err:'internal error'};
-		return Promise.resolve(err);
-	}).then( (info) => response.status(info.code).json(info) );
+		return Promise.resolve(err);	
+	}).then( (info) => {
+		if(!info.err && request.query.opt==='export') response.status(200).sendFile(info.url);
+		else	response.status(info.code).json(info);
+	});
+
 
 }
 
