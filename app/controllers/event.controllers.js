@@ -141,6 +141,18 @@ exports.postEvent = function(request,response,next){
 	}
 
 	// if permission and validate ok
+	var keys = Object.keys(request.body);
+	var fields = ['title', 'channel', 'about', 'picture', 'picture_large',
+							'video', 'faculty_require', 'year_require', 'agreement', 'location',
+							'date_start', 'date_end', 'contact_information', 'tags', 'joinable_start_time',
+							'joinable_end_time', 'time_start', 'time_end', 'optional_field',
+					 	 	'require_field', 'joinable_amount', 'show', 'outsider_accessible'];
+
+	for(let i=0;i<keys.length;i++){
+		if(fields.indexOf(keys[i]) == -1){
+			delete request.body[keys[i]];
+		}
+	}
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	var newEvent = new Event(request.body);
 	var info = {};
@@ -172,7 +184,7 @@ exports.postEvent = function(request,response,next){
 				else if(!channel){
 					info.err = "channel not found";
 					console.error("channel not found : postEvent - event.controllers");
-					response.status(400).json(info);
+					response.status(404).json(info);
 				}
 				else{
 					notiPostEvent(newEvent._id, channel.name, channel.picture, channel.who_subscribe, newEvent.tags, newEvent.picture)
