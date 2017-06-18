@@ -104,6 +104,100 @@ exports.interestAnEvent = function(request, response, next){
 	}
 };
 
+exports.getAdminEvents = function(request, response){
+	if(request.user){
+		var promises = [];
+		var errorList = [];
+		var errorList2 = [];
+		var info = [];
+		for(let i=0;i<request.user.admin_events.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				Event.findById(request.user.admin_events[index], function(err, event){
+					if(err || !event){
+						errorList.push(request.user.admin_events[index]);
+						resolve();
+					}
+					else{
+						Channel.findById(event.channel, function(err, channel){
+							if(err || !channel){
+								errorList2.push(event.channel);
+								resolve();
+							}
+							else{
+								let val = {};
+								val.event_picture = event.picture;
+								val.event_title = event.title;
+								val.event_id = request.user.admin_events[index];
+								val.channel_id = channel._id;
+								val.channel_name = channel.name;
+								info.push(val);
+								resolve();
+							}
+						});
+					}
+				});
+			}));
+		}
+		Promise.all(promises).then(function(){
+			if(errorList.length != 0){
+				response.status(500).json({msg:"error.(contains event_list)", event_list : errorList});
+			}
+			else if(errorList2.length != 0){
+				response.status(500).json({msg:"error.(contains channel_list)", channel_list : errorList});
+			}
+			else{
+				response.status(200).json({event_info : info});
+			}
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
+exports.getAdminChannels = function(request, response){
+	if(request.user){
+		var promises = [];
+		var errorList = [];
+		var info = [];
+		for(let i=0;i<request.user.admin_channels.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				Channel.findById(request.user.admin_channels[index], function(err, channel){
+						if(err || !channel){
+							errorList.push(request.user.admin_channels[index]);
+							resolve();
+						}
+						else{
+							resolve();
+							let val = {};
+							val.channel_id = request.user.admin_channels[index];
+							val.channel_name = channel.name;
+							info.push(val);
+						}
+				});
+			}));
+		}
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				response.status(200).json({channels : info});
+			}
+			else{
+				response.status(500).json({msg:"error.(contains channel_list)", channel_list : errorList });
+			}
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
 
 exports.uninterestAnEvent = function(request, response, next){
 	if(request.user){
@@ -402,6 +496,7 @@ var queryFindEventForUser = function(id){
           }).then(function(returnedInfo){
             var value = {};
             value['picture'] = thisEvent['picture'];
+						value['event_id'] = id;
             value['channel'] = returnedInfo['name'];
             value['channel_picture'] = returnedInfo['picture'];
 						value['channel_id'] = event.channel;
