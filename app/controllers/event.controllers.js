@@ -283,7 +283,7 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 		else if(!channel){
 			info.err = "channel not found";
 			console.error("error2 : updateDeleteEventToChannel - event.controllers");
-			response.status(400).json(info);
+			response.status(404).json(info);
 		}
 		else{	// move deleted event to bin array
 			channel.events_bin.push(eventId);
@@ -301,14 +301,14 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 							if(request.user){
 								if(request.user.notification != undefined && request.user.notification != null){
 									info.notification = request.user.notification;
-									response.status(200).json({msg:info.msg});
+									response.status(201).json({msg:info.msg});
 								}
 								else{
-									response.status(200).json({msg:info.msg});
+									response.status(201).json({msg:info.msg});
 								}
 							}
 							else{
-								response.status(200).json({msg:info.msg});
+								response.status(201).json({msg:info.msg});
 							}
 						}
 						else{
@@ -723,13 +723,13 @@ var notiInfoForJoinPeople = function(eventId, who_join, description, eventPictur
 		Promise.all(promises).then(function(){
 			if(errorList.length == 0){
 				var info={};
-				info.msg = "done";
+				info.msg = "done.";
 				info.code = 201;
 				resolve(info);
 			}
 			else{
 				var info={};
-				info.msg = "error";
+				info.msg = "error.";
 				info.code = 500;
 				resolve(info);
 			}

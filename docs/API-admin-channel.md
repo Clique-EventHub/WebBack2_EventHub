@@ -293,7 +293,7 @@ Change details of channel
 
 ## Delete channel
 
- Delete the channel that is specified. The events that were created by this channel will also be delted.
+ Delete the channel that is specified. The events that were created by this channel will also be deleted.
 
 * **URL**
 
