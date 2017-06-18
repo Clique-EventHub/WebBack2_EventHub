@@ -110,7 +110,6 @@ Edit user profile
 
     `{fields : data}`
 
-    **Optional**
       *__fields__: nick_name, picture, picture_200px, birth_da, twitterUsername, phone, shirt_size, allergy, disease, emer_phone, tag_like, dorm_room, dorm_building, dorm_bed, twitterUsername, lineId, notification*
 
 * **Success Response:**
@@ -192,7 +191,6 @@ Saves data when user presses the join button.
 
     `{fields : data}`
 
-    **Optional**
       *__fields__: require_field, optional_field*
 
 * **Success Response:**
