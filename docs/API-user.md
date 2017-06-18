@@ -34,7 +34,7 @@ Otherwise, server will use registered user.
 
   * **Code:** 200
 
-    **Content:** `{"msg" : "done",access_token : server's access token}`
+    **Content:** `{"msg" : "done", access_token : server's access token}`
 
 
 * **Error Response:**
@@ -115,7 +115,7 @@ Edit user profile
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done"}`
+    **Content:** `{"msg" : "done.", "notification" : data}`
 
 
 * **Error Response:**
@@ -194,13 +194,51 @@ Saves data when user presses the join button.
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done."}`
+    **Content:** `{"msg" : "done.", "notification" : data}`
 
-    *__fields__: channel, picture, channel_picture, channel_id*
 
 * **Error Response:**
 
   * **Code:** 400, 403, 404, 500
+
+    **Content:** `{err : detail of error}`
+---
+
+## Subscribe a channel
+
+Saves data when user presses subscribe button.
+
+* **URL**
+
+  `/user/subscribe`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Require**
+    `id = channel's id`
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{"msg" : "done.", "notification" : data}`
+
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
 
     **Content:** `{err : detail of error}`
 ---
