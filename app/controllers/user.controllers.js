@@ -159,7 +159,8 @@ exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
 	var fields = ['_id','firstName','lastName','picture','picture_200px',
-	'gender','phone','shirt_size','brith_day','allergy','disease',
+	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
+	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
 	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
 	if(user){
 		fields.forEach(function(field){
@@ -184,8 +185,9 @@ exports.putEditProfile = function(request, response){
 	if(user){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
-		var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-													,'lineId','admin_channels','subscribe_channels','notification'];
+		var editableFields = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
+													'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
+													'twitterUsername','lineId','notification'];
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];
@@ -196,23 +198,23 @@ exports.putEditProfile = function(request, response){
 			$set:request.body						// update body
 		},function(err,updatedUser){
 			if(err){
-				response.status(500).json({err:"internal error"});
+				response.status(500).json({err:"internal error."});
 				console.error("error : putEditProfile");
 				return ;
 			}
 			else if(!updatedUser){
-				info.err = "user not found";
+				info.err = "user not found.";
 				console.error("user not found : postEditProfile - user.controllers");
 				response.status(404).json(info);
 			}
 			else {
-				var info={msg:"done"};
+				var info={msg:"done."};
 				if(request.user.notification != undefined && request.user.notification != null){
 					info.notification = request.user.notification;
-					response.status(200).json(info);
+					response.status(201).json(info);
 				}
 				else{
-					response.status(200).json(info);
+					response.status(201).json(info);
 				}
 			}
 		});

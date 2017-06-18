@@ -46,8 +46,7 @@ Otherwise, server will use registered user.
 
 ---
 
-
-## Get User profile
+## Get user profile
 
  Returns json data about detail of user
 
@@ -77,7 +76,7 @@ Otherwise, server will use registered user.
 
     **Content:** `{fields : data}`
 
-    *__fields__: firstName,lastName,picture,shirt_size,twitterUsername,lineId,disease,birth_day,allergy*
+    *__fields__: _id, firstName, lastName, picture, picture_200px, gender, shirt_size, phone, regId, facebookId, twitterUsername, lineId, disease, birth_day, allergy, notification, firstNameTH, lastNameTH, major, emer_phone, admin_events, admin_channels, join_events, interest_events, subscribe_channels, already_joined_events, tag_like, dorm_bed, dorm_building, dorm_room*
 
 * **Error Response:**
 
@@ -87,10 +86,7 @@ Otherwise, server will use registered user.
 
 ---
 
-
-# User
-
-## Edit User profile
+## Edit user profile
 
 Edit user profile
 
@@ -115,25 +111,25 @@ Edit user profile
     `{fields : data}`
 
     **Optional**
-      *__fields__: nick_name, picture, phone , shirt_size, allergy, disease, profileUrl, twitterUsername, lineId, admin_channels, subscribe_channels, join_events, interest_events*
+      *__fields__: nick_name, picture, picture_200px, birth_da, twitterUsername, phone, shirt_size, allergy, disease, emer_phone, tag_like, dorm_room, dorm_building, dorm_bed, twitterUsername, lineId, notification*
 
 * **Success Response:**
 
-  * **Code:** 200
+  * **Code:** 201
 
     **Content:** `{"msg" : "done"}`
 
 
 * **Error Response:**
 
-  * **Code:** 400, 403, 500
+  * **Code:** 403, 404, 500
 
     **Content:** `{err : detail of error}`
 ---
 
-## Join event
+## Get join events
 
-save event that user press join
+Returns events that user pressed join button.
 
 * **URL**
 
@@ -149,9 +145,7 @@ save event that user press join
 
 *  **URL Params**
 
-    **Require**
-    `id = [event's id]`
-
+    None
 
 * **Body**
 
@@ -162,12 +156,56 @@ save event that user press join
 
   * **Code:** 200
 
-    **Content:** `{"msg" : "done"}`
+    **Content:** `{events : [ event's title : {fields : data} ]}`
 
+    *__fields__: channel, picture, channel_picture, channel_id*
 
 * **Error Response:**
 
   * **Code:** 400,403,500
+
+    **Content:** `{err : detail of error}`
+---
+
+## Join an event
+
+Saves data when user presses the join button.
+
+* **URL**
+
+  `/user/join`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Require**
+    `id = event's id`
+
+* **Body**
+
+    `{fields : data}`
+
+    **Optional**
+      *__fields__: require_field, optional_field*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{"msg" : "done."}`
+
+    *__fields__: channel, picture, channel_picture, channel_id*
+
+* **Error Response:**
+
+  * **Code:** 400, 403, 404, 500
 
     **Content:** `{err : detail of error}`
 ---
