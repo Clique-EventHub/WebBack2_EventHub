@@ -109,7 +109,6 @@ Edit user profile
 * **Body**
 
     `{fields : data}`
-
       *__fields__: nick_name, picture, picture_200px, birth_da, twitterUsername, phone, shirt_size, allergy, disease, emer_phone, tag_like, dorm_room, dorm_building, dorm_bed, twitterUsername, lineId, notification*
 
 * **Success Response:**
@@ -156,7 +155,6 @@ Returns events that user pressed join button.
   * **Code:** 200
 
     **Content:** `{events : [ event's title : {fields : data} ]}`
-
     *__fields__: channel, picture, channel_picture, channel_id*
 
 * **Error Response:**
@@ -190,7 +188,6 @@ Saves data when user presses the join button.
 * **Body**
 
     `{fields : data}`
-
       *__fields__: require_field, optional_field*
 
 * **Success Response:**
