@@ -518,3 +518,42 @@ Check username and password with reg chula system and store the returned data in
     **Content:** `{msg : detail of error, (optional)channel_list : data }`
 
 ---
+
+## Read notification
+
+Read the new notification. That notification will become 'seen'.
+
+* **URL**
+
+  `/saw-noti`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    None
+
+* **Body**
+
+    `{fields : data}`
+      *__fields__: notification(send an array of notifications which contains the whole notification object)*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{"msg" : "done.", "notification" : data}`
+
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
