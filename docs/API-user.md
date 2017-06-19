@@ -41,7 +41,7 @@ Otherwise, server will use registered user.
 
   * **Code:** 400, 500
 
-    **Content:** `{err : detail of error}`
+    **Content:** `{msg : detail of error}`
     *__detail of error:__ " invalid facebook's access token " , etc.*
 
 ---
@@ -82,7 +82,7 @@ Otherwise, server will use registered user.
 
   * **Code:** 403
 
-    **Content:** `{err : detail of error}`
+    **Content:** `{msg : detail of error}`
 
 ---
 
@@ -122,7 +122,7 @@ Edit user profile
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{err : detail of error}`
+    **Content:** `{msg : detail of error}`
 ---
 
 ## Get join events
@@ -161,7 +161,7 @@ Returns events that user pressed join button.
 
   * **Code:** 400,403,500
 
-    **Content:** `{err : detail of error}`
+    **Content:** `{msg : detail of error}`
 ---
 
 ## Join an event
@@ -201,7 +201,7 @@ Saves data when user presses the join button.
 
   * **Code:** 400, 403, 404, 500
 
-    **Content:** `{err : detail of error}`
+    **Content:** `{msg : detail of error}`
 ---
 
 ## Subscribe a channel
@@ -240,5 +240,281 @@ Saves data when user presses subscribe button.
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{err : detail of error}`
+    **Content:** `{msg : detail of error}`
+---
+
+## Get all subscribed channels
+
+Returns all channels that user subscribed.
+
+* **URL**
+
+  `/user/subscribe`
+
+* **Method:**
+
+  `GET`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    None
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{channel_name : { fields : data }, "notification" : data}`
+    *__fields__: channel_picture, channel_id*
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
+
+## Interest an event
+
+Saves data when user presses interest button.
+
+* **URL**
+
+  `/user/interest`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Require**
+    `id = event's id`
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{"msg" : "done.", "notification" : data}`
+
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
+
+## Get all interesting events
+
+Returns all events that user clicked interest button.
+
+* **URL**
+
+  `/user/interest`
+
+* **Method:**
+
+  `GET`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    None
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{events : [event_title : {fields : data}], "notification" : data}`
+    *__fields__: picture, event_id, channel, channel_picture, channel_id*
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
+
+## Uninterest an event
+
+Saves data when user uninterest an event.
+
+* **URL**
+
+  `/user/uninterest`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Require**
+    `id = event's id`
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{"msg" : "done.", "notification" : data}`
+
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
+
+## Register reg chula
+
+Check username and password with reg chula system and store the returned data in the database.
+
+* **URL**
+
+  `/user/reg`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    None
+
+* **Body**
+
+    **Require**
+    `{fields : data}`
+      *__fields__: username, password*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ fields : data }`
+    *__fields__: firstName, lastName, firstNameTH, lastNameTH, gender, regId*
+
+
+* **Error Response:**
+
+  * **Code:** 400, 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
+
+## Show admin events
+
+ Returns all events that user is an admin.
+
+* **URL**
+
+  `/user/show-admin-events`
+
+* **Method:**
+
+  `GET`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    None
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{ "event_info" : [{ fields : data }], "notification" : data }`
+
+    *__fields__: event_picture, event_title, event_id, channel_id, channel_name*
+
+* **Error Response:**
+
+  * **Code:** 403, 500
+
+    **Content:** `{msg : detail of error, event_list/channel_list : data }`
+    `Note that detail of error will specify "error.(contains event_list)" or "error.(contains channel_list)" if the return code is 500.`
+
+---
+
+## Show admin channels
+
+ Returns all channels that user is an admin.
+
+* **URL**
+
+  `/user/show-admin-channels`
+
+* **Method:**
+
+  `GET`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    None
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{ "channels" : [{ fields : data }], "notification" : data }`
+
+    *__fields__: channel_id, channel_name*
+
+* **Error Response:**
+
+  * **Code:** 403, 500
+
+    **Content:** `{msg : detail of error, (optional)channel_list : data }`
+
 ---

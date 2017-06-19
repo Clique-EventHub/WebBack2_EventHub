@@ -340,11 +340,9 @@ var queryFindChannelForUser = function(id){
 			else{
         var info = {};
         if(!channel['tokenDelete']){
-          fields = ['picture','name'];
+          fields = ['picture','name','_id'];
           for(var i = 0; i < fields.length; i++){
-  					if(channel[fields[i]]){
   						info[fields[i]] = channel[fields[i]];
-  					}
   				}
         }
 				resolve(info);
@@ -444,7 +442,9 @@ exports.getSubbedChannnel = function(request,response){
           reject(info);
         })
         .then(function(channelInfo){
-          info[channelInfo.name] = channelInfo.picture;
+					info[channelInfo.name] = {};
+					info[channelInfo.name]['channel_picture'] = channelInfo.picture;
+					info[channelInfo.name]['channel_id'] = channelInfo._id;
           resolve();
         });
       });
@@ -561,17 +561,15 @@ exports.getInterestedEvent = function(request,response){
     var promises = [];
     var events = request.user.interest_events;
     for(var i=0; i<events.length; i++){
-			// console.log("events[i] = "+events[i]);
       promises[promises.length] = new Promise(function(resolve, reject){
 				var index = i;
-        queryFindEventForUser(events[i])
+        queryFindEventForUser(events[index])
         .catch(function(returnedInfo){
           response.status(returnedInfo.code).json({msg:returnedInfo.msg});
 					return ;
         })
         .then(function(eventInfo){
-          info.events[index] = eventInfo;
-					// console.log('about to resolve');
+          info.events.push(eventInfo);
           resolve();
         });
       });
