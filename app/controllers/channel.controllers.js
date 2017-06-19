@@ -27,6 +27,7 @@ exports.listAll = function(request,response,next){
 // route GET /channel?id=...
 exports.getChannel = function(request,response){
 	var id = request.query.id;
+
 	var info = {};
 	Channel.findById(id,function(err,channel){
 		if(err) response.status(500).json({msg:"internal error from getChannel"});
