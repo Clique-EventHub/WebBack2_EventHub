@@ -26,6 +26,7 @@ module.exports = function(){
 				fields.forEach(function(field){
 					result[field] = user[field];
 				});
+				result['email'] = user.facebookData.email;
 				done(null,result);
 			}
 			else{

@@ -252,7 +252,7 @@ exports.listAll = function(request,response,next){
 exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
-	var fields = ['_id','firstName','lastName','picture','picture_200px',
+	var fields = ['_id','firstName','lastName','picture','picture_200px','email',
 	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
 	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
 	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
