@@ -67,7 +67,7 @@ say hello
 
     **Content:** `{fields : data}`
 
-    *__fields__: title,about,video,channel,location,date_start,expire,date_end,picture,picture_large, year_require,faculty_require,tags*
+    *__fields__: title,about,video,channel,location,date_start,expire,date_end,picture,picture_large, year_require,faculty_require,tags,forms*
 
 * **Error Response:**
 
