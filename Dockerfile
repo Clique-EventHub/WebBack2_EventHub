@@ -1,8 +1,12 @@
 FROM node
+
 RUN mkdir -p /usr/app
-COPY . /usr/app
+ADD . /usr/app
 WORKDIR /usr/app
-EXPOSE 1111
+
+RUN apt-get update
 RUN npm install 
-RUN npm install -g pm2 -g
+RUN npm install -g pm2
+EXPOSE 1111
+
 CMD ["pm2-docker","server.js"]
