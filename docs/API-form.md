@@ -96,7 +96,7 @@ New form will automatically attach to event detail.
 
     "type" : *short answer/bullet/check box/spinner*
 
-    "choices": []  *left this field as empty list if question's type has no choice*
+    "choices": [String]  *left this field as empty list if question's type has no choice*
     
 	
 * **Success Response:**
