@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var Moment = require('moment-timezone');
 var Schema = mongoose.Schema;
 
+
 var eventSchema = new Schema({
 	title : {
 		trim : true,
@@ -51,7 +52,7 @@ var eventSchema = new Schema({
 	},
 	admins : [Schema.Types.ObjectId],
 
-	forms : [], // list of objects
+	forms : [{}], // list of objects { title : id }
 
 	//stat-----------------------------------------------
 	rating:{

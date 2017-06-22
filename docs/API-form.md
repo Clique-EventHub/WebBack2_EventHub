@@ -62,7 +62,8 @@ If id is provide in params then API will edit the form.
 
 Otherwise, API will create a new form by use body as data.
 
-New form will automatically attach to event detail.
+{ formTitle: formId } will automatically attach to forms field in event detail.
+
 
 * **URL**
 

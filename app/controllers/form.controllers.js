@@ -234,9 +234,12 @@ exports.createForm = function(request, response){
 	}).then( (newForm) => {
 		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"});
 		else{
+			let obj = {};
+			obj[newForm.title] = newForm._id;
+			console.log('create form',obj);
 			Event.findByIdAndUpdate(request.body.event,{
-				$push : {forms: newForm._id}
-			}, (err) => {
+				$push : {forms: obj }
+				}, (err) => {
 				if(err){
 					response.status(500).json({msg:"Internal error"});
 					console.error("update form to event error");
