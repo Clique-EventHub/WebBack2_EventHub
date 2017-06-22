@@ -23,7 +23,10 @@ var eventSchema = new Schema({
 		type:String,
 		default:null
 	},
-	picture_large:[],
+	picture_large : {
+		type : [String],
+		default : []
+	},
 	video : {
 		type:String,
 		default:null
