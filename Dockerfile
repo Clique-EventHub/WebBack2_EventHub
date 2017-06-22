@@ -1,8 +1,8 @@
 FROM node
 
 RUN mkdir -p /usr/app
-ADD . /usr/app
-WORKDIR /usr/app
+ADD . /usr/app/
+WORKDIR /usr/app/
 
 RUN apt-get update
 RUN npm install 
