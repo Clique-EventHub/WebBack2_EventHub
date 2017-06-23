@@ -212,8 +212,14 @@ exports.createForm = function(request, response){
 	}).then( (info) => {
 		if(info.msg === "OK"){
 			if(form_id !== undefined){
+				var obj = {};
+				for(let i=0;i<utility.postFieldForm.length;i++){
+						if(request.body[postFieldForm[i]]){
+							obj[postFieldForm[i]] = request.body[postFieldForm[i]];
+						}
+				}
 				return new Promise( (resolve,reject) => {
-					Form.findByIdAndUpdate(form_id,request.body, (err,result) => {
+					Form.findByIdAndUpdate(form_id,obj, (err,result) => {
 						if(err){
 							console.error('create form:find form error', request);
 							reject({err:"Internal error",code:500});
@@ -229,7 +235,7 @@ exports.createForm = function(request, response){
 					});
 				});
 			}
-			else return Promise.resolve(new Form(request.body).save());
+			else return Promise.resolve(new Form(obj).save());
 		}
 		else return Promise.reject(info);
 	}).then( (newForm) => {
