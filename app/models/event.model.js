@@ -54,6 +54,14 @@ var eventSchema = new Schema({
 		default:false
 	},
 	admins : [Schema.Types.ObjectId],
+	notes:{
+		type : [],
+		default : []
+	},
+	refs : {
+		type : [],
+		default : []
+	},
 
 	forms : [{}], // list of objects { title : id }
 

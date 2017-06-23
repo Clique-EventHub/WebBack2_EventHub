@@ -45,7 +45,7 @@ exports.findMODEL = function(id,opt,callback){
 			else if(!event) {
 				console.error(new Date(),{
 					err : "event not found",
-					func : "utility - findMODEL"	
+					func : "utility - findMODEL"
 				});
 				callback({code:404,err:'event not found'});
 			}
@@ -63,7 +63,7 @@ exports.findMODEL = function(id,opt,callback){
 			else if(!channel) {
 				console.error(new Date(),{
 					err : "channel not found",
-					func : "utility - findMODEL"	
+					func : "utility - findMODEL"
 				});
 				callback({code:404,err:'channel not found'});
 			}
@@ -81,7 +81,7 @@ exports.findMODEL = function(id,opt,callback){
 			else if(!form) {
 				console.error(new Date(),{
 					err : "form not found",
-					func : "utility - findMODEL"	
+					func : "utility - findMODEL"
 				});
 				callback({code:404,err:'form not found'});
 			}
@@ -99,7 +99,7 @@ exports.findMODEL = function(id,opt,callback){
 			else if(!user) {
 				console.error(new Date(),{
 					err : "user not found",
-					func : "utility - findMODEL"	
+					func : "utility - findMODEL"
 				});
 				callback({code:404,err:'user not found'});
 			}
@@ -110,3 +110,16 @@ exports.findMODEL = function(id,opt,callback){
 	}
 	else callback({err:'invalid model'});
 }
+
+
+exports.editableFieldEvent = ['about','video','location','date_start','date_end',
+'picture','picture_large','year_require','faculty_require','tags',
+	'agreement','contact_information','joinable_start_time','joinable_end_time',
+	'joinable_amount','time_start','time_end','optional_field','require_field',
+	'show','outsider_accessible','notes'];
+
+exports.editableFieldChannel = editableFieldChannel = ['name', 'picture', 'picture_large'];
+exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
+											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
+											'twitterUsername','lineId','notification'];
+exports.postFieldForm = ['title','event','channel','questions','responses'];

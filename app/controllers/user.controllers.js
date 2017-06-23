@@ -8,6 +8,7 @@ var https = require('https');
 var passport = require('passport');
 var moment = require('moment-timezone');
 var querystring = require('querystring');
+var utility = require('../../config/utility');
 
 
 exports.render = function(request, response){
@@ -252,7 +253,7 @@ exports.listAll = function(request,response,next){
 exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
-	var fields = ['_id','firstName','lastName','picture','picture_200px','email',
+	var fields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
 	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
 	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
 	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
@@ -279,9 +280,7 @@ exports.putEditProfile = function(request, response){
 	if(user){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
-		var editableFields = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
-													'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
-													'twitterUsername','lineId','notification'];
+		var editableFields = utility.editableFieldUser;
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];

@@ -6,6 +6,7 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment-timezone');
 var modify_log_size = require('../../config/config').modify_log_size;
+var utility = require('../../config/utility');
 //route /
 exports.hi = function(request,response,next){
 	response.send("hello dude");
@@ -38,8 +39,8 @@ exports.listAll = function(request,response,next){
 var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var fields = ['title','about','video','channel','location','date_start','expire',
-		'date_end','picture','picture_large','year_require','faculty_require','tags','forms'];
+		var fields = ['title','about','video','channel','location','date_start','expire',refs,
+		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes'];
 		if(isStat) fields.push(['visit']);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
@@ -216,11 +217,7 @@ exports.putEvent = function(request,response,next){
 		return;
 	}
 	var keys = Object.keys(request.body);
-	var editableFields = ['about','video','location','date_start','date_end',
-		'picture','picture_large','year_require','faculty_require','tags',
-		'agreement','contact_information','joinable_start_time','joinable_end_time',
-		'joinable_amount','time_start','time_end','optional_field','require_field',
-		'show','outsider_accessible'];
+	var editableFields = utility.editableFieldEvent;
 	var detail = [];
 	for(var i=0;i<keys.length;i++){
 		if(editableFields.indexOf(keys[i]) == -1){

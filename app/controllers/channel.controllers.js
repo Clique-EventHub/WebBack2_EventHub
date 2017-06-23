@@ -2,6 +2,7 @@ var Channel = require('mongoose').model('Channel');	// require model database
 var Event = require('mongoose').model('Event');		//
 var moment = require('moment-timezone');
 var User = require('mongoose').model('User');
+var utility = require('../../config/utility');
 // list all channel
 exports.listAll = function(request,response,next){
 	Channel.find({},function(err,channel){
@@ -124,7 +125,7 @@ exports.putChannel = function(request,response,next){
 				response.status(403).json({err:request.authen});
 			return;
 		}
-		var editableFields = ['name', 'picture', 'picture_large'];
+		var editableFields = utility.editableFieldChannel;
 		var editObj = {};
 		for(let i=0;i<editableFields.length;i++){
 			if(request.body.hasOwnProperty(editableFields[i])){
