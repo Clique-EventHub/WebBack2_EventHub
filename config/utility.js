@@ -3,6 +3,7 @@ let Channel = require('mongoose').model('Channel');
 let User = require('mongoose').model('User');
 let Form = require('mongoose').model('Form');
 
+// help function should be in this file
 exports.checkPermission = function (request, id, opt, callback) {
 	let user = request.user;
 	console.log(new Date(),'checking permission ',id,opt);
