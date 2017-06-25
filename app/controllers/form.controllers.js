@@ -4,11 +4,11 @@ var Admin = require('./admin.controllers');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment-timezone');
-
 var bluebird = require("bluebird");
 var jsonexport = require('jsonexport');
 var fs = require('fs');
-var utility = require('../../config/utility');
+var postFieldForm = require('../../config/utility').postFieldForm;
+var _ = require('lodash');
 
 const filePath = path.join(__dirname,'../..',`data/exportCSV/`);
 
@@ -211,15 +211,14 @@ exports.createForm = function(request, response){
 		});
 	}).then( (info) => {
 		if(info.msg === "OK"){
-			if(form_id !== undefined){
-				var obj = {};
-				for(let i=0;i<utility.postFieldForm.length;i++){
-						if(request.body[postFieldForm[i]]){
-							obj[postFieldForm[i]] = request.body[postFieldForm[i]];
-						}
+			let obj = {};
+			for(let i=0;i<postFieldForm.length;i++){
+					obj[postFieldForm[i]] = _.get(request.body, postFieldForm[i], undefined);
 				}
+
+			if(form_id !== undefined){
 				return new Promise( (resolve,reject) => {
-					Form.findByIdAndUpdate(form_id,obj, (err,result) => {
+					Form.findByIdAndUpdate(form_id, obj, (err,result) => {
 						if(err){
 							console.error('create form:find form error', request);
 							reject({err:"Internal error",code:500});
@@ -235,7 +234,20 @@ exports.createForm = function(request, response){
 					});
 				});
 			}
-			else return Promise.resolve(new Form(obj).save());
+			else{
+				var newForm = new Form(obj);
+				console.log("saving new form");
+				return new Promise( (resolve,reject) => {
+					newForm.save( (err,form) => {
+						if(err) {
+							console.error(err);
+							return reject({err:"internal error"});	
+						}
+						console.log("saving", form);
+						return resolve(form);	
+					});
+				});
+			}
 		}
 		else return Promise.reject(info);
 	}).then( (newForm) => {
