@@ -42,7 +42,7 @@ If repost small picture, server will automatically remove the old one.
 If post large picture, server will add a new one to the list.
 * **URL** 
 
-  `/picture:name`
+  `/picture`
 
 * **Method:**
 
@@ -55,6 +55,8 @@ If post large picture, server will add a new one to the list.
     `field=[event/channel]`
 
     `size=[small/large]`
+
+    `id=[event's id]`
 
 * **Data Params**
 
