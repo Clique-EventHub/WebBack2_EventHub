@@ -20,7 +20,7 @@ module.exports = function(){
 			else if(user){
 				var result = {};
 				var fields = ['_id','firstName','lastName','picture','picture_200px',
-				'gender','phone','shirt_size','birth_day','allergy','disease',
+				'gender','phone','shirt_size','birth_day','allergy','disease','nick_name',
 				'regId','facebookId','twitterUsername','lineId','notification','admin_events',
 				'subscribe_channels','interest_events','join_events','admin_channels','admin_channels','email'];
 				fields.forEach(function(field){

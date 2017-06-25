@@ -2,8 +2,7 @@
 *.png
 *.JPG
 *.PNG
-*.un~
-*.*~
+*~
 *.swp
 node_modules/
 config/env
