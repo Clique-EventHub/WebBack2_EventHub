@@ -11,11 +11,12 @@ let formSchema = new Schema({
 		required: true
 	},
 
-	event : Schema.Types.ObjectId,
+	event : {
+		type: Schema.Types.ObjectId,
+	},
 
 	channel : {
 		type:Schema.Types.ObjectId,
-		required : true
 	},
 
 	questions: [{
