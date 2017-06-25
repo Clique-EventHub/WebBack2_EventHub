@@ -37,7 +37,7 @@ exports.getChannel = function(request,response){
 			response.status(404).json(info);
 		}
 		else{
-			var fields = ['name','verified','picture','picture_large','admins','events'];
+			var fields = ['_id','name','verified','picture','picture_large','admins','events','detail'];
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){
@@ -66,7 +66,13 @@ exports.getChannel = function(request,response){
 
 //route POST /channel with json body (information of new channel)
 exports.postChannel = function(request,response,next){
-	var newChannel = new Channel(request.body);	// create new channel
+	var obj = {};
+	for(let i=0;i<utility.editableFieldChannel.length;i++){
+		if(request.body[utility.editableFieldChannel[i]]){
+			obj[utility.editableFieldChannel[i]] = request.body[utility.editableFieldChannel[i]];
+		}
+	}
+	var newChannel = new Channel(obj);	// create new channel
 	newChannel.admins.push(request.user._id);
 	var info = {};
 	newChannel.save(function(err){

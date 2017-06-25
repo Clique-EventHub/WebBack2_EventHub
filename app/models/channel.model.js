@@ -10,6 +10,10 @@ var channelSchema = new Schema({
 //		index:true,
 		required:true
 	},
+	detail : {
+		type : [],
+		default : null
+	},
 	verified :{
 		type:Boolean,
 		default:false

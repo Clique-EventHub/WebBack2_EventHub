@@ -13,7 +13,7 @@ var eventSchema = new Schema({
 //		index:true
 	},
 	about : {
-		type:String,
+		type:[],
 		default:null
 	},
 	channel : {
@@ -32,8 +32,8 @@ var eventSchema = new Schema({
 		type:String,
 		default:null
 	},
-	faculty_require: [],
-	year_require:[],
+	faculty_require: [String],
+	year_require:[String],
 	agreement :{
 		type:String,
 		default:null
