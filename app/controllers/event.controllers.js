@@ -1039,9 +1039,7 @@ exports.updatehotEvent = function(request,response,next){
 
 //route /event/hot
 exports.gethotEvent = function(request,response,next){
-	response.sendFile(path.join(__dirname,'../data/hotEvent.json'),options,function(err){
-		if(err) console.error(err);
-	});
+	response.sendFile(path.join(__dirname,'../data/hotEvent.json'));
 }
 
 var querySearchEvent = function(events,info){
