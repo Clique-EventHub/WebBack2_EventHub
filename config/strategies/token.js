@@ -22,9 +22,9 @@ module.exports = function(){
 				var fields = ['_id','firstName','lastName','picture','picture_200px',
 				'gender','phone','shirt_size','birth_day','allergy','disease',
 				'regId','facebookId','twitterUsername','lineId','notification','admin_events',
-				'subscribe_channels','interest_events','join_events','admin_channels','admin_channels'];
+				'subscribe_channels','interest_events','join_events','admin_channels','admin_channels','email'];
 				fields.forEach(function(field){
-					result[field] = user[field];
+					result[field] = user[field] ? user[field] : null;
 				});
 				done(null,result);
 			}

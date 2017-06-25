@@ -1,6 +1,7 @@
 var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
+var mongoose = require('mongoose');
 
 exports.addAdminChannel = function(request, response){
   checkUserAndChannel(request.body.user, request.query.id)
@@ -60,11 +61,9 @@ exports.addAdminEvent = function(request, response){
           }
           check_permission_channel_vol2(request.user, returnedInfo, function(code1, err1, channel){
             if(code1 != 200){
-              console.log("noq yaq");
               response.status(code1).json(err1);
             }
             else{
-              console.log('tang nee q');
               Event.findByIdAndUpdate(request.query.id, {
                 $addToSet : {admins : request.body.user}
               }, function(err, updatedEvent){
@@ -140,8 +139,9 @@ exports.deleteAdminChannel = function(request, response){
           response.status(code).json(err);
         }
         else{
+          var queryId = mongoose.Types.ObjectId(request.query.id);
           User.findByIdAndUpdate(request.body.user, {
-            $pull : {admin_channels : request.query.id}
+            $pull : {admin_channels : queryId}
           }, {multi : true}, function(err, updatedUser){
             if(err){
               response.status(500).json({msg:"internal error."});
@@ -150,8 +150,9 @@ exports.deleteAdminChannel = function(request, response){
               response.status(404).json({msg : "user not found."});
             }
             else{
+              var bodyUser = mongoose.Types.ObjectId(request.body.user);
               Channel.findByIdAndUpdate(request.query.id, {
-                $pull : {admins : request.body.user}
+                $pull : {admins : bodyUser}
               }, {multi : true}, function(err, updatedChannel){
                 if(err){
                   response.status(500).json({msg:"internal error."});
@@ -185,8 +186,9 @@ exports.deleteAdminEvent = function(request, response){
               response.status(code1).json(err1);
             }
             else{
+              var queryId = mongoose.Types.ObjectId(request.query.id);
               User.findByIdAndUpdate(request.body.user, {
-                $pull : {admin_events : request.query.id}
+                $pull : {admin_events : queryId}
               }, {multi : true}, function(err, updatedUser){
                 if(err){
                   response.status(500).json({msg:"internal error."});
@@ -195,8 +197,9 @@ exports.deleteAdminEvent = function(request, response){
                   response.status(404).json({msg : "user not found."});
                 }
                 else{
+                  var bodyUser = mongoose.Types.ObjectId(request.body.user);
                   Event.findByIdAndUpdate(request.query.id, {
-                    $pull : {admins : request.body.user}
+                    $pull : {admins : bodyUser}
                   }, {multi : true}, function(err, updatedEvent){
                     if(err){
                       response.status(500).json({msg:"internal error."});
@@ -217,8 +220,9 @@ exports.deleteAdminEvent = function(request, response){
           response.status(code).json(err);
         }
         else{
+          var queryId = mongoose.Types.ObjectId(request.query.id);
           User.findByIdAndUpdate(request.body.user, {
-            $pull : {admin_events : request.query.id}
+            $pull : {admin_events : queryId}
           }, {multi : true}, function(err, updatedUser){
             if(err){
               response.status(500).json({msg:"internal error."});
@@ -227,8 +231,9 @@ exports.deleteAdminEvent = function(request, response){
               response.status(404).json({msg : "user not found."});
             }
             else{
+              var bodyUser = mongoose.Types.ObjectId(request.body.user);
               Event.findByIdAndUpdate(request.query.id, {
-                $pull : {admins : request.body.user}
+                $pull : {admins : bodyUser}
               }, {multi : true}, function(err, updatedEvent){
                 if(err){
                   response.status(500).json({msg:"internal error."});
@@ -397,6 +402,142 @@ var checkUserAndEvent = function(user, event){
       info['user'] = returnedInfo[1]['_id'];
       resolve(info);
     });
+  });
+};
+
+exports.checkJoinPeopleIn = function(request, response){
+  if(request.user === undefined){
+		if(Object.keys(request.authen).length == 0 )
+			callback(403,{err:"Please login"});
+		else
+			callback(403,{err:request.authen});
+		return;
+	}
+  check_permission(request, function(code, err, returnedInfo){
+    if(code == 403){
+      check_permission_channel_vol2(request.user, returnedInfo, function(code1, err1, channel){
+        if(code1 != 200){
+          response.status(code1).json(err1);
+        }
+        else{
+          Event.findById(request.query.id, function(err, event){
+            var join_users = [];
+            for(let i=0;i<request.body.users.length;i++){
+              if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
+            }
+            Event.findByIdAndUpdate(event._id, {
+              $addToSet : {who_completed : {$each : join_users}},
+              $pull : {who_join : {$in : join_users}}
+            }, function(err, updatedEvent){
+              if(err){
+                response.status(500).json({msg:"internal error."});
+              }
+              else if(!updatedEvent){
+                response.status(404).json({msg:"event not found."});
+              }
+              else{
+                var errorList = [];
+                var noti = {};
+            		noti.title = "You have attended "+event.title+".";
+            		noti.link = undefined;
+            		noti.photo = event.picture;
+            		noti.source = event.title;
+                noti.seen = false;
+                let date = new Date();
+                noti.timestamp = date.getTime();
+                var promises = [];
+                var theEvent = mongoose.Types.ObjectId(request.query.id);
+                for(let i=0;i<join_users.length;i++){
+                  promises.push(new Promise(function(resolve, reject){
+                      var index = i;
+                      User.findByIdAndUpdate(join_users[index], {
+                        $pull : {join_events : theEvent},
+                        $addToSet : {already_joined_events : theEvent, notification : noti}
+                      }, function(err, updatedUser){
+                        if(err || !updatedUser){
+                          errorList.push(join_users[index]);
+                          resolve();
+                        }
+                        else{
+                          resolve();
+                        }
+                      });
+                  }));
+                }
+                Promise.all(promises).then(function(){
+                  if(errorList.length == 0){
+                    response.status(201).json({msg:"done."});
+                  }
+                  else{
+                    response.status(500).json({msg:"error.(contains user_list)", user_list : errorList})
+                  }
+                });
+              }
+            });
+          });
+        }
+      });
+    }
+    else if(code != 200){
+      response.status(code).json(err);
+    }
+    else{
+      Event.findById(request.query.id, function(err, event){
+        var join_users = [];
+        for(let i=0;i<request.body.users.length;i++){
+          if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
+        }
+        Event.findByIdAndUpdate(event._id, {
+          $addToSet : {who_completed : {$each : join_users}},
+          $pull : {who_join : {$in : join_users}}
+        }, function(err, updatedEvent){
+          if(err){
+            response.status(500).json({msg:"internal error."});
+          }
+          else if(!updatedEvent){
+            response.status(404).json({msg:"event not found."});
+          }
+          else{
+            var errorList = [];
+            var noti = {};
+            noti.title = "You have attended "+event.title+".";
+            noti.link = undefined;
+            noti.photo = event.picture;
+            noti.source = event.title;
+            noti.seen = false;
+            let date = new Date();
+            noti.timestamp = date.getTime();
+            var promises = [];
+            var theEvent = mongoose.Types.ObjectId(request.query.id);
+            for(let i=0;i<join_users.length;i++){
+              promises.push(new Promise(function(resolve, reject){
+                  var index = i;
+                  User.findByIdAndUpdate(join_users[index], {
+                    $pull : {join_events : theEvent},
+                    $addToSet : {already_joined_events : theEvent, notification : noti}
+                  }, function(err, updatedUser){
+                    if(err || !updatedUser){
+                      errorList.push(join_users[index]);
+                      resolve();
+                    }
+                    else{
+                      resolve();
+                    }
+                  });
+              }));
+            }
+            Promise.all(promises).then(function(){
+              if(errorList.length == 0){
+                response.status(201).json({msg:"done."});
+              }
+              else{
+                response.status(500).json({msg:"error.(contains user_list)", user_list : errorList})
+              }
+            });
+          }
+        });
+      });
+    }
   });
 };
 

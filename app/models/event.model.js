@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var Moment = require('moment-timezone');
 var Schema = mongoose.Schema;
 
+
 var eventSchema = new Schema({
 	title : {
 		trim : true,
@@ -12,7 +13,7 @@ var eventSchema = new Schema({
 //		index:true
 	},
 	about : {
-		type:String,
+		type:[],
 		default:null
 	},
 	channel : {
@@ -23,13 +24,16 @@ var eventSchema = new Schema({
 		type:String,
 		default:null
 	},
-	picture_large:[],
+	picture_large : {
+		type : [String],
+		default : []
+	},
 	video : {
 		type:String,
 		default:null
 	},
-	faculty_require: [],
-	year_require:[],
+	faculty_require: [String],
+	year_require:[String],
 	agreement :{
 		type:String,
 		default:null
@@ -49,10 +53,18 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default:false
 	},
-	admins : [],
+	admins : [Schema.Types.ObjectId],
+	notes:{
+		type : [],
+		default : []
+	},
+	refs : {
+		type : [],
+		default : []
+	},
 
-	forms : [], // list of objects
-	
+	forms : [{}], // list of objects { title : id }
+
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,
@@ -127,10 +139,14 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default: false
 	},
-	who_join: [],
+	who_join: [Schema.Types.ObjectId],
 	who_interest: {
-		type:[],
+		type:[Schema.Types.ObjectId],
 		default:[]
+	},
+	who_completed : {
+		type : [Schema.Types.ObjectId],
+		default : []
 	},
 	created_date:{
 		type:'Moment',

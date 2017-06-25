@@ -8,6 +8,7 @@ var https = require('https');
 var passport = require('passport');
 var moment = require('moment-timezone');
 var querystring = require('querystring');
+var utility = require('../../config/utility');
 
 
 exports.render = function(request, response){
@@ -104,6 +105,100 @@ exports.interestAnEvent = function(request, response, next){
 	}
 };
 
+exports.getAdminEvents = function(request, response){
+	if(request.user){
+		var promises = [];
+		var errorList = [];
+		var errorList2 = [];
+		var info = [];
+		for(let i=0;i<request.user.admin_events.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				Event.findById(request.user.admin_events[index], function(err, event){
+					if(err || !event){
+						errorList.push(request.user.admin_events[index]);
+						resolve();
+					}
+					else{
+						Channel.findById(event.channel, function(err, channel){
+							if(err || !channel){
+								errorList2.push(event.channel);
+								resolve();
+							}
+							else{
+								let val = {};
+								val.event_picture = event.picture;
+								val.event_title = event.title;
+								val.event_id = request.user.admin_events[index];
+								val.channel_id = channel._id;
+								val.channel_name = channel.name;
+								info.push(val);
+								resolve();
+							}
+						});
+					}
+				});
+			}));
+		}
+		Promise.all(promises).then(function(){
+			if(errorList.length != 0){
+				response.status(500).json({msg:"error.(contains event_list)", event_list : errorList});
+			}
+			else if(errorList2.length != 0){
+				response.status(500).json({msg:"error.(contains channel_list)", channel_list : errorList});
+			}
+			else{
+				response.status(200).json({event_info : info});
+			}
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
+exports.getAdminChannels = function(request, response){
+	if(request.user){
+		var promises = [];
+		var errorList = [];
+		var info = [];
+		for(let i=0;i<request.user.admin_channels.length;i++){
+			promises.push(new Promise(function(resolve, reject){
+				let index = i;
+				Channel.findById(request.user.admin_channels[index], function(err, channel){
+						if(err || !channel){
+							errorList.push(request.user.admin_channels[index]);
+							resolve();
+						}
+						else{
+							resolve();
+							let val = {};
+							val.channel_id = request.user.admin_channels[index];
+							val.channel_name = channel.name;
+							info.push(val);
+						}
+				});
+			}));
+		}
+		Promise.all(promises).then(function(){
+			if(errorList.length == 0){
+				response.status(200).json({channels : info});
+			}
+			else{
+				response.status(500).json({msg:"error.(contains channel_list)", channel_list : errorList });
+			}
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
 
 exports.uninterestAnEvent = function(request, response, next){
 	if(request.user){
@@ -158,8 +253,9 @@ exports.listAll = function(request,response,next){
 exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
-	var fields = ['_id','firstName','lastName','picture','picture_200px',
-	'gender','phone','shirt_size','brith_day','allergy','disease',
+	var fields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
+	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
+	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
 	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
 	if(user){
 		fields.forEach(function(field){
@@ -184,8 +280,7 @@ exports.putEditProfile = function(request, response){
 	if(user){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
-		var editableFields = ['nick_name','picture','phone','shirt_size','allergy','disease','profileUrl','twitterUsername'
-													,'lineId','admin_channels','subscribe_channels','notification'];
+		var editableFields = utility.editableFieldUser;
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];
@@ -196,23 +291,23 @@ exports.putEditProfile = function(request, response){
 			$set:request.body						// update body
 		},function(err,updatedUser){
 			if(err){
-				response.status(500).json({err:"internal error"});
+				response.status(500).json({err:"internal error."});
 				console.error("error : putEditProfile");
 				return ;
 			}
 			else if(!updatedUser){
-				info.err = "user not found";
+				info.err = "user not found.";
 				console.error("user not found : postEditProfile - user.controllers");
 				response.status(404).json(info);
 			}
 			else {
-				var info={msg:"done"};
+				var info={msg:"done."};
 				if(request.user.notification != undefined && request.user.notification != null){
 					info.notification = request.user.notification;
-					response.status(200).json(info);
+					response.status(201).json(info);
 				}
 				else{
-					response.status(200).json(info);
+					response.status(201).json(info);
 				}
 			}
 		});
@@ -244,11 +339,9 @@ var queryFindChannelForUser = function(id){
 			else{
         var info = {};
         if(!channel['tokenDelete']){
-          fields = ['picture','name'];
+          fields = ['picture','name','_id'];
           for(var i = 0; i < fields.length; i++){
-  					if(channel[fields[i]]){
   						info[fields[i]] = channel[fields[i]];
-  					}
   				}
         }
 				resolve(info);
@@ -348,7 +441,9 @@ exports.getSubbedChannnel = function(request,response){
           reject(info);
         })
         .then(function(channelInfo){
-          info[channelInfo.name] = channelInfo.picture;
+					info[channelInfo.name] = {};
+					info[channelInfo.name]['channel_picture'] = channelInfo.picture;
+					info[channelInfo.name]['channel_id'] = channelInfo._id;
           resolve();
         });
       });
@@ -400,6 +495,7 @@ var queryFindEventForUser = function(id){
           }).then(function(returnedInfo){
             var value = {};
             value['picture'] = thisEvent['picture'];
+						value['event_id'] = id;
             value['channel'] = returnedInfo['name'];
             value['channel_picture'] = returnedInfo['picture'];
 						value['channel_id'] = event.channel;
@@ -464,17 +560,15 @@ exports.getInterestedEvent = function(request,response){
     var promises = [];
     var events = request.user.interest_events;
     for(var i=0; i<events.length; i++){
-			// console.log("events[i] = "+events[i]);
       promises[promises.length] = new Promise(function(resolve, reject){
 				var index = i;
-        queryFindEventForUser(events[i])
+        queryFindEventForUser(events[index])
         .catch(function(returnedInfo){
           response.status(returnedInfo.code).json({msg:returnedInfo.msg});
 					return ;
         })
         .then(function(eventInfo){
-          info.events[index] = eventInfo;
-					// console.log('about to resolve');
+          info.events.push(eventInfo);
           resolve();
         });
       });
@@ -523,11 +617,8 @@ var putJoin = function(event_id, user, body, callback){
 	var currentTime = new Date();
 	// user.lastModified = date;
 	if(regId != null && regId != undefined){
-		console.log('in generate year & faculty na');
 		year = regId.substring(0,2);
 		faculty = regId.substring(regId.length-2, regId.length);
-		console.log("yaer"+year);
-		console.log("faculty"+faculty);
 	}
 	var gender = user.gender;
 	if(user.join_events.indexOf(event_id) == -1) user.join_events.push(event_id);

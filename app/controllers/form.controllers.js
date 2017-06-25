@@ -1,7 +1,6 @@
 var Event = require('mongoose').model('Event'); // collections
 var Form = require('mongoose').model('Form');
 var Admin = require('./admin.controllers');
-
 var path = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment-timezone');
@@ -9,6 +8,9 @@ var moment = require('moment-timezone');
 var bluebird = require("bluebird");
 var jsonexport = require('jsonexport');
 var fs = require('fs');
+var utility = require('../../config/utility');
+
+const filePath = path.join(__dirname,'../..',`data/exportCSV/`);
 
 exports.listall = function(request,response){
 	Form.find({}, (err,forms) =>{
@@ -19,10 +21,10 @@ exports.listall = function(request,response){
 //
 // export form
 function exportForm (data,callback){
-	const fileName = data.title;
+	const fileName = `${data.title}-${data.event}.csv`;
+
 	//const url = `api.cueventhub.com/download/form/${fileName}.csv`;
-	//const url = fileName+'.csv';	
-	console.log('data responses',data.responses);	
+	console.log('data responses',data.responses);
 	bluebird.map(data.responses, element => {
 		let temp = {};
 		temp["_firstName"] = element.firstName;
@@ -32,30 +34,40 @@ function exportForm (data,callback){
 			temp[attName] = element.answers[attName];
 
 		return temp;
-		
+
 	}).then( pass => {
 		return new Promise( (resolve,reject) => {
 			jsonexport(pass,function(err, csv){
-				if(err)	reject(err); 
-				else resolve(csv);	
-			});	
+				if(err)	reject(err);
+				else resolve(csv);
+			});
 		});
+	}).catch( (err) => {
+		return Promise.reject(err);
 	}).then( file => {
-		fs.writeFile(url, file, function(err){
+		return new Promise( (resolve,reject) => {
+			mkdirp(filePath, function (err) {
+				if (err) reject(err);
+				else resolve(file);
+			});
+		});
+	}).catch( (err) => {
+		return Promise.reject(err);
+	}).then( file => {
+		fs.writeFile(`${filePath}${fileName}`, file, function(err){
 			if(err){
 				callback(err);
 				console.error(err);
-			}	
+			}
 			else{
 				console.log('done');
-				callback(null,url);
+				callback(null,`${filePath}${fileName}`);
 			}
-		});	
+		});
 	}).catch( (err) => {
 		console.error(err);
 		callback(err);
 	});
-	
 }
 
 
@@ -93,7 +105,7 @@ function findForm(id,callback){
 			}
 			else{
 				console.log("form found");
-				callback (returnedForm);	
+				callback (returnedForm);
 			}
 		});
 }
@@ -106,13 +118,13 @@ exports.getForm = function (request,response){
 		resolve();
 	});
 
-	process.then( () => { 
+	process.then( () => {
 		// findForm
 		console.log('find form');
 		return new Promise( (resolve,reject) => {
 			findForm(request.query.id, function(returnedForm){
 				if(!returnedForm || returnedForm.err) {
-					reject(returnedForm);	
+					reject(returnedForm);
 				}
 				else resolve(returnedForm);
 			});
@@ -127,22 +139,22 @@ exports.getForm = function (request,response){
 		}
 		else if(request.query.opt === 'responses' || request.query.opt === 'export'){
 			return new Promise( (resolve,reject) => {
-				checkPermission(request, returnedForm.channel, function(data){
+				checkPermission(request, returnedForm.event, function(data){
 					if(data.err !== undefined) return reject(data);
 					data.form = returnedForm;
 					if(request.query.opt === 'export'){
 						exportForm(returnedForm, (err, url) => {
 							if(err) return reject({err:err});
 							else return resolve({msg:"OK",url:url});
-						});	
+						});
 					}
 					else return resolve(data);
 				});
 			});
-			
+
 		}
 		else if(Object.keys(request.query).length == 1 && request.query.id){
-			returnedForm.responses = undefined;	
+			returnedForm.responses = undefined;
 			console.log('return no responses', returnedForm);
 			return Promise.resolve({msg:"OK",form:returnedForm});
 		}
@@ -158,14 +170,18 @@ exports.getForm = function (request,response){
 		if(!info || info.err !== undefined) return Promise.resolve({err:'internal error',code:500});
 		else {
 			info.code=200;
-			return Promise.resolve(info);	
+			return Promise.resolve(info);
 		}
 	}).catch( (err) => {
 		console.error('catch2',err);
 		code = !err && err.code ? err.code : 500;
 		err = err ? err : {err:'internal error'};
-		return Promise.resolve(err);	
-	}).then( (info) => response.status(info.code).json(info) );
+		return Promise.resolve(err);
+	}).then( (info) => {
+		if(!info.err && request.query.opt==='export') response.status(200).sendFile(info.url);
+		else	response.status(info.code).json(info);
+	});
+
 
 }
 
@@ -178,16 +194,16 @@ exports.getForm = function (request,response){
 exports.createForm = function(request, response){
 	let process = new Promise((resolve) => {
 		resolve();
-	});	
+	});
 	let form_id = request.query.id;
 	process.then( () => {
 		if(request.body.event === undefined || request.body.channel === undefined) {
 			console.error("channel or event is undefined");
-			return Promise.reject({err:"channel or event is not provided",code:400});	
+			return Promise.reject({err:"channel or event is not provided",code:400});
 		}
 
 		else return new Promise( (resolve,reject) => {
-			checkPermission(request, request.body.event, 
+			checkPermission(request, request.body.event,
 			(data) => {
 				if(data.err) reject(data);
 				else resolve(data);
@@ -196,8 +212,14 @@ exports.createForm = function(request, response){
 	}).then( (info) => {
 		if(info.msg === "OK"){
 			if(form_id !== undefined){
+				var obj = {};
+				for(let i=0;i<utility.postFieldForm.length;i++){
+						if(request.body[postFieldForm[i]]){
+							obj[postFieldForm[i]] = request.body[postFieldForm[i]];
+						}
+				}
 				return new Promise( (resolve,reject) => {
-					Form.findByIdAndUpdate(form_id,request.body, (err,result) => {
+					Form.findByIdAndUpdate(form_id,obj, (err,result) => {
 						if(err){
 							console.error('create form:find form error', request);
 							reject({err:"Internal error",code:500});
@@ -213,15 +235,26 @@ exports.createForm = function(request, response){
 					});
 				});
 			}
-			else return Promise.resolve(new Form(request.body).save());	
+			else return Promise.resolve(new Form(obj).save());
 		}
 		else return Promise.reject(info);
 	}).then( (newForm) => {
-		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"}); 
+		if(newForm.err !== undefined) response.status(500).json({err:"Internal error"});
 		else{
-			if(form_id !== undefined) status = 200;
-			else status = 201;
-			response.status(status).json({msg:'done',id:newForm._id});
+			let obj = {};
+			obj[newForm.title] = newForm._id;
+			console.log('create form',obj);
+			Event.findByIdAndUpdate(request.body.event,{
+				$push : {forms: obj }
+				}, (err) => {
+				if(err){
+					response.status(500).json({msg:"Internal error"});
+					console.error("update form to event error");
+				}
+				if(form_id !== undefined) status = 200;
+				else status = 201;
+				response.status(status).json({msg:'done',id:newForm._id});
+			});
 		}
 	}).catch( (info) => {
 		console.error(info);
@@ -232,7 +265,7 @@ exports.createForm = function(request, response){
 
 // response form
 // PUT /form?id=[form's id]
-// body is answers 
+// body is answers
 exports.responseForm = function(request, response){
 
 	if(request.user){
@@ -244,7 +277,7 @@ exports.responseForm = function(request, response){
 		data._id = undefined;
 
 		Form.findByIdAndUpdate(request.query.id,{
-			$push : {responses: data}		
+			$push : {responses: data}
 		}, (err,returnedForm) => {
 			if(err){
 				console.error('response form error:', request);
@@ -259,13 +292,13 @@ exports.responseForm = function(request, response){
 				console.log(returnedForm);
 				response.status(200).json({msg:"done"});
 			}
-		});			
+		});
 	}
 
 	else{
 		response.status(403).json({err:'Please login'});
 	}
-	
+
 }
 
 
@@ -294,7 +327,7 @@ exports.deleteForm = function(request,response){
 				}
 			});
 		}
-	});	
+	});
 }
 
 exports.clearForm = function(request,response){

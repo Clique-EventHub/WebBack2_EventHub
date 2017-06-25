@@ -6,6 +6,7 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 var moment = require('moment-timezone');
 var modify_log_size = require('../../config/config').modify_log_size;
+var utility = require('../../config/utility');
 //route /
 exports.hi = function(request,response,next){
 	response.send("hello dude");
@@ -38,8 +39,8 @@ exports.listAll = function(request,response,next){
 var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var fields = ['title','about','video','channel','location','date_start','expire',
-		'date_end','picture','picture_large','year_require','faculty_require','tags'];
+		var fields = ['title','about','video','channel','location','date_start','expire','refs','join',
+		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes'];
 		if(isStat) fields.push(['visit']);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
@@ -141,6 +142,18 @@ exports.postEvent = function(request,response,next){
 	}
 
 	// if permission and validate ok
+	var keys = Object.keys(request.body);
+	var fields = ['title', 'channel', 'about', 'picture', 'picture_large',
+							'video', 'faculty_require', 'year_require', 'agreement', 'location',
+							'date_start', 'date_end', 'contact_information', 'tags', 'joinable_start_time',
+							'joinable_end_time', 'time_start', 'time_end', 'optional_field',
+					 	 	'require_field', 'joinable_amount', 'show', 'outsider_accessible'];
+
+	for(let i=0;i<keys.length;i++){
+		if(fields.indexOf(keys[i]) == -1){
+			delete request.body[keys[i]];
+		}
+	}
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	var newEvent = new Event(request.body);
 	var info = {};
@@ -172,7 +185,7 @@ exports.postEvent = function(request,response,next){
 				else if(!channel){
 					info.err = "channel not found";
 					console.error("channel not found : postEvent - event.controllers");
-					response.status(400).json(info);
+					response.status(404).json(info);
 				}
 				else{
 					notiPostEvent(newEvent._id, channel.name, channel.picture, channel.who_subscribe, newEvent.tags, newEvent.picture)
@@ -204,9 +217,7 @@ exports.putEvent = function(request,response,next){
 		return;
 	}
 	var keys = Object.keys(request.body);
-	var editableFields = ['about','video','location','date_start','date_end',
-		'picture','picture_large','year_require','faculty_require','tags',
-		'agreement','contact_information'];
+	var editableFields = utility.editableFieldEvent;
 	var detail = [];
 	for(var i=0;i<keys.length;i++){
 		if(editableFields.indexOf(keys[i]) == -1){
@@ -230,23 +241,23 @@ exports.putEvent = function(request,response,next){
 			},function(err){
 				if(err){
 					console.error(err);
-					response.status(500).json({err:"internal error"});
+					response.status(500).json({err:"internal error."});
 				}
 				else{
-					var info = {"msg":"done"};
+					var info = {"msg":"done."};
 					if(request.user){
 						if(request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
-							response.status(200).json(info);
+							response.status(201).json(info);
 							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 						else{
-							response.status(200).json(info);
+							response.status(201).json(info);
 							notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 						}
 					}
 					else{
-						response.status(200).json(info);
+						response.status(201).json(info);
 						notiPutEvent(event._id, event.who_join, event.who_interest, event.title, event.picture, detail);
 					}
 				}
@@ -269,7 +280,7 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 		else if(!channel){
 			info.err = "channel not found";
 			console.error("error2 : updateDeleteEventToChannel - event.controllers");
-			response.status(400).json(info);
+			response.status(404).json(info);
 		}
 		else{	// move deleted event to bin array
 			channel.events_bin.push(eventId);
@@ -287,14 +298,14 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 							if(request.user){
 								if(request.user.notification != undefined && request.user.notification != null){
 									info.notification = request.user.notification;
-									response.status(200).json({msg:info.msg});
+									response.status(201).json({msg:info.msg});
 								}
 								else{
-									response.status(200).json({msg:info.msg});
+									response.status(201).json({msg:info.msg});
 								}
 							}
 							else{
-								response.status(200).json({msg:info.msg});
+								response.status(201).json({msg:info.msg});
 							}
 						}
 						else{
@@ -709,13 +720,13 @@ var notiInfoForJoinPeople = function(eventId, who_join, description, eventPictur
 		Promise.all(promises).then(function(){
 			if(errorList.length == 0){
 				var info={};
-				info.msg = "done";
+				info.msg = "done.";
 				info.code = 201;
 				resolve(info);
 			}
 			else{
 				var info={};
-				info.msg = "error";
+				info.msg = "error.";
 				info.code = 500;
 				resolve(info);
 			}
@@ -1028,9 +1039,7 @@ exports.updatehotEvent = function(request,response,next){
 
 //route /event/hot
 exports.gethotEvent = function(request,response,next){
-	response.sendFile(path.join(__dirname,'../data/hotEvent.json'),options,function(err){
-		if(err) console.error(err);
-	});
+	response.sendFile(path.join(__dirname,'../data/hotEvent.json'));
 }
 
 var querySearchEvent = function(events,info){

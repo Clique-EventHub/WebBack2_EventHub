@@ -32,6 +32,8 @@ module.exports = function(app){
   //   failureRedirect : '/user',
   //   successRedirect : '/'
   // }));
+  app.get('/user/show-admin-events',user.getAdminEvents);
+  app.get('/user/show-admin-channels',user.getAdminChannels);
 
   app.route('/user/subscribe')
       .get(user.getSubbedChannnel)

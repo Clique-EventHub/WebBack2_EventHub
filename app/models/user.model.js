@@ -140,17 +140,17 @@ var userSchema = new Schema({
 	},
 
 	admin_channels:{
-		type : [],
+		type : [Schema.Types.ObjectId],
 		default : []
 	},
 	admin_events:{
-		type : [],
+		type : [Schema.Types.ObjectId],
 		default : []
 	},
-	join_events:[],
-	interest_events:[],
-	subscribe_channels:[],
-	already_joined_events:[],
+	join_events:[Schema.Types.ObjectId],
+	interest_events:[Schema.Types.ObjectId],
+	subscribe_channels:[Schema.Types.ObjectId],
+	already_joined_events:[Schema.Types.ObjectId],
 	tag_like:[String],
 
 //stat
