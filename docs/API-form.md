@@ -99,6 +99,27 @@ Otherwise, API will create a new form by use body as data.
 
     "choices": [String]  *left this field as empty list if question's type has no choice*
     
+    *__Example__*
+    ```JSON
+    {
+        "title" : "test form",
+        "channel" : "5940251ee7b3640011dbe34f",
+        "event" : "5940256930a51800266b0cfb",
+        "questions" : [
+                {
+                        "question" : "how old are you",
+                        "choices" : [],
+                        "type" : "short answer"
+                },
+                {
+                        "question" : "supp?",
+                        "_id" : ObjectId("5940286930a51800266b0cfd"),
+                        "choices" : ["1","2","3","4"],
+                        "type" : "bullet"
+                }
+        ]
+    }
+    ```
 	
 * **Success Response:**
 
@@ -148,21 +169,20 @@ Otherwise, API will create a new form by use body as data.
 
     **Content:** `{"msg" : "done"}`
 
-
+	**Example**
+	```JSON
+	{
+		"Where do you wanna go?" : "go to home",
+		"What do you wanna eat?" : ["Kouen", "Oishi grand"]
+	}
+	```
+	
 * **Error Response:**
 
   * **Code:** 403,404,500
 
     **Content:** `{err : error detail}`
 	
-	**Example**
-	```javascript
-	{
-		"q1" : "go to home",
-		"q2" : "Kouen"
-	}
-
-	```
 
 ---
 
@@ -205,5 +225,4 @@ Otherwise, API will create a new form by use body as data.
 
     **Content:** `{err : error detail}`
 ---
-
 
