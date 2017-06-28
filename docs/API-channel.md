@@ -54,7 +54,7 @@ Returns json data about detail of channel
 
    **Required:**
 
-    `keyword = [ keyword of searching ]`
+    `keyword = [ keyword of searching ]`  __list of keyword__
 
 * **Body**
 

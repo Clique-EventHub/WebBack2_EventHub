@@ -31,7 +31,11 @@ exports.getChannel = function(request,response){
 
 	var info = {};
 	Channel.findById(id,function(err,channel){
-		if(err) response.status(500).json({msg:"internal error from getChannel"});
+		if(err){
+			console.error("\x1b[31m",new moment().tz('Asia/Bangkok').toString());
+			console.error("\x1b[37m",err);
+			response.status(500).json({msg:"channel not found"});
+		} 
 		else if(!channel){
 			info.msg = 'channel not found';
 			response.status(404).json(info);
@@ -368,8 +372,10 @@ exports.searchChannel = function(request,response,next){
 	Channel.find({$and : [ {name: { $regex:request.query.keyword,$options:"i"}}, {tokenDelete:false}] },
 		function(err,channels){
 			if(err){
-				info.msg = "internal error searchChannel";
+				info.msg = "Something went wrong";
+				console.error("\x1b[31m",new moment().tz('Asia/Bangkok').toString());
 				console.error("error at find channel : searchChannel-channel.controllers");
+				console.error("\x1b[37m",err);
 				response.status(500).json(info);
 				// return next(err);
 			}

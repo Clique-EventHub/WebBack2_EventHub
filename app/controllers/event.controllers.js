@@ -80,11 +80,15 @@ exports.getEvent = function(request,response,next){
 	Event.findById(id,function(err,event){
 		if(err){
 			info.err = 'finding event error';
+			console.error("\x1b[31m",new moment().tz("Asia/Bangkok").toString())
+			console.error("\x1b[37m",err);
 			response.status(500).json(info);
 			// return next(err);
 		}
 		else if(!event){
 			info.err = "event not found";
+			console.error("\x1b[31m",new moment().tz("Asia/Bangkok").toString())
+			console.error("\x1b[37m","event not found",request);
 			response.status(400).json(info);
 		}
 		else{
