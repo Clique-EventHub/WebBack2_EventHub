@@ -281,6 +281,45 @@ Returns all channels that user subscribed.
     **Content:** `{msg : detail of error}`
 ---
 
+## Unsubscribe a channel
+
+Saves data when user presses unsubscribe button.
+
+* **URL**
+
+  `/user/unsubscribe`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Require**
+    `id = channel's id`
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{"msg" : "done.", "notification" : data}`
+
+
+* **Error Response:**
+
+  * **Code:** 403, 404, 500
+
+    **Content:** `{msg : detail of error}`
+---
+
 ## Interest an event
 
 Saves data when user presses interest button.
