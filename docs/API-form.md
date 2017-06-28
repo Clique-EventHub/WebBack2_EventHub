@@ -107,15 +107,14 @@ Otherwise, API will create a new form by use body as data.
         "event" : "5940256930a51800266b0cfb",
         "questions" : [
                 {
-                        "question" : "how old are you",
+                        "question" : "Where do you wanna go?",
                         "choices" : [],
                         "type" : "short answer"
                 },
                 {
-                        "question" : "supp?",
-                        "_id" : ObjectId("5940286930a51800266b0cfd"),
-                        "choices" : ["1","2","3","4"],
-                        "type" : "bullet"
+                        "question" : "What do you wanna eat?",
+                        "choices" : ["Dak galbi","Kouen","Oishi grand","KFC","BBQ plaza"],
+                        "type" : "check box"
                 }
         ]
     }
