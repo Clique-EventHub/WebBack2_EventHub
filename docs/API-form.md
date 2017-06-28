@@ -154,6 +154,16 @@ Otherwise, API will create a new form by use body as data.
   * **Code:** 403,404,500
 
     **Content:** `{err : error detail}`
+	
+	**Example**
+	```javascript
+	{
+		"q1" : "go to home",
+		"q2" : "Kouen"
+	}
+
+	```
+
 ---
 
 ## Delete form

@@ -258,14 +258,19 @@ exports.createForm = function(request, response){
 			console.log('create form',obj);
 			Event.findByIdAndUpdate(request.body.event,{
 				$push : {forms: obj }
-				}, (err) => {
+				}, (err, returnedForm) => {
 				if(err){
 					response.status(500).json({msg:"Internal error"});
 					console.error("update form to event error");
+					return;
 				}
 				if(form_id !== undefined) status = 200;
 				else status = 201;
-				response.status(status).json({msg:'done',id:newForm._id});
+				let returnedData = {};
+				for(let i=0; i < postFieldForm.length; i++){
+					returnedData[postFieldForm[i]] = _.get(returnedForm,postFieldFormi,undefined);
+				}
+				response.status(status).json({msg:'done',id:newForm._id,form:returnedData});
 			});
 		}
 	}).catch( (info) => {
@@ -279,6 +284,7 @@ exports.createForm = function(request, response){
 // PUT /form?id=[form's id]
 // body is answers
 exports.responseForm = function(request, response){
+	if(!request.query.id) response.status(403).json({err:"Please provide form's id"});
 
 	if(request.user){
 		let data = {};
@@ -287,24 +293,46 @@ exports.responseForm = function(request, response){
 		data.lastName = request.user.lastName;
 		data.user_id = request.user._id;
 		data._id = undefined;
-
-		Form.findByIdAndUpdate(request.query.id,{
-			$push : {responses: data}
-		}, (err,returnedForm) => {
-			if(err){
-				console.error('response form error:', request);
-				response.status(500).json({err:'Internal error'});
-			}
-			else if(!returnedForm){
-				console.error('response form : form not found', request);
-				response.status(404).json({err:'Form not found'});
-			}
-			else{
-				console.log('response form success');
-				console.log(returnedForm);
-				response.status(200).json({msg:"done"});
-			}
+		
+		new Promise( (resolve,reject) => {
+			Form.findById(request.query.id,(err,returnedForm) => {
+				if(err){
+					console.error('response form error:', request);
+					reject({code:500,err:'Internal error'});
+				}
+				else if(!returnedForm){
+					console.error('response form : form not found', request);
+					reject({code:404,err:'Form not found'});
+				}
+				else{
+					if(returnedForm.responses === null){
+						returnedForm.responses = [];
+					}
+					returnedForm.responses.push(data);	
+					resolve(returnedForm);
+				}
+			});
+		}).then( returnedForm => {
+			returnedForm.save( (err,form) => {
+				if(err){
+					console.error('save response form error:', request);
+					responses.status(500).json({err:"Internal Server Error"});
+				}
+				else{
+					let data = {};
+					let pos = _.get(form,"responses.length",0)-1;
+					data = _.get(form,['responses',pos], undefined);
+					response.status(200).json({id:form._id,response:data});
+				}
+			});
+		}).catch( info => {
+			let code = info.code ? info.code : 500;
+			let err = info.err ? info.err : "Internal error";
+			response.status(code).json(err);
 		});
+
+		
+
 	}
 
 	else{

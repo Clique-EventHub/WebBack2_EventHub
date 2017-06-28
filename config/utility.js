@@ -123,4 +123,4 @@ exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail'];
 exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
-exports.postFieldForm = ['title','event','channel','questions','responses'];
+exports.postFieldForm = ['title','event','channel','questions'];
