@@ -9,6 +9,7 @@ var passport = require('passport');
 var moment = require('moment-timezone');
 var querystring = require('querystring');
 var utility = require('../../config/utility');
+var mongoose = require('mongoose');
 
 
 exports.render = function(request, response){
@@ -409,6 +410,43 @@ exports.subScribeChannel = function(request, response){
 						}
 						else if(!updatedUser){
 							response.status(404).json({msg:"user not found."});
+						}
+						else{
+							response.status(201).json({msg:"done."});
+						}
+					});
+				}
+			});
+		});
+	}
+	else{
+		if(Object.keys(request.authen).length == 0 )
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authen});
+	}
+};
+
+exports.unsubScribe = function(request, response){
+	if(request.user){
+		checkUserAndChannel(request.user._id, request.query.id)
+		.then(function(returnedInfo){
+			if(returnedInfo.hasOwnProperty('msg')){
+				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+			}
+			Channel.findByIdAndUpdate(request.query.id, {
+				$pull : { who_subscribe : request.user._id }
+			}, function(err, updatedChannel){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else{
+					request.query.id = mongoose.Types.ObjectId(request.query.id);
+					User.findByIdAndUpdate(request.user._id, {
+							$pull : { subscribe_channels : request.query.id }
+					}, function(err, updatedUser){
+						if(err){
+							response.status(500).json({msg:"internal error."});
 						}
 						else{
 							response.status(201).json({msg:"done."});

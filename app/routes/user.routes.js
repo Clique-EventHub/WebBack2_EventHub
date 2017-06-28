@@ -39,6 +39,8 @@ module.exports = function(app){
       .get(user.getSubbedChannnel)
       .put(user.subScribeChannel);
 
+  app.put('/user/unsubscribe',user.unsubScribe);
+
   app.route('/user/join')
       .get(user.getJoinedEvent)
       .put(user.joinAnEvent);
