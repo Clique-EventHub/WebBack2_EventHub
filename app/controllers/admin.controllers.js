@@ -4,7 +4,7 @@ var Event = require('mongoose').model('Event');
 var mongoose = require('mongoose');
 
 exports.addAdminChannel = function(request, response){
-  User.findOne({ regId : request.body.user}, function(returnedUser){
+  User.findOne({ regId : request.body.user}, function(err, returnedUser){
     if(err){
       response.status(500).json({msg:"internal error."});
     }
@@ -150,7 +150,7 @@ exports.addAdminEvent = function(request, response){
 };
 
 exports.deleteAdminChannel = function(request, response){
-  User.findOne({ regId : request.body.user }, function(returnedUser){
+  User.findOne({ regId : request.body.user }, function(err, returnedUser){
     if(err){
       response.status(500).json({msg:"internal error."});
     }
@@ -206,7 +206,7 @@ exports.deleteAdminChannel = function(request, response){
 };
 
 exports.deleteAdminEvent = function(request, response){
-  User.findOne({ regId : request.body.user }, function(returnedUser){
+  User.findOne({ regId : request.body.user }, function(err, returnedUser){
     if(err){
       response.status(500).json({msg:"internal error."});
     }
