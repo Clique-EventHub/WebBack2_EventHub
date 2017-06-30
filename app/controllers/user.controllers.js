@@ -1423,6 +1423,7 @@ exports.login_fb = function(request,response){
 							return ;
             }
             else{
+						obj.facebookData = obj;
 	        	obj.provider = 'facebook';
 	        	obj.picture = obj.picture.data.url;
 	        	obj.firstName = obj.first_name;
