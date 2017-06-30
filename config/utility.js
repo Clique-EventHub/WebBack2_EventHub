@@ -124,3 +124,8 @@ exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
 exports.postFieldForm = ['title','event','channel','questions'];
+
+exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
+	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
+	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
+	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
