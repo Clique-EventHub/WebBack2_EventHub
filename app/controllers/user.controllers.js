@@ -10,7 +10,7 @@ var moment = require('moment-timezone');
 var querystring = require('querystring');
 var utility = require('../../config/utility');
 var mongoose = require('mongoose');
-
+var getUserProfileFields = require('../../config/utility').getUserProfileFields;
 
 exports.render = function(request, response){
 	response.render('user-login',{
@@ -254,10 +254,7 @@ exports.listAll = function(request,response,next){
 exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
-	var fields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
-	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
-	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
-	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
+	let fields = getUserProfileFields;
 	if(user){
 		fields.forEach(function(field){
 			if(field != 'notification' || (field == 'notification' && (user[field] != undefined && user[field] != null))){
@@ -1423,18 +1420,19 @@ exports.login_fb = function(request,response){
 							return ;
             }
             else{
-	        	obj.provider = 'facebook';
-	        	obj.picture = obj.picture.data.url;
-	        	obj.firstName = obj.first_name;
-	        	obj.lastName = obj.last_name;
-	        	obj.facebookId = id;
-	        	obj.access_token = access_token;
-						obj.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
-						delete obj.first_name;
-	        	delete obj.last_name;
-	        	delete obj.id;
-						console.log(obj);
-						saveOAuthUserProfile_fromClient(response,obj);
+						let profile = {};
+						profile.facebookData = obj;
+	        	profile.provider = 'facebook';
+	        	profile.picture = obj.picture.data.url;
+	        	profile.firstName = obj.first_name;
+	        	profile.lastName = obj.last_name;
+	        	profile.facebookId = id;
+	        	profile.access_token = access_token;
+						profile.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
+			
+						console.log(profile);
+						console.log(profile.facebookData);
+						saveOAuthUserProfile_fromClient(response,profile);
         	}
         });
 	});
