@@ -26,14 +26,6 @@ var channelSchema = new Schema({
 		type: String,
 		default: null
 	},
-	url : {
-		type : String,
-		default : null
-	},
-	video : {
-		type : String,
-		default : null
-	},
 	picture_large: [String],
 	events : [Schema.Types.ObjectId],
 	events_bin : [Schema.Types.ObjectId],
