@@ -33,6 +33,7 @@ module.exports = function(){
 				});
 				let email = _.get(user,'email', null);
 				if(email){
+					result['email'] = email;
 				}
 				done(null,result);
 			}
