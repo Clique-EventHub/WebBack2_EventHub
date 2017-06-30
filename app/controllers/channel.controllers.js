@@ -35,13 +35,13 @@ exports.getChannel = function(request,response){
 			console.error("\x1b[31m",new moment().tz('Asia/Bangkok').toString());
 			console.error("\x1b[37m",err);
 			response.status(500).json({msg:"channel not found"});
-		} 
+		}
 		else if(!channel){
 			info.msg = 'channel not found';
 			response.status(404).json(info);
 		}
 		else{
-			var fields = ['_id','name','verified','picture','picture_large','admins','events','detail'];
+			var fields = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){

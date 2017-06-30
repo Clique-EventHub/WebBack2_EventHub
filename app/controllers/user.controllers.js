@@ -1258,9 +1258,7 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 					user.save(function(err){
 						if(err) return done(err);
 						else return generateToken(user._id,done);
-
 					});
-
 				//	user.save(function(err){
 				//		if(err){
 				//			console.log(err);
@@ -1429,7 +1427,7 @@ exports.login_fb = function(request,response){
 	        	profile.facebookId = id;
 	        	profile.access_token = access_token;
 						profile.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
-			
+
 						console.log(profile);
 						console.log(profile.facebookData);
 						saveOAuthUserProfile_fromClient(response,profile);
