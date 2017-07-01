@@ -1034,7 +1034,6 @@ var putInterest = function(event_id,user,callback){
 var generateToken = function(id,done){
 	const payload = {id: id};
     const token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
-		console.log(token);
     done(null,null,token);
 }
 

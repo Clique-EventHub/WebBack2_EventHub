@@ -123,6 +123,8 @@ exports.editableFieldEvent = ['about','video','location','date_start','date_end'
 
 exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail','url','video'];
 
+exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
+
 exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];

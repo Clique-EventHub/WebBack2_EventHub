@@ -3,6 +3,7 @@ const Event = require('mongoose').model('Event');		//
 const moment = require('moment-timezone');
 const User = require('mongoose').model('User');
 const editableFieldChannel = require('../../config/utility').editableFieldChannel;
+const getableFieldChannel = require('../../config/utility').getableFieldChannel;
 const create_channel_key = require('../../config/config').create_channel_key;
 // list all channel
 exports.listAll = function(request,response,next){
@@ -42,7 +43,7 @@ exports.getChannel = function(request,response){
 			response.status(404).json(info);
 		}
 		else{
-			var fields = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
+			var fields = getableFieldChannel; 
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){
