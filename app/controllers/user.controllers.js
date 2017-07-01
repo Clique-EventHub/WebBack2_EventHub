@@ -52,10 +52,10 @@ exports.render = function(request, response){
 // 		});
 // 	}
 // 	else{
-// 		if(Object.keys(request.authen).length == 0 )
+// 		if(Object.keys(request.authentication_info).length == 0 )
 // 			response.status(403).json({err:"Please login"});
 // 		else
-// 			response.status(403).json({err:request.authen});
+// 			response.status(403).json({err:request.authentication_info});
 // 	}
 // };
 
@@ -79,10 +79,10 @@ exports.joinAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -99,10 +99,10 @@ exports.interestAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -154,10 +154,10 @@ exports.getAdminEvents = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -194,10 +194,10 @@ exports.getAdminChannels = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -214,10 +214,10 @@ exports.uninterestAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -265,10 +265,10 @@ exports.getProfile = function(request, response){
 
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 // require body
@@ -311,10 +311,10 @@ exports.putEditProfile = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 }
 
@@ -375,10 +375,10 @@ exports.sawNoti = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -417,10 +417,10 @@ exports.subScribeChannel = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -454,10 +454,10 @@ exports.unsubScribe = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 
@@ -499,10 +499,10 @@ exports.getSubbedChannnel = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 }
 
@@ -581,10 +581,10 @@ exports.getJoinedEvent = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 }
 
@@ -619,10 +619,10 @@ exports.getInterestedEvent = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 }
 
@@ -1032,8 +1032,9 @@ var putInterest = function(event_id,user,callback){
 
 
 var generateToken = function(id,done){
-	var payload = {id: id};
-    var token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
+	const payload = {id: id};
+    const token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
+		console.log(token);
     done(null,null,token);
 }
 
@@ -1051,7 +1052,7 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 			response.status(500).json({msg:'error',err:err});
 		}
 	}
-	console.log('findOne:'+ profile.provider + '&' + profile.id);
+	console.log('findOne:'+ profile.provider + '&' + profile.facebookId);
 
 	User.findOne({
 		provider : profile.provider,
@@ -1378,10 +1379,10 @@ exports.checkRegChula = function(request, response){
 	}
 	else{
 		console.log('not in1');
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 	}
 };
 

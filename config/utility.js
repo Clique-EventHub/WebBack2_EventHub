@@ -26,10 +26,10 @@ exports.checkPermission = function (request, id, opt, callback) {
 	}
 	else{
 		console.log('no user');
-		if(Object.keys(request.authen).length === 0 )
+		if(Object.keys(request.authentication_info).length === 0 )
 			callback({err:"Please login", code:403});
 		else
-			callback({err:request.authen, code:403});
+			callback({err:request.authentication_info, code:403});
 	}
 }
 

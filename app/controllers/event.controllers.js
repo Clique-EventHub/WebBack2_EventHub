@@ -140,10 +140,10 @@ exports.postEvent = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info});
 		return;
 	}
 
@@ -1175,10 +1175,10 @@ exports.searchByDate = function(request,response,next){
 
 var check_permission = function(request,callback){
 	if(request.user === undefined){
-		if(Object.keys(request.authen).length == 0 )
+		if(Object.keys(request.authentication_info).length == 0 )
 			callback(403,{err:"Please login"});
 		else
-			callback(403,{err:request.authen});
+			callback(403,{err:request.authentication_info});
 		return;
 	}
 	// check permission

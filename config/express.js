@@ -51,11 +51,9 @@ module.exports = function(){
 	app.use(function(request, response, next){
 		passport.authenticate('jwt', {session : false},
 			function(err, user, info){
-				 if(user){
+				request.authentication_info = info;	
+			  if(user){
 					request.user = user;
-				}
-				else{
-					request.authen = info;
 				}
 				next();
 			})(request, response);
