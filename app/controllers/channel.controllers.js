@@ -72,7 +72,7 @@ exports.getChannel = function(request,response){
 //route POST /channel with json body (information of new channel)
 exports.postChannel = function(request,response,next){
 	const user = request.user;
-	const key = request.body.key;
+	const key = request.body.create_key;
 	request.body.key = undefined;
 	if(!user){
 		if(!request.authentication_info)
