@@ -1062,8 +1062,8 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 			if(!user){
 				if(profile.email) var possibleUsername = profile.email ? profile.email.split('@')[0] : '';
 				else{
-					var fname = profile.name.split(' ')[0];
-					var lname = profile.name.split(' ')[1];
+					var fname = profile.firstName;
+					var lname = profile.lastName;
 					if(lname.length <3 ) var len = lname.length;
 					else var len = 3;
 					var possibleUsername = fname + '.' + lname.substring(0,len);
