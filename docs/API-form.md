@@ -33,7 +33,16 @@ Return detail of form.
 
    **Required:**
 
-    `id = form's id`
+    `id=form's id`
+		
+    **Optional:**
+
+	`opt=responses`	
+    
+	**Example**
+	```
+	api.cueventhub.com?id=123456789&opt=responses
+	```
 
 * **Body**
 
@@ -224,4 +233,5 @@ Otherwise, API will create a new form by use body as data.
 
     **Content:** `{err : error detail}`
 ---
+
 
