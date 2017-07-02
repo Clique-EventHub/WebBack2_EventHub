@@ -1073,6 +1073,7 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 					user.generateToken( (err,rtoken) =>{
 						token = token;
 						user.refresh_token = token.refresh_token;
+						user.refresh_token_exp = token.refresh_token_exp;
 						user.save(callback);
 					});
 				});
@@ -1080,7 +1081,11 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 			else{
 				user.generateToken( (err,rtoken) =>{
 					token = rtoken;
+					console.log(token);
 					profile.refresh_token = token.refresh_token;
+					profile.refresh_token_exp = token.refresh_token_exp;
+					console.log(profile.refresh_token_exp);
+					console.log(typeof profile.refresh_token_exp);
 					user.update(profile,callback);
 				});
 			}
@@ -1469,7 +1474,15 @@ exports.revokeToken = function(request, response){
 			else if(user.refresh_token !== refresh_token){
 				console.error(new Date().toString());
 				console.error("revoke token : invalid refresh token");
-				reject({code:400,err:"invalid token"});
+				reject({code:400,err:"Invalid refresh token"});
+			}
+			else if(user.refresh_token_exp < new Date().getTime()){
+				console.error(new Date().toString());
+				console.error("revoke token fail : refresh token expired");
+				let ret = {};
+				ret.err = "refresh token expired";
+				ret.expired = new Date(user.refresh_token_exp);
+				reject({codee:403,err:ret});
 			}
 			else resolve(user);
 		});

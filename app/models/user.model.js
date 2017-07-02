@@ -6,7 +6,7 @@ var jwt = require('jsonwebtoken');
 var jwtSecret = require('../../config/config').jwtSecret;
 var token_lifetime = require('../../config/config').token_lifetime;
 var _ = require('lodash');
-
+var refresh_token_lifetime = require('../../config/config').refresh_token_lifetime;
 var userSchema = new Schema({
 
 //personal infomation
@@ -197,7 +197,8 @@ var userSchema = new Schema({
 		default: null
 	},
 // authentication
-	refresh_token: String
+	refresh_token: String,
+	refresh_token_exp: Number,
 });
 // do this before save
 userSchema.pre('save',function(next){
@@ -247,8 +248,13 @@ userSchema.methods.generateToken = function(done){
 	try{
 		const access_token = jwt.sign(payload, jwtSecret,{ expiresIn: token_lifetime });
 		const refresh_token = crypto.randomBytes(30).toString('base64');
-		done(null,{access_token:access_token,refresh_token:refresh_token});
-	} catch(err){
+		const refresh_token_exp = new Date().getTime() + refresh_token_lifetime;
+		done(null,{
+			access_token: access_token,
+			refresh_token: refresh_token,
+			refresh_token_exp: refresh_token_exp 
+		});
+	}catch(err){
 		console.error(new Date().toString());
 		console.error(err);
 		done(err);
