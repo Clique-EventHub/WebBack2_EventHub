@@ -243,11 +243,17 @@ userSchema.methods.generateToken = function(done){
 			return obj;
 		}
 	});
-
 	const payload = user;
-	const access_token = jwt.sign(payload, jwtSecret,{ expiresIn: token_lifetime });
-	const refresh_token = crypto.randomBytes(30).toString('base64');
-	done (null,{access_token:access_token,refresh_token:refresh_token});
+	try{
+		const access_token = jwt.sign(payload, jwtSecret,{ expiresIn: token_lifetime });
+		const refresh_token = crypto.randomBytes(30).toString('base64');
+		done(null,{access_token:access_token,refresh_token:refresh_token});
+	} catch(err){
+		console.error(new Date().toString());
+		console.error(err);
+		done(err);
+		return;
+	}	
 }
 
 
