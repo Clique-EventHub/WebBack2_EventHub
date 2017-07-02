@@ -2,7 +2,6 @@ var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
 var config = require('../../config/config');
-var jwt = require('jsonwebtoken');
 var http = require('http');
 var https = require('https');
 var passport = require('passport');
@@ -11,7 +10,7 @@ var querystring = require('querystring');
 var utility = require('../../config/utility');
 var mongoose = require('mongoose');
 var getUserProfileFields = require('../../config/utility').getUserProfileFields;
-
+var _ = require('lodash');
 exports.render = function(request, response){
 	response.render('user-login',{
 		title: 'Login EventHub',
@@ -1031,26 +1030,24 @@ var putInterest = function(event_id,user,callback){
 };
 
 
-var generateToken = function(id,done){
-	const payload = {id: id};
-    const token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
-    done(null,null,token);
-}
 
 var saveOAuthUserProfile_fromClient = function(response,profile){
-
-	var callback = function(err,user,token){
+	let token = null;
+	var callback = function(err){
 		if(!err){
-			var info = {
-				msg : 'done',
-				access_token : token
-			};
-			response.status(200).json(info);
+			let ret = new Object();
+			ret.msg = "OK";
+			ret.access_token = _.get(token,'access_token',null);
+			ret.refresh_token = _.get(token,'refresh_token',null);	
+			response.status(200).json({ret});
 		}
 		else{
-			response.status(500).json({msg:'error',err:err});
+			console.error(new Date().toString());
+			console.error(err);
+			response.status(500).json({msg:'error'});
 		}
 	}
+
 	console.log('findOne:'+ profile.provider + '&' + profile.facebookId);
 
 	User.findOne({
@@ -1071,17 +1068,18 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
 					profile.username = availableUsername;
 					user = new User(profile);
-					console.log(user);
-					user.save(function(err){
-						if(err) response.status(500).json({msg:'error save new user',err:err});
-						else generateToken(user._id,callback);
+					user.generateToken( (err,rtoken) =>{
+						token = token;
+						user.refresh_token = token.refresh_token;
+						user.save(callback);
 					});
 				});
 			}
 			else{
-				user.update(profile,function(err){
-					if(err) response.status(500).json({msg:'error',err:err});
-					else generateToken(user._id,callback);
+				user.generateToken( (err,rtoken) =>{
+					token = rtoken;
+					profile.refresh_token = token.refresh_token;
+					user.update(profile,callback);
 				});
 			}
 		}
