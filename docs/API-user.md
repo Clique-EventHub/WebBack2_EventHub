@@ -1,51 +1,5 @@
 # User
 
----
-## Login by facebook
-
-Login user by facebook.
-If user login first time, system will register new user and save it to database.
-Otherwise, server will use registered user.
-
-* **URL**
-
-  `/login/facebook`
-
-* **Method:**
-
-  `GET`
-
-* **Authentication**
-
-    None
-
-*  **URL Params**
-
-    **Require**
-    `id = [facebook's id]`
-    `access_token = [facebook's access_token]`
-
-* **Body**
-
-    None
-
-
-* **Success Response:**
-
-  * **Code:** 200
-
-    **Content:** `{"msg" : "done", access_token : server's access token}`
-
-
-* **Error Response:**
-
-  * **Code:** 400, 500
-
-    **Content:** `{msg : detail of error}`
-    *__detail of error:__ " invalid facebook's access token " , etc.*
-
----
-
 ## Get user profile
 
  Returns json data about detail of user
@@ -595,4 +549,7 @@ Read the new notification. That notification will become 'seen'.
   * **Code:** 403, 404, 500
 
     **Content:** `{msg : detail of error}`
+
 ---
+
+

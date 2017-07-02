@@ -125,9 +125,16 @@ exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail','url
 
 exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
 
-exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
+const userField = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
+
+exports.editableFieldUser = userField; 
+
+exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','facebookId',
+				'admin_events', 'already_joined_events','subscribe_channels','interest_events','join_events','major',
+				'admin_channels','admin_channels','firstNameTH','lastNameTH', ...userField ];
+
 exports.postFieldForm = ['title','event','channel','questions'];
 
 exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',

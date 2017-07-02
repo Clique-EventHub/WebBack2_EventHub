@@ -2,15 +2,16 @@ var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
 var config = require('../../config/config');
-var jwt = require('jsonwebtoken');
 var http = require('http');
 var https = require('https');
 var passport = require('passport');
 var moment = require('moment-timezone');
 var querystring = require('querystring');
-var utility = require('../../config/utility');
+var editableFieldUser = require('../../config/utility').editableFieldUser;
 var mongoose = require('mongoose');
 var getUserProfileFields = require('../../config/utility').getUserProfileFields;
+var _ = require('lodash');
+var jwt = require('jsonwebtoken');
 
 exports.render = function(request, response){
 	response.render('user-login',{
@@ -278,7 +279,7 @@ exports.putEditProfile = function(request, response){
 	if(user){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
-		var editableFields = utility.editableFieldUser;
+		var editableFields = editableFieldUser;
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];
@@ -1031,26 +1032,24 @@ var putInterest = function(event_id,user,callback){
 };
 
 
-var generateToken = function(id,done){
-	const payload = {id: id};
-    const token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
-    done(null,null,token);
-}
 
 var saveOAuthUserProfile_fromClient = function(response,profile){
-
-	var callback = function(err,user,token){
+	let token = null;
+	var callback = function(err){
 		if(!err){
-			var info = {
-				msg : 'done',
-				access_token : token
-			};
-			response.status(200).json(info);
+			let ret = new Object();
+			ret.msg = "OK";
+			ret.access_token = _.get(token,'access_token',null);
+			ret.refresh_token = _.get(token,'refresh_token',null);	
+			response.status(200).json(ret);
 		}
 		else{
-			response.status(500).json({msg:'error',err:err});
+			console.error(new Date().toString());
+			console.error(err);
+			response.status(500).json({msg:'error'});
 		}
 	}
+
 	console.log('findOne:'+ profile.provider + '&' + profile.facebookId);
 
 	User.findOne({
@@ -1071,17 +1070,23 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
 					profile.username = availableUsername;
 					user = new User(profile);
-					console.log(user);
-					user.save(function(err){
-						if(err) response.status(500).json({msg:'error save new user',err:err});
-						else generateToken(user._id,callback);
+					user.generateToken( (err,rtoken) =>{
+						token = token;
+						user.refresh_token = token.refresh_token;
+						user.refresh_token_exp = token.refresh_token_exp;
+						user.save(callback);
 					});
 				});
 			}
 			else{
-				user.update(profile,function(err){
-					if(err) response.status(500).json({msg:'error',err:err});
-					else generateToken(user._id,callback);
+				user.generateToken( (err,rtoken) =>{
+					token = rtoken;
+					console.log(token);
+					profile.refresh_token = token.refresh_token;
+					profile.refresh_token_exp = token.refresh_token_exp;
+					console.log(profile.refresh_token_exp);
+					console.log(typeof profile.refresh_token_exp);
+					user.update(profile,callback);
 				});
 			}
 		}
@@ -1439,4 +1444,70 @@ exports.login_fb = function(request,response){
 	    response.json({error:err.message,msg:"error"});
 	});
     req.end();
+}
+
+exports.revokeToken = function(request, response){
+	const access_token = request.get("Authorization").split(" ")[1];
+	const refresh_token = request.body.refresh_token;
+	if(!access_token || !refresh_token){
+		response.status(400).json({err:"no token provided"});
+		return;
+	}
+	try{
+		var decoded = jwt.verify(access_token,config.jwtSecret);
+		console.log(decoded);
+	}catch(err){
+		console.error(err);
+		response.status(500).json({err:"Something went wrong"});
+		return;
+	}
+	new Promise( (resolve,reject) => {
+		User.findById(decoded.id,(err,user) => {
+			if(err){
+				console.error(new Date().toString());
+				console.error(err);
+				reject({code:500,err:"Internal error"});
+			}
+			else if(!user){
+				console.error(new Date().toString());
+				console.error("revoke token : user not found");
+				reject({code:400,err:"Invalid Token"});
+			}
+			else if(user.refresh_token !== refresh_token){
+				console.error(new Date().toString());
+				console.error("revoke token : invalid refresh token");
+				reject({code:400,err:"Invalid refresh token"});
+			}
+			else if(user.refresh_token_exp < new Date().getTime()){
+				console.error(new Date().toString());
+				console.error("revoke token fail : refresh token expired");
+				let ret = {};
+				ret.err = "refresh token expired";
+				ret.expired = new Date(user.refresh_token_exp);
+				reject({code:403,err:ret});
+			}
+			else resolve(user);
+		});
+	}).then( (user) => {
+		return new Promise( (resolve,reject) => {
+			user.generateToken( (err,rtoken) =>{
+				if(err){
+					resolve({code:500,err:"Internal Error"});
+				}
+				else{
+					resolve({msg:"OK",access_token:rtoken.access_token});
+				}
+			});
+		});
+	}).catch( err => {
+		console.error('error',err);
+		return Promise.resolve(err);
+	}).then( (payload) =>{
+		if(payload.msg === "OK")
+			code = 200;
+		else code = _.get(payload,'code',500);
+		payload = payload ? payload : {"err":"Internal Error"};	
+		delete payload.code;
+		response.status(code).json(payload);
+	});
 }
