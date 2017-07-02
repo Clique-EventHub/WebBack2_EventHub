@@ -47,7 +47,7 @@ exports.getChannel = function(request,response){
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){
-	;					if(channel[fields[i]].length>0)
+						if(channel[fields[i]].length>0)
 							info[fields[i]]=channel[fields[i]];
 					}
 					else

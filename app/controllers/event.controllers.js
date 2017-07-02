@@ -127,7 +127,7 @@ exports.postEvent = function(request,response,next){
 	var channel = request.body.channel;
 	var title = request.body.title;
 	// validate input data
-	if(channel === undefined || title === undefined){
+	if(!channel || !title ){
 			response.status(400).json({err:"invalid title or channel"});
 			return;
 	}
