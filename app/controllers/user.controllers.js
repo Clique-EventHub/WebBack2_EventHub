@@ -1449,12 +1449,14 @@ exports.login_fb = function(request,response){
 exports.revokeToken = function(request, response){
 	const access_token = request.get("Authorization").split(" ")[1];
 	const refresh_token = request.body.refresh_token;
-	console.log(access_token);
+	if(!access_token || !refresh_token){
+		response.status(400).json({err:"no token provided"});
+		return;
+	}
 	try{
 		var decoded = jwt.verify(access_token,config.jwtSecret);
 		console.log(decoded);
 	}catch(err){
-		console('errorororororo');
 		console.error(err);
 		response.status(500).json({err:"Something went wrong"});
 		return;
@@ -1482,7 +1484,7 @@ exports.revokeToken = function(request, response){
 				let ret = {};
 				ret.err = "refresh token expired";
 				ret.expired = new Date(user.refresh_token_exp);
-				reject({codee:403,err:ret});
+				reject({code:403,err:ret});
 			}
 			else resolve(user);
 		});
@@ -1505,6 +1507,7 @@ exports.revokeToken = function(request, response){
 			code = 200;
 		else code = _.get(payload,'code',500);
 		payload = payload ? payload : {"err":"Internal Error"};	
+		delete payload.code;
 		response.status(code).json(payload);
 	});
 }
