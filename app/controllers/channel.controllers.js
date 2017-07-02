@@ -82,7 +82,7 @@ exports.postChannel = function(request,response,next){
 		console.log(request.authentication_info);
 		return;
 	}
-	if(key !== create_channel_key){
+	if(process.env.NODE_ENV === 'production' && key !== create_channel_key){
 		response.status(403).json({err:"no permission"});
 		return;
 	}
