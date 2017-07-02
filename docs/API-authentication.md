@@ -3,7 +3,7 @@
 ## Login by facebook
 
 Login user by facebook.
-If user login first time, system will register new user and save it to database. Otherwise, server will use registered user. 
+If user login first time, system will register new user and save it to database. Otherwise, server will use registered user.
 Refresh token will regenerate everytime user login by Facebook.
 
 
@@ -46,7 +46,7 @@ Refresh token will regenerate everytime user login by Facebook.
 
 ---
 
-## Revoke access token 
+## Revoke access token
 
 get new access token
 
@@ -65,9 +65,9 @@ get new access token
 *  **URL Params**
 
     None
-    
+
 * **Body**
-    
+
    ```JSON
    {
         "refresh_token" : "give me new token"
@@ -87,16 +87,23 @@ get new access token
   * **Code:** 400, 403, 500
 
     **Content:** `{err : detail of error}`
-		
+
 	**detail of error**
 
 	```
 		500 : Internal Error, Something went wrong
 		400 : no token provide      = invalid params/body
-			  Invalid Token 	    = no user in db/fake token 
-			  Invalid refresh token = refresh token don't match	
+			  Invalid Token 	    = no user in db/fake token
+			  Invalid refresh token = refresh token don't match
 		403 : refresh token expired					
 	```
-	
+
 ---
 
+response from possible response from authentication
+
+```    
+Please login
+jwt expired
+
+```

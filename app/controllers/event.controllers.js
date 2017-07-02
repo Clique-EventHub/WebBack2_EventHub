@@ -140,10 +140,10 @@ exports.postEvent = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 		return;
 	}
 
@@ -1175,10 +1175,10 @@ exports.searchByDate = function(request,response,next){
 
 var check_permission = function(request,callback){
 	if(request.user === undefined){
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			callback(403,{err:"Please login"});
 		else
-			callback(403,{err:request.authentication_info});
+			callback(403,{err:request.authentication_info.message});
 		return;
 	}
 	// check permission

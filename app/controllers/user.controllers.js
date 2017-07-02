@@ -80,10 +80,10 @@ exports.joinAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -100,10 +100,10 @@ exports.interestAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -155,10 +155,10 @@ exports.getAdminEvents = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -195,10 +195,10 @@ exports.getAdminChannels = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -215,10 +215,10 @@ exports.uninterestAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -266,10 +266,10 @@ exports.getProfile = function(request, response){
 
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 // require body
@@ -312,10 +312,10 @@ exports.putEditProfile = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -376,10 +376,10 @@ exports.sawNoti = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -418,10 +418,10 @@ exports.subScribeChannel = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -455,10 +455,10 @@ exports.unsubScribe = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -500,10 +500,10 @@ exports.getSubbedChannnel = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -582,10 +582,10 @@ exports.getJoinedEvent = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -620,10 +620,10 @@ exports.getInterestedEvent = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -1040,7 +1040,7 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 			let ret = new Object();
 			ret.msg = "OK";
 			ret.access_token = _.get(token,'access_token',null);
-			ret.refresh_token = _.get(token,'refresh_token',null);	
+			ret.refresh_token = _.get(token,'refresh_token',null);
 			response.status(200).json(ret);
 		}
 		else{
@@ -1383,10 +1383,10 @@ exports.checkRegChula = function(request, response){
 	}
 	else{
 		console.log('not in1');
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -1506,7 +1506,7 @@ exports.revokeToken = function(request, response){
 		if(payload.msg === "OK")
 			code = 200;
 		else code = _.get(payload,'code',500);
-		payload = payload ? payload : {"err":"Internal Error"};	
+		payload = payload ? payload : {"err":"Internal Error"};
 		delete payload.code;
 		response.status(code).json(payload);
 	});

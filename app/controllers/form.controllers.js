@@ -84,10 +84,10 @@ function checkPermission (request, event, callback) {
 	}
 	else{
 		console.log('no user');
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			callback({err:"Please login", code:403});
 		else
-			callback({err:request.authentication_info, code:403});
+			callback({err:request.authentication_info.message, code:403});
 	}
 }
 

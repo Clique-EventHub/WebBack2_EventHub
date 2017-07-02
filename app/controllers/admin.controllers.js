@@ -451,10 +451,10 @@ var checkUserAndEvent = function(user, event){
 
 exports.checkJoinPeopleIn = function(request, response){
   if(request.user === undefined){
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token" )
 			callback(403,{err:"Please login"});
 		else
-			callback(403,{err:request.authentication_info});
+			callback(403,{err:request.authentication_info.message});
 		return;
 	}
   check_permission(request, function(code, err, returnedInfo){
@@ -587,10 +587,10 @@ exports.checkJoinPeopleIn = function(request, response){
 
 var check_permission = function(request,callback){
 	if(request.user === undefined){
-		if(Object.keys(request.authentication_info).length == 0 )
+		if(request.authentication_info.message === "No auth token" )
 			callback(403,{err:"Please login"});
 		else
-			callback(403,{err:request.authentication_info});
+			callback(403,{err:request.authentication_info.message});
 		return;
 	}
 	// check permission
@@ -623,10 +623,10 @@ var check_permission = function(request,callback){
 
 var check_permission_channel = function(request,callback){
 	if(request.user === undefined){
-		if(Object.keys(request.authentication_info).length == 0 )
+    if(request.authentication_info.message === "No auth token" )
 			callback(403,{err:"Please login"});
 		else
-			callback(403,{err:request.authentication_info});
+			callback(403,{err:request.authentication_info.message});
 		return;
 	}
 	// check permission

@@ -43,7 +43,7 @@ exports.getChannel = function(request,response){
 			response.status(404).json(info);
 		}
 		else{
-			var fields = getableFieldChannel; 
+			var fields = getableFieldChannel;
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){
@@ -76,10 +76,9 @@ exports.postChannel = function(request,response,next){
 	const key = request.body.create_key;
 	request.body.key = undefined;
 	if(!user){
-		if(!request.authentication_info)
-			response.status(400).json({err:"please login"});
-		else response.status(400).json(request.authentication_info);
-		console.log(request.authentication_info);
+		if(request.authentication_info.message === "No auth token")
+			response.status(400).json({err:"Please login"});
+		else response.status(400).json({err:request.authentication_info.message});
 		return;
 	}
 	if(process.env.NODE_ENV === 'production' && key !== create_channel_key){
@@ -103,7 +102,7 @@ exports.postChannel = function(request,response,next){
 			else{
 			console.error(err);
 			response.status(500).json({err:"Internal Error"});
-			}	
+			}
 		}
 		else {
 			info.id = newChannel._id;
@@ -141,11 +140,10 @@ exports.putChannel = function(request,response,next){
 			}
 		}
 		else{
-			if(Object.keys(request.authentication_info).length == 0 )
-				response.status(403).json({err:"Please login"});
-			else
-				response.status(403).json({err:request.authentication_info});
-			return;
+			if(request.authentication_info.message === "No auth token")
+				response.status(400).json({err:"Please login"});
+			else response.status(400).json({err:request.authentication_info.message});
+				return;
 		}
 		var editableFields = editableFieldChannel;
 		var editObj = {};
@@ -227,10 +225,9 @@ exports.deleteChannel = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
-			response.status(403).json({err:"Please login"});
-		else
-			response.status(403).json({err:request.authentication_info});
+		if(request.authentication_info.message === "No auth token")
+			response.status(400).json({err:"Please login"});
+		else response.status(400).json({err:request.authentication_info.message});
 		return;
 	}
 
@@ -320,10 +317,9 @@ exports.getStat = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authentication_info).length == 0 )
-			response.status(403).json({err:"Please login"});
-		else
-			response.status(403).json({err:request.authentication_info});
+		if(request.authentication_info.message === "No auth token")
+			response.status(400).json({err:"Please login"});
+		else response.status(400).json({err:request.authentication_info.message});
 		return;
 	}
 	var id = request.query.id;

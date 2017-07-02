@@ -26,10 +26,10 @@ exports.checkPermission = function (request, id, opt, callback) {
 	}
 	else{
 		console.log('no user');
-		if(Object.keys(request.authentication_info).length === 0 )
-			callback({err:"Please login", code:403});
+		if(request.authentication_info.message === "No auth token")
+			response.status(403).json({err:"Please login"});
 		else
-			callback({err:request.authentication_info, code:403});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -129,7 +129,7 @@ const userField = ['nick_name','picture','picture_200px','birth_day','twitterUse
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
 
-exports.editableFieldUser = userField; 
+exports.editableFieldUser = userField;
 
 exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','facebookId',
 				'admin_events', 'already_joined_events','subscribe_channels','interest_events','join_events','major',
