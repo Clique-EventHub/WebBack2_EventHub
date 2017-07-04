@@ -168,7 +168,15 @@ search event
 
 *  **URL Params**
 
-    **Require:** `keyword = [ keyword of searching ]`
+    **Require:** `keyword=key1,key2,key3`
+
+*  **Example**
+
+		```
+				You can use both keyword and keywords
+				/event/search?keyword=water 
+				/event/search?keywords=winter,fell,down
+		```
 
 * **Body**
     None

@@ -53,8 +53,15 @@ Returns json data about detail of channel
 *  **URL Params**
 
    **Required:**
+    `keyword/keywords = key1,key2,key3`
+		
+	**Example**
 
-    `keyword = [ keyword of searching ]`  __list of keyword__
+	```
+	    You can use both keyword and keywords
+	    /channel/search?keyword=water 
+	    /channel/search?keywords=winter,fell,down
+	```
 
 * **Body**
 

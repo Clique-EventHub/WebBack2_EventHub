@@ -8,7 +8,7 @@ const moment = require('moment-timezone');
 const modify_log_size = require('../../config/config').modify_log_size;
 const editableFieldEvent = require('../../config/utility').editableFieldEvent;
 const storagePath = require('../../config/config').storagePath;
-
+const _ = require('lodash');
 //route /
 exports.hi = function(request,response,next){
 	response.send("hello dude");
@@ -1085,8 +1085,14 @@ var querySearchEvent = function(events,info){
 //route /event/search?keyword=...
 exports.searchEvent = function(request,response,next){
 	//$option i : case insensitive
-	var info={};
-	Event.find( {$and : [ {title: { $regex:request.query.keyword,$options:"i"}}, {tokenDelete:false}] } ,
+	let keys = _.get(request,'query.keyword',request.query.keywords);
+	if(!keys){
+		response.status(400).json({err:"no keywords"});
+		return;
+	}
+	let info={};
+	let reg = new RegExp(keys.replace(/,/g,'.*'),"g");
+	Event.find( {$and : [ {title: { $regex:reg,$options:"si"}}, {tokenDelete:false}] } ,
 		function(err,events){
 			if(err){
 				info.err = "error";

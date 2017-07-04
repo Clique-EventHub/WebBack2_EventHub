@@ -5,6 +5,7 @@ const User = require('mongoose').model('User');
 const editableFieldChannel = require('../../config/utility').editableFieldChannel;
 const getableFieldChannel = require('../../config/utility').getableFieldChannel;
 const create_channel_key = require('../../config/config').create_channel_key;
+const _ = require('lodash');
 // list all channel
 exports.listAll = function(request,response,next){
 	Channel.find({},function(err,channel){
@@ -374,10 +375,16 @@ exports.clear = function(request,response,next){
 
 //route GET /channel/search?keyword=...
 exports.searchChannel = function(request,response,next){
-	var info = {};
+	let keys = _.get(request,'query.keyword',request.query.keywords);
+	if(!keys){
+		response.status(400).json({err:"no keywords"});
+		return;
+	}
+	let info={};
+	let reg = new RegExp(keys.replace(/,/g,'.*'),"g");
 	//$and : regex and tokenDelete true
 	//$option i : case insensitive , match both upper and lower
-	Channel.find({$and : [ {name: { $regex:request.query.keyword,$options:"i"}}, {tokenDelete:false}] },
+	Channel.find({$and : [ {name: { $regex:reg,$options:"i"}}, {tokenDelete:false}] },
 		function(err,channels){
 			if(err){
 				info.msg = "Something went wrong";
