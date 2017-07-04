@@ -10,6 +10,7 @@ var querystring = require('querystring');
 var editableFieldUser = require('../../config/utility').editableFieldUser;
 var mongoose = require('mongoose');
 var getUserProfileFields = require('../../config/utility').getUserProfileFields;
+var getFBUserProfile = require('../../config/utility').getFBUserProfile;
 var _ = require('lodash');
 var jwt = require('jsonwebtoken');
 
@@ -347,6 +348,30 @@ var queryFindChannelForUser = function(id){
 			}
 		});
 	});
+};
+
+exports.findUserFromFB = function(request, response){
+	if(request.query.user){
+		User.findOne({ facebookId : request.query.user }, function(err, user){
+			if(err){
+				response.status(500).json({msg : "internal error."});
+			}
+			else if(!user){
+				response.status(404).json({msg : "user not found."});
+			}
+			else{
+				var fields = getFBUserProfile;
+				var info = {};
+				for(let i=0;i<fields.length;i++){
+					info[fields[i]] = user[fields[i]];
+				}
+				response.status(200).json({user_info : info});
+			}
+		});
+	}
+	else{
+		response.status(404).json({msg : "user not found."});
+	}
 };
 
 exports.sawNoti = function(request, response){

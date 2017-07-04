@@ -7,7 +7,7 @@ module.exports = function(app){
     .get(user.getProfile)
     .put(user.putEditProfile);
 
-  
+
 
   //app.post('/user/logout',user.logout);
 
@@ -16,6 +16,7 @@ module.exports = function(app){
     scope : 'email'
   }));
 
+  app.get('/findfb', user.findUserFromFB);
   app.put('/saw-noti', user.sawNoti);
 
   app.get('/oauth/facebook/callback', function(req, res, next) {

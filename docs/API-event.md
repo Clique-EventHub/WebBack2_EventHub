@@ -67,7 +67,8 @@ say hello
 
     **Content:** `{fields : data}`
 
-    *__fields__: title,about,video,channel,location,date_start,expire,date_end,picture,picture_large, year_require,faculty_require,tags,forms*
+    *__fields__: _id,title,about,video,channel,location,date_start,expire,refs,join,time_each_day,
+		date_end,picture,picture_large,year_require,faculty_require,tags,forms,notes,who_join,who_interest*
 
 * **Error Response:**
 
@@ -145,7 +146,7 @@ get the most 3 hot event
 
     **Content:** `{ fields : event }`
 
-    *__fields:__ first , second , thrid*
+    *__fields:__ first , second , third*
 ---
 
 

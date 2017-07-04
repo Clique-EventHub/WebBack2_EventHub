@@ -141,3 +141,6 @@ exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','pictur
 	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
 	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
 	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
+
+exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','gender','major','admin_events','admin_channels',
+'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','regId','firstNameTH','lastNameTH'];
