@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const modify_log_size = require('../../config/config').modify_log_size;
 const editableFieldEvent = require('../../config/utility').editableFieldEvent;
-const storagePath = '../../data/';
+const storagePath = require('../../config/config').storagePath;
 
 //route /
 exports.hi = function(request,response,next){

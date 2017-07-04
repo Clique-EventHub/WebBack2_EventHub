@@ -1481,7 +1481,7 @@ exports.revokeToken = function(request, response){
 		return;
 	}
 	try{
-		var decoded = jwt.verify(access_token,config.jwtSecret);
+		var decoded = jwt.verify(access_token,config.jwtSecret,{ignoreExpiration:true});
 		console.log(decoded);
 	}catch(err){
 		console.error(err);
