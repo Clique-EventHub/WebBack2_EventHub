@@ -21,12 +21,13 @@ module.exports = function(){
 	else if(process.env.NODE_ENV ==='common') app.use(morgan('common'));
 	else app.use(compression);
 
-	app.use(session({
-		secret: 'secret_key',
-		resave: false,
- 		saveUninitialized: true
- 	}));
+//	app.use(session({
+//		secret: 'secret_key',
+//		resave: false,
+// 		saveUninitialized: true
+// 	}));
 	app.use(bodyParser.urlencoded({
+		limits: '5mb',
 		extended: true
 	}));
 	app.use(bodyParser.json());
@@ -44,18 +45,16 @@ module.exports = function(){
  	app.use(flash());
 
  	app.use(passport.initialize());
- 	app.use(passport.session());  // use express-session
+	//app.use(passport.session());  // use express-session
 
  	// require at runtime time path relative to express.js
 
 	app.use(function(request, response, next){
 		passport.authenticate('jwt', {session : false},
 			function(err, user, info){
-				 if(user){
+				request.authentication_info = info;	
+			  if(user){
 					request.user = user;
-				}
-				else{
-					request.authen = info;
 				}
 				next();
 			})(request, response);

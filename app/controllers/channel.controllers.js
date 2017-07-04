@@ -1,8 +1,10 @@
-var Channel = require('mongoose').model('Channel');	// require model database
-var Event = require('mongoose').model('Event');		//
-var moment = require('moment-timezone');
-var User = require('mongoose').model('User');
-var utility = require('../../config/utility');
+const Channel = require('mongoose').model('Channel');	// require model database
+const Event = require('mongoose').model('Event');		//
+const moment = require('moment-timezone');
+const User = require('mongoose').model('User');
+const editableFieldChannel = require('../../config/utility').editableFieldChannel;
+const getableFieldChannel = require('../../config/utility').getableFieldChannel;
+const create_channel_key = require('../../config/config').create_channel_key;
 // list all channel
 exports.listAll = function(request,response,next){
 	Channel.find({},function(err,channel){
@@ -41,11 +43,11 @@ exports.getChannel = function(request,response){
 			response.status(404).json(info);
 		}
 		else{
-			var fields = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
+			var fields = getableFieldChannel;
 			for(var i=0;i<fields.length;i++){
 				if(channel[fields[i]]){
 					if(fields[i]==='admins'||fields[i]==='events'){
-	;					if(channel[fields[i]].length>0)
+						if(channel[fields[i]].length>0)
 							info[fields[i]]=channel[fields[i]];
 					}
 					else
@@ -70,10 +72,24 @@ exports.getChannel = function(request,response){
 
 //route POST /channel with json body (information of new channel)
 exports.postChannel = function(request,response,next){
+	const user = request.user;
+	const key = request.body.create_key;
+	request.body.key = undefined;
+	if(!user){
+		if(request.authentication_info.message === "No auth token")
+			response.status(400).json({err:"Please login"});
+		else response.status(400).json({err:request.authentication_info.message});
+		return;
+	}
+	if(process.env.NODE_ENV === 'production' && key !== create_channel_key){
+		response.status(403).json({err:"no permission"});
+		return;
+	}
+
 	var obj = {};
-	for(let i=0;i<utility.editableFieldChannel.length;i++){
-		if(request.body[utility.editableFieldChannel[i]]){
-			obj[utility.editableFieldChannel[i]] = request.body[utility.editableFieldChannel[i]];
+	for(let i=0;i<editableFieldChannel.length;i++){
+		if(request.body[editableFieldChannel[i]]){
+			obj[editableFieldChannel[i]] = request.body[editableFieldChannel[i]];
 		}
 	}
 	var newChannel = new Channel(obj);	// create new channel
@@ -81,27 +97,22 @@ exports.postChannel = function(request,response,next){
 	var info = {};
 	newChannel.save(function(err){
 		if(err) {
+			if(err.code === 11000)
+				response.status(400).json({err : "duplicate name"});
+			else{
 			console.error(err);
-			info.msg = "err";
-			response.status(500).json(info);
-			// return next(err);
+			response.status(500).json({err:"Internal Error"});
+			}
 		}
 		else {
 			info.id = newChannel._id;
+			User.findByIdAndUpdate(request.user._id,{
+				$push : {admin_channels: newChannel._id}
+			},(err) => console.error(err));
 
-			if(request.user){
-
-				User.findByIdAndUpdate(request.user._id,{
-					$push : {admin_channels: newChannel._id}
-				},(err) => console.error(err));
-
-				if(request.user.notification != undefined && request.user.notification != null){
-					info.notification = request.user.notification;
-					response.status(201).json(info);
-				}
-				else{
-					response.status(201).json(info);
-				}
+			if(request.user.notification != undefined && request.user.notification != null){
+				info.notification = request.user.notification;
+				response.status(201).json(info);
 			}
 			else{
 				response.status(201).json(info);
@@ -129,13 +140,12 @@ exports.putChannel = function(request,response,next){
 			}
 		}
 		else{
-			if(Object.keys(request.authen).length == 0 )
-				response.status(403).json({err:"Please login"});
-			else
-				response.status(403).json({err:request.authen});
-			return;
+			if(request.authentication_info.message === "No auth token")
+				response.status(400).json({err:"Please login"});
+			else response.status(400).json({err:request.authentication_info.message});
+				return;
 		}
-		var editableFields = utility.editableFieldChannel;
+		var editableFields = editableFieldChannel;
 		var editObj = {};
 		for(let i=0;i<editableFields.length;i++){
 			if(request.body.hasOwnProperty(editableFields[i])){
@@ -215,10 +225,9 @@ exports.deleteChannel = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
-			response.status(403).json({err:"Please login"});
-		else
-			response.status(403).json({err:request.authen});
+		if(request.authentication_info.message === "No auth token")
+			response.status(400).json({err:"Please login"});
+		else response.status(400).json({err:request.authentication_info.message});
 		return;
 	}
 
@@ -308,10 +317,9 @@ exports.getStat = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
-			response.status(403).json({err:"Please login"});
-		else
-			response.status(403).json({err:request.authen});
+		if(request.authentication_info.message === "No auth token")
+			response.status(400).json({err:"Please login"});
+		else response.status(400).json({err:request.authentication_info.message});
 		return;
 	}
 	var id = request.query.id;

@@ -1,12 +1,14 @@
-var Event = require('mongoose').model('Event'); // collections
-var Channel = require('mongoose').model('Channel');
-var User = require('mongoose').model('User');
-var fs = require('fs');
-var path = require('path');
-var mkdirp = require('mkdirp');
-var moment = require('moment-timezone');
-var modify_log_size = require('../../config/config').modify_log_size;
-var utility = require('../../config/utility');
+const Event = require('mongoose').model('Event'); // collections
+const Channel = require('mongoose').model('Channel');
+const User = require('mongoose').model('User');
+const fs = require('fs');
+const path = require('path');
+const mkdirp = require('mkdirp');
+const moment = require('moment-timezone');
+const modify_log_size = require('../../config/config').modify_log_size;
+const editableFieldEvent = require('../../config/utility').editableFieldEvent;
+const storagePath = '../../data/';
+
 //route /
 exports.hi = function(request,response,next){
 	response.send("hello dude");
@@ -125,7 +127,7 @@ exports.postEvent = function(request,response,next){
 	var channel = request.body.channel;
 	var title = request.body.title;
 	// validate input data
-	if(channel === undefined || title === undefined){
+	if(!channel || !title ){
 			response.status(400).json({err:"invalid title or channel"});
 			return;
 	}
@@ -138,20 +140,16 @@ exports.postEvent = function(request,response,next){
 		}
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 		return;
 	}
 
 	// if permission and validate ok
 	var keys = Object.keys(request.body);
-	var fields = ['title', 'channel', 'about', 'picture', 'picture_large',
-							'video', 'faculty_require', 'year_require', 'agreement', 'location',
-							'date_start', 'date_end', 'contact_information', 'tags', 'joinable_start_time',
-							'joinable_end_time', 'time_start', 'time_end', 'optional_field',
-					 	 	'require_field', 'joinable_amount', 'show', 'outsider_accessible','time_each_day'];
+	var fields = ['title', 'channel', ...editableFieldEvent];
 
 	for(let i=0;i<keys.length;i++){
 		if(fields.indexOf(keys[i]) == -1){
@@ -221,7 +219,7 @@ exports.putEvent = function(request,response,next){
 		return;
 	}
 	var keys = Object.keys(request.body);
-	var editableFields = utility.editableFieldEvent;
+	var editableFields = editableFieldEvent;
 	var detail = [];
 	for(var i=0;i<keys.length;i++){
 		if(editableFields.indexOf(keys[i]) == -1){
@@ -993,10 +991,10 @@ exports.updatehotEvent = function(request,response,next){
 					 				result[key][field[k]] = hot[key][field[k]];
 					 			}
 					 		}
-					 		mkdirp(path.join(__dirname,'../data/'),function(err){
+					 		mkdirp(path.join(__dirname,storagePath),function(err){
 						 		if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 						 		else{
-							 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
+							 		fs.writeFile(path.join(__dirname,`${storagePath}hotEvent.json`),
 							 			JSON.stringify(result,null,2),function(err,data){
 							 			if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 							 			else response.send('done');
@@ -1025,7 +1023,7 @@ exports.updatehotEvent = function(request,response,next){
 			 		mkdirp(path.join(__dirname,'../data/'),function(err){
 				 		if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 				 		else{
-					 		fs.writeFile(path.join(__dirname,'../data/hotEvent.json'),
+					 		fs.writeFile(path.join(__dirname,`${storagePath}hotEvent.json`),
 					 			JSON.stringify(result,null,2),function(err,data){
 					 			if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
 					 			else response.send('done');
@@ -1036,14 +1034,14 @@ exports.updatehotEvent = function(request,response,next){
 
  			}
 		}
-
+		if(events.length == 0 )response.status(500).json({err:"no event"});
  	});
 }
 
 
 //route /event/hot
 exports.gethotEvent = function(request,response,next){
-	response.sendFile(path.join(__dirname,'../data/hotEvent.json'));
+	response.sendFile(path.join(__dirname,`${storagePath}hotEvent.json`));
 }
 
 var querySearchEvent = function(events,info){
@@ -1177,10 +1175,10 @@ exports.searchByDate = function(request,response,next){
 
 var check_permission = function(request,callback){
 	if(request.user === undefined){
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			callback(403,{err:"Please login"});
 		else
-			callback(403,{err:request.authen});
+			callback(403,{err:request.authentication_info.message});
 		return;
 	}
 	// check permission

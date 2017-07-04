@@ -26,10 +26,10 @@ exports.checkPermission = function (request, id, opt, callback) {
 	}
 	else{
 		console.log('no user');
-		if(Object.keys(request.authen).length === 0 )
-			callback({err:"Please login", code:403});
+		if(request.authentication_info.message === "No auth token")
+			response.status(403).json({err:"Please login"});
 		else
-			callback({err:request.authen, code:403});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -114,15 +114,27 @@ exports.findMODEL = function(id,opt,callback){
 
 
 exports.editableFieldEvent = ['about','video','location','date_start','date_end',
-'picture','picture_large','year_require','faculty_require','tags',
+	'time_start','time_end','picture','picture_large',
+	'year_require','faculty_require','tags',
 	'agreement','contact_information','joinable_start_time','joinable_end_time',
 	'joinable_amount','time_start','time_end','optional_field','require_field',
 	'show','outsider_accessible','notes','time_each_day'];
 
+
 exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail','url','video'];
-exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
+
+exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
+
+const userField = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
+
+exports.editableFieldUser = userField;
+
+exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','facebookId',
+				'admin_events', 'already_joined_events','subscribe_channels','interest_events','join_events','major',
+				'admin_channels','admin_channels','firstNameTH','lastNameTH', ...userField ];
+
 exports.postFieldForm = ['title','event','channel','questions'];
 
 exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',

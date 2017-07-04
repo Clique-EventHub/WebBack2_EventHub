@@ -132,7 +132,7 @@ exports.changePassword = function(request,response){
     });
   }
   else{
-    response.status(403).json({"msg":"error",err:request.authen.info});
+    response.status(403).json({"msg":"error",err:request.authentication_info.message});
   }
 }
 

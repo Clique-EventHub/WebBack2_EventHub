@@ -84,10 +84,10 @@ function checkPermission (request, event, callback) {
 	}
 	else{
 		console.log('no user');
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			callback({err:"Please login", code:403});
 		else
-			callback({err:request.authen, code:403});
+			callback({err:request.authentication_info.message, code:403});
 	}
 }
 
@@ -241,10 +241,10 @@ exports.createForm = function(request, response){
 					newForm.save( (err,form) => {
 						if(err) {
 							console.error(err);
-							return reject({err:"internal error"});	
+							return reject({err:"internal error"});
 						}
 						console.log("saving", form);
-						return resolve(form);	
+						return resolve(form);
 					});
 				});
 			}
@@ -293,7 +293,7 @@ exports.responseForm = function(request, response){
 		data.lastName = request.user.lastName;
 		data.user_id = request.user._id;
 		data._id = undefined;
-		
+
 		new Promise( (resolve,reject) => {
 			Form.findById(request.query.id,(err,returnedForm) => {
 				if(err){
@@ -308,7 +308,7 @@ exports.responseForm = function(request, response){
 					if(returnedForm.responses === null){
 						returnedForm.responses = [];
 					}
-					returnedForm.responses.push(data);	
+					returnedForm.responses.push(data);
 					resolve(returnedForm);
 				}
 			});
@@ -331,7 +331,7 @@ exports.responseForm = function(request, response){
 			response.status(code).json(err);
 		});
 
-		
+
 
 	}
 

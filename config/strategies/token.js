@@ -5,6 +5,7 @@ var jwt = require('jsonwebtoken');
 var User = require('mongoose').model('User');
 var config =require('../config');
 var _ = require('lodash');
+var fields = require('../utility').loginFieldUser;
 
 module.exports = function(){
 	var jwtOptions = {};
@@ -22,12 +23,7 @@ module.exports = function(){
 			}
 			else if(user){
 				var result = {};
-				var fields = ['_id','firstName','lastName','nick_name','picture','picture_200px',
-				'gender','phone','shirt_size','birth_day','allergy','disease','regId','facebookId',
-				'twitterUsername','lineId','notification','admin_events','tag_like','emer_phone',
-				'already_joined_events','subscribe_channels','interest_events','join_events','major',
-				'admin_channels','admin_channels','firstNameTH','lastNameTH','dorm_bed','dorm_room',
-				'dorm_building'];
+
 				fields.forEach(function(field){
 					result[field] = _.get(user,field,null);
 				});
@@ -43,4 +39,5 @@ module.exports = function(){
 			}
 		});
 	}));
+
 }

@@ -7,7 +7,7 @@ module.exports = function(app){
     .get(user.getProfile)
     .put(user.putEditProfile);
 
-  app.get('/user/listall', user.listAll);
+  
 
   //app.post('/user/logout',user.logout);
 
@@ -50,15 +50,17 @@ module.exports = function(app){
       .put(user.interestAnEvent);
 
   app.put('/user/uninterest', user.uninterestAnEvent);
-
   app.put('/user/reg', user.checkRegChula);
 
-  app.delete('/user/clear', user.clear);   // use in test only removing user from database
+	if(process.env.NODE_ENV === "development"){
+		app.delete('/user/clear', user.clear);   // use in test only removing user from database
+		app.get('/user/listall', user.listAll);
+	}
   // app.get('/user/help', user.getHelp);
   // app.get('/user/setting', user.getSetting);
   // app.get('user/message', user.getMessage);
 
   app.get('/login/facebook',user.login_fb);
-
+	app.post('/auth/revoke',user.revokeToken);
 
 }

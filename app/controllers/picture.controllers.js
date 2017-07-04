@@ -7,7 +7,8 @@ var mkdirp = require('mkdirp');
 var config = require('../../config/config');
 var checkPermission = require('../../config/utility').checkPermission;
 var findMODEL = require('../../config/utility').findMODEL;
-
+const maxCoverPhotoSize = require('../../config/config').maxCoverPhotoSize;
+const maxAvatarSize = require('../../config/config').maxAvatarSize;
 const picturePath = path.join(__dirname,'../../','data/pictures/');
 const mongoIDsize = 24;
 
@@ -17,7 +18,8 @@ exports.postPicture= function(request,response,next){
 	let id = request.query.id;
 	let field = request.query.field;
 	let size = request.query.size;
-
+	let maxFileSize = size === "small" ? maxAvatarSize : maxCoverPhotoSize; 
+	console.log(request);
 	if(!id || !field || !size){
 		response.status(403).json({err:"Please provide id, field and size"});
 		return;
@@ -39,18 +41,17 @@ exports.postPicture= function(request,response,next){
 			response.status(403).json(info);
 			return;
 		}
-		var PORT = config.PORT === 80 ? '' : ':'+config.PORT;
 		info = {};
 		dest = `${field}/${id}`;
 		//such a callback hell
-		info.msg = 'file is not valid';
+		info.err = 'file is not valid';
 		console.log('uploading...');
-
 		mkdirp(`${picturePath}${dest}`,function(err){ // save picture on filesystem
 			if(err){
-				info.msg = "internal error postPicture";
+				info.err = "internal error postPicture";
 				console.error("error mkdirp : postPicture - picture.controllers");
 				response.status(500).json(info);
+				return;
 				// return next(err);
 			}
 			else{
@@ -64,11 +65,18 @@ exports.postPicture= function(request,response,next){
 					}
 				});
 				//upload is first-class function
-				var upload = multer({storage:storage}).single('picture');
+				var upload = multer({
+					storage:storage,
+					limits:{
+						fileSize: maxFileSize
+					}
+				}).single('picture');
 				//upload to model folder
 
 				findMODEL(id,field,(err,model) =>{
 					if(err){
+						console.error(new Date().toString());
+						console.error(err);
 						response.status(err.code).json(err);
 						return;
 					}
@@ -76,11 +84,12 @@ exports.postPicture= function(request,response,next){
 						// upload picture
 						upload(request,response,function(err){
 							if(err){
-
-								info.msg = "something went wrong";
+								//info.err = "something went wrong";
+								if(err.message === "File too large") info.err = `File is too large. The maximum size is ${maxFileSize/1000000}MB.`;
 								console.error("error upload0 : postPicture - picture.controllers");
 								console.error(err);
 								response.status(500).json(info);
+								return;
 								// 	return next(err);
 							}
 							else{
@@ -115,13 +124,14 @@ exports.postPicture= function(request,response,next){
 									console.log('updating model...');
 									model.update(model,function(err){
 										if(err){
-											info.msg = "something went wrong";
+											info.err = "something went wrong";
 											response.status(500).json(info);
 											console.error("error update model : postPicture - picture.controllers");
+											return;
 											// return next(err);
 										}
 										else {
-											info.msg = 'done';
+											info.err = 'done';
 											info.url = url;
 											if(request.user){
 												if(request.user.notification != undefined && request.user.notification != null){
@@ -151,7 +161,10 @@ exports.getPicture = function(request,response,next){
 	if(request.params.name[0] === 'e') dest += 'event/';
 	else if (request.params.name[0] === 'c') dest += 'channel/';
 
-	if(dest === '') response.status(403).json({err:"invalid url"});
+	if(dest === ''){
+		response.status(403).json({err:"invalid url"});
+		return;
+	} 
 
 	// name[1] is size , we don't use size in managing directory
 	dest += request.params.name.substr(2,mongoIDsize) + '/';
@@ -160,7 +173,7 @@ exports.getPicture = function(request,response,next){
 	response.sendFile(path.join(picturePath,dest),function(err){
     if(err){
       var error = {};
-      error.msg = "error in sending file";
+      error.err = "error in sending file";
       console.error("error in sending file");
 			console.error(err);
       response.status(500).json(error);
@@ -204,7 +217,7 @@ exports.deletePictureHandle = function(request,response,next){
 		else deletePicture(id, field, size, name, (err) => {
 			if(err) response.status(500).json(err);
 			else{
-				info.msg = 'done';
+				info.err = 'done';
 				info.id = id;
 				if(request.user){
 					if(request.user.notification != undefined && request.user.notification != null){
@@ -237,7 +250,7 @@ function deletePicture(id, field, size, name, callback){
 			else{
 				mkdirp(path.join(picturePath,'bin',field,id),function(err){
 					if(err){
-						info.msg = "error";
+						info.err = "error";
 						info.code = 500;
 						console.error("error mkdirp : deletePicture - picture.controllers");
 						callback(info);
