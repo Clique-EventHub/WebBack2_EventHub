@@ -148,6 +148,22 @@ var eventSchema = new Schema({
 		type : [Schema.Types.ObjectId],
 		default : []
 	},
+	who_accepted : {
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	who_rejected : {
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	who_pending : {
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	time_each_day : {
+		type : [],
+		default : []
+	},
 	created_date:{
 		type:'Moment',
 		default: new Moment()

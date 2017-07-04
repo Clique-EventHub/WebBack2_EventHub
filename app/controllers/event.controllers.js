@@ -39,8 +39,8 @@ exports.listAll = function(request,response,next){
 var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var fields = ['title','about','video','channel','location','date_start','expire','refs','join',
-		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes'];
+		var fields = ['_id','title','about','video','channel','location','date_start','expire','refs','join','time_each_day',
+		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes','who_join','who_interest'];
 		if(isStat) fields.push(['visit']);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
@@ -151,7 +151,7 @@ exports.postEvent = function(request,response,next){
 							'video', 'faculty_require', 'year_require', 'agreement', 'location',
 							'date_start', 'date_end', 'contact_information', 'tags', 'joinable_start_time',
 							'joinable_end_time', 'time_start', 'time_end', 'optional_field',
-					 	 	'require_field', 'joinable_amount', 'show', 'outsider_accessible'];
+					 	 	'require_field', 'joinable_amount', 'show', 'outsider_accessible','time_each_day'];
 
 	for(let i=0;i<keys.length;i++){
 		if(fields.indexOf(keys[i]) == -1){
@@ -866,7 +866,7 @@ exports.newEvent = function(request,response,next){
 		}
 		else {
 			info.events = [];
-			var fields = ['_id','title','picture','picture_large_zero','location','date_start', 'date_end'];
+			var fields = ['_id','title','picture','picture_large_zero','location','date_start', 'date_end','time_each_day'];
 			var index = 0;
 			var terminator = (request.query.top) ? (Math.max(0,events.length-request.query.top)) : 0;
 			console.log("terminator:" + terminator);
@@ -1049,7 +1049,7 @@ exports.gethotEvent = function(request,response,next){
 var querySearchEvent = function(events,info){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var fields = ['_id','title','picture','picture_large_zero','channel','location','date_start', 'date_end'];
+		var fields = ['_id','title','picture','picture_large_zero','channel','location','date_start', 'date_end', 'time_each_day'];
 		for(var j=0; j<events.length;j++){
 			// add found event in array info.events
 			info.events.push({});

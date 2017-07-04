@@ -649,7 +649,7 @@ var putJoin = function(event_id, user, body, callback){
 	var regId = user.regId;
 	var year, faculty;
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
-	var currentTime = new Date();
+	var currentTime = new Date(date);
 	// user.lastModified = date;
 	if(regId != null && regId != undefined){
 		year = regId.substring(0,2);
@@ -678,6 +678,8 @@ var putJoin = function(event_id, user, body, callback){
 		}
 		else if(returnedEvent.joinable_start_time > currentTime || currentTime > returnedEvent.joinable_end_time || returnedEvent.expire){
 			var info = {};
+			console.log(currentTime);
+			console.log(returnedEvent.joinable_end_time);
 			info.msg = "not in joinable period.";
 			info.code = 403;
 			callback(info);
@@ -1283,14 +1285,12 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 
 exports.checkRegChula = function(request, response){
 	if(request.user){
-		// console.log('in 1');
 		var postData = querystring.stringify({
 			'appid' : config.regAppId,
 			'appsecret' : config.regAppSecret,
 			'username' : request.body.username,
 			'password' : request.body.password
 		});
-		// console.log('in 2');
 		var options = {
 			host: 'www.cas.chula.ac.th',
 			port: 443,
@@ -1298,17 +1298,16 @@ exports.checkRegChula = function(request, response){
 			headers : {'Content-Type' : 'application/x-www-form-urlencoded'},
 			method : 'POST'
 		};
-		// console.log('in 3');
 		var req = https.request(options, function(res){
 			var str = '';
 			console.log(options.host + ':' + res.statusCode);
 			res.setEncoding('utf8');
 			res.on('data', function(chunk){
 				str+=chunk;
-				// console.log('BODY: ${chunk} = '+chunk);
+				console.log('BODY: ${chunk} = '+chunk);
 			});
 			res.on('end', function(){
-				// console.log('eieina');
+				console.log('eieina');
 				var obj = JSON.parse(str);
 				if(!obj.hasOwnProperty('type') || obj.type == 'error'){
 					response.status(400).json(obj);
@@ -1374,6 +1373,9 @@ exports.checkRegChula = function(request, response){
 			});
 		});
 		req.write(postData);
+    req.on('error', (e) => {
+      console.error(e);
+    });
 		req.end();
 	}
 	else{

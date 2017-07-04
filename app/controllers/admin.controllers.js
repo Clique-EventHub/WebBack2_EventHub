@@ -2,6 +2,7 @@ var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
 var mongoose = require('mongoose');
+var moment = require('moment-timezone');
 
 exports.addAdminChannel = function(request, response){
   User.findOne({ regId : request.body.user}, function(err, returnedUser){
@@ -450,6 +451,8 @@ var checkUserAndEvent = function(user, event){
 };
 
 exports.checkJoinPeopleIn = function(request, response){
+  var date = new moment().tz('Asia/Bangkok');
+	var current = date.toDate();
   if(request.user === undefined){
 		if(Object.keys(request.authen).length == 0 )
 			callback(403,{err:"Please login"});
@@ -468,6 +471,16 @@ exports.checkJoinPeopleIn = function(request, response){
             var join_users = [];
             for(let i=0;i<request.body.users.length;i++){
               if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
+            }
+            var timeDiff1 = Math.abs(current.getTime() - event.date_start.getTime());
+            var timeSign1 = current.getTime() - event.date_start.getTime();
+            timeDiff1 = Math.ceil(timeDiff1 / (1000*3600*24));
+            var timeDiff2 = Math.abs(event.date_end.getTime() - current.getTime());
+            var timeSign2 = event.date_end.getTime() - current.getTime();
+            timeDiff2 = Math.ceil(timeDiff2 / (1000*3600*24));
+            if(( timeSign1 < 0 && timeDiff1 > 0 ) || ( timeSign2 < 0 && timeDiff2 > 0 )){
+                response.status(403).json({msg : "day not valid."});
+                return ;
             }
             Event.findByIdAndUpdate(event._id, {
               $addToSet : {who_completed : {$each : join_users}},
@@ -530,6 +543,16 @@ exports.checkJoinPeopleIn = function(request, response){
         var join_users = [];
         for(let i=0;i<request.body.users.length;i++){
           if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
+        }
+        var timeDiff1 = Math.abs(current.getTime() - event.date_start.getTime());
+        var timeSign1 = current.getTime() - event.date_start.getTime();
+        timeDiff1 = Math.ceil(timeDiff1 / (1000*3600*24));
+        var timeDiff2 = Math.abs(event.date_end.getTime() - current.getTime());
+        var timeSign2 = event.date_end.getTime() - current.getTime();
+        timeDiff2 = Math.ceil(timeDiff2 / (1000*3600*24));
+        if(( timeSign1 < 0 && timeDiff1 > 0 ) || ( timeSign2 < 0 && timeDiff2 > 0 )){
+            response.status(403).json({msg : "day not valid."});
+            return ;
         }
         Event.findByIdAndUpdate(event._id, {
           $addToSet : {who_completed : {$each : join_users}},
