@@ -172,7 +172,7 @@ Change details of event
 
 * **URL**
 
-  `/admin/event/addfb'
+  `/admin/event/addfb`
 
 * **Method:**
 
@@ -213,7 +213,7 @@ Change details of event
 
 * **URL**
 
-  `/admin/event/deletefb'
+  `/admin/event/deletefb`
 
 * **Method:**
 
@@ -254,7 +254,7 @@ Change details of event
 
 * **URL**
 
-  `/admin/event/addmg'
+  `/admin/event/addmg`
 
 * **Method:**
 
@@ -295,7 +295,7 @@ Change details of event
 
 * **URL**
 
-  `/admin/event/deletemg'
+  `/admin/event/deletemg`
 
 * **Method:**
 

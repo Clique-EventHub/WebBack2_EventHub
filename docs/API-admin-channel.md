@@ -49,7 +49,7 @@ Change details of channel
 
 * **URL**
 
-  `/channel/stat'
+  `/channel/stat`
 
 * **Method:**
 
@@ -254,7 +254,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/channel/addfb'
+  `/admin/channel/addfb`
 
 * **Method:**
 
@@ -295,7 +295,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/event/addfb'
+  `/admin/event/addfb`
 
 * **Method:**
 
@@ -336,7 +336,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/channel/deletefb'
+  `/admin/channel/deletefb`
 
 * **Method:**
 
@@ -377,7 +377,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/event/deletefb'
+  `/admin/event/deletefb`
 
 * **Method:**
 
@@ -418,7 +418,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/channel/addmg'
+  `/admin/channel/addmg`
 
 * **Method:**
 
@@ -459,7 +459,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/event/addmg'
+  `/admin/event/addmg`
 
 * **Method:**
 
@@ -500,7 +500,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/channel/deletemg'
+  `/admin/channel/deletemg`
 
 * **Method:**
 
@@ -541,7 +541,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/event/deletemg'
+  `/admin/event/deletemg`
 
 * **Method:**
 
@@ -583,7 +583,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/check-in'
+  `/admin/check-in`
 
 * **Method:**
 
@@ -625,7 +625,7 @@ Change details of channel
 
 * **URL**
 
-  `/channel'
+  `/channel`
 
 * **Method:**
 
@@ -664,7 +664,7 @@ Change details of channel
 
 * **URL**
 
-  `/event'
+  `/event`
 
 * **Method:**
 
