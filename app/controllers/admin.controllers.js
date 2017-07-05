@@ -701,3 +701,300 @@ var check_permission_channel_vol2 = function(user, channelId, callback){
 		}
 	});
 };
+
+//============temporarily code while regId is not working=====================
+exports.addAdminChannelFB = function(request, response){
+  User.findOne({ facebookId : request.body.user}, function(err, returnedUser){
+    if(err){
+      response.status(500).json({msg:"internal error."});
+    }
+    else if(!returnedUser){
+      response.status(404).json({msg:"user not register."});
+    }
+    else{
+      request.body.user = returnedUser._id;
+      checkUserAndChannel(request.body.user, request.query.id)
+      .then(function(returnedInfo){
+        if(returnedInfo.hasOwnProperty('msg')){
+          response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+        }
+        else{
+          check_permission_channel(request, function(code, err, channel){
+            if(code != 200){
+              response.status(code).json(err);
+            }
+            else{
+              Channel.findByIdAndUpdate(request.query.id, {
+                $addToSet : {admins : request.body.user}
+              }, function(err, updatedChannel){
+                if(err){
+                  response.status(500).json({msg:"internal error."});
+                }
+                else if(!updatedChannel){
+                  response.status(404).json({msg:"channel not found."});
+                }
+                else{
+                  User.findByIdAndUpdate(request.body.user, {
+                    $addToSet : {admin_channels : request.query.id}
+                  }, function(err, updatedUser){
+                    if(err){
+                      response.status(500).json({msg:"internal error."});
+                    }
+                    else if(!updatedUser){
+                      response.status(404).json({msg : "user not found."});
+                    }
+                    else{
+                      response.status(201).json({msg:"done."});
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+};
+
+exports.addAdminEventFB = function(request, response){
+  console.log('kao nas');
+  User.findOne({ facebookId : request.body.user }, function(err, returnedUser){
+    if(err){
+      response.status(500).json({msg:"internal error."});
+    }
+    else if(!returnedUser){
+      console.log('jing vjv');
+      response.status(404).json({msg:"user not register."});
+    }
+    else{
+      request.body.user = returnedUser._id;
+      checkUserAndEvent(request.body.user, request.query.id)
+      .then(function(returnedInfo){
+        if(returnedInfo.hasOwnProperty('msg')){
+          response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+        }
+        else{
+          check_permission(request, function(code, err, returnedInfo){
+            if(code == 403){
+              if(returnedInfo == undefined){
+                response.status(code).json(err);
+                return ;
+              }
+              check_permission_channel_vol2(request.user, returnedInfo, function(code1, err1, channel){
+                if(code1 != 200){
+                  response.status(code1).json(err1);
+                }
+                else{
+                  Event.findByIdAndUpdate(request.query.id, {
+                    $addToSet : {admins : request.body.user}
+                  }, function(err, updatedEvent){
+                    if(err){
+                      response.status(500).json({msg:"internal error."});
+                    }
+                    else if(!updatedEvent){
+                      response.status(404).json({msg:"event not found."});
+                    }
+                    else{
+                      User.findByIdAndUpdate(request.body.user, {
+                        $addToSet : {admin_events : request.query.id}
+                      }, function(err, updatedUser){
+                        if(err){
+                          response.status(500).json({msg:"internal error."});
+                        }
+                        else if(!updatedUser){
+                          response.status(404).json({msg : "user not found."});
+                        }
+                        else{
+                          response.status(201).json({msg:"done."});
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+            else if(code != 200){
+              response.status(code).json(err);
+            }
+            else{
+              Event.findByIdAndUpdate(request.query.id, {
+                $addToSet : {admins : request.body.user}
+              }, function(err, updatedEvent){
+                if(err){
+                  response.status(500).json({msg:"internal error."});
+                }
+                else if(!updatedEvent){
+                  response.status(404).json({msg:"event not found."});
+                }
+                else{
+                  User.findByIdAndUpdate(request.body.user, {
+                    $addToSet : {admin_events : request.query.id}
+                  }, function(err, updatedUser){
+                    if(err){
+                      response.status(500).json({msg:"internal error."});
+                    }
+                    else if(!updatedUser){
+                      response.status(404).json({msg : "user not found."});
+                    }
+                    else{
+                      response.status(201).json({msg:"done."});
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+};
+
+exports.deleteAdminChannelFB = function(request, response){
+  User.findOne({ facebookId : request.body.user }, function(err, returnedUser){
+    if(err){
+      response.status(500).json({msg:"internal error."});
+    }
+    else if(!returnedUser){
+      response.status(404).json({msg:"user not register."});
+    }
+    else{
+      request.body.user = returnedUser._id;
+      checkUserAndChannel(request.body.user, request.query.id)
+      .then(function(returnedInfo){
+        if(returnedInfo.hasOwnProperty('msg')){
+          response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+        }
+        else{
+          check_permission_channel(request, function(code, err, channel){
+            if(code != 200){
+              response.status(code).json(err);
+            }
+            else{
+              var queryId = mongoose.Types.ObjectId(request.query.id);
+              User.findByIdAndUpdate(request.body.user, {
+                $pull : {admin_channels : queryId}
+              }, {multi : true}, function(err, updatedUser){
+                if(err){
+                  response.status(500).json({msg:"internal error."});
+                }
+                else if(!updatedUser){
+                  response.status(404).json({msg : "user not found."});
+                }
+                else{
+                  var bodyUser = mongoose.Types.ObjectId(request.body.user);
+                  Channel.findByIdAndUpdate(request.query.id, {
+                    $pull : {admins : bodyUser}
+                  }, {multi : true}, function(err, updatedChannel){
+                    if(err){
+                      response.status(500).json({msg:"internal error."});
+                    }
+                    else if(!updatedChannel){
+                      response.status(404).json({msg:"channel not found."});
+                    }
+                    else{
+                      response.status(201).json({msg:"done."});
+                    }
+                });
+              }
+            });
+          }
+          });
+        }
+      });
+    }
+  });
+};
+
+exports.deleteAdminEventFB = function(request, response){
+  User.findOne({ facebookId : request.body.user }, function(err, returnedUser){
+    if(err){
+      response.status(500).json({msg:"internal error."});
+    }
+    else if(!returnedUser){
+      response.status(404).json({msg:"user not register."});
+    }
+    else{
+      request.body.user = returnedUser._id;
+      checkUserAndEvent(request.body.user, request.query.id)
+      .then(function(returnedInfo){
+        if(returnedInfo.hasOwnProperty('msg')){
+          response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+        }
+        else{
+          check_permission(request, function(code, err, returnedInfo){
+            if(code == 403){
+              check_permission_channel_vol2(request.user, returnedInfo, function(code1, err1, channel){
+                if(code1 != 200){
+                  response.status(code1).json(err1);
+                }
+                else{
+                  var queryId = mongoose.Types.ObjectId(request.query.id);
+                  User.findByIdAndUpdate(request.body.user, {
+                    $pull : {admin_events : queryId}
+                  }, {multi : true}, function(err, updatedUser){
+                    if(err){
+                      response.status(500).json({msg:"internal error."});
+                    }
+                    else if(!updatedUser){
+                      response.status(404).json({msg : "user not found."});
+                    }
+                    else{
+                      var bodyUser = mongoose.Types.ObjectId(request.body.user);
+                      Event.findByIdAndUpdate(request.query.id, {
+                        $pull : {admins : bodyUser}
+                      }, {multi : true}, function(err, updatedEvent){
+                        if(err){
+                          response.status(500).json({msg:"internal error."});
+                        }
+                        else if(!updatedEvent){
+                          response.status(404).json({msg:"event not found."});
+                        }
+                        else{
+                          response.status(201).json({msg:"done."});
+                        }
+                    });
+                    }
+                  });
+                }
+              });
+            }
+            else if(code != 200){
+              response.status(code).json(err);
+            }
+            else{
+              var queryId = mongoose.Types.ObjectId(request.query.id);
+              User.findByIdAndUpdate(request.body.user, {
+                $pull : {admin_events : queryId}
+              }, {multi : true}, function(err, updatedUser){
+                if(err){
+                  response.status(500).json({msg:"internal error."});
+                }
+                else if(!updatedUser){
+                  response.status(404).json({msg : "user not found."});
+                }
+                else{
+                  var bodyUser = mongoose.Types.ObjectId(request.body.user);
+                  Event.findByIdAndUpdate(request.query.id, {
+                    $pull : {admins : bodyUser}
+                  }, {multi : true}, function(err, updatedEvent){
+                    if(err){
+                      response.status(500).json({msg:"internal error."});
+                    }
+                    else if(!updatedEvent){
+                      response.status(404).json({msg:"event not found."});
+                    }
+                    else{
+                      response.status(201).json({msg:"done."});
+                    }
+                });
+                }
+              });
+            }
+          });
+        }
+        });
+    }
+  });
+};
