@@ -166,6 +166,170 @@ Change details of event
     **Content:** `{msg : error detail}`
 ---
 
+## Add admin event by facebook id
+
+ Channel's admins have permission to add colleagues to be an admin event. They can only add colleagues one-by-one. They can add themselves to be the admin of that event, too. It uses facebook id.
+
+* **URL**
+
+  `/admin/event/addfb'
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Delete admin event by facebook id
+
+ Channel's admins also have permission to delete colleagues from being an admin event. They can only delete colleagues one-by-one. They can delete themselves, too. It uses facebook id.
+
+* **URL**
+
+  `/admin/event/deletefb'
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Add admin event by facebook id
+
+ Channel's admins have permission to add colleagues to be an admin event. They can only add colleagues one-by-one. They can add themselves to be the admin of that event, too. It uses mongo id.
+
+* **URL**
+
+  `/admin/event/addmg'
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Delete admin event by facebook id
+
+ Channel's admins also have permission to delete colleagues from being an admin event. They can only delete colleagues one-by-one. They can delete themselves, too. It uses mongo id.
+
+* **URL**
+
+  `/admin/event/deletemg'
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
 ## Check-in
 
  Event's admins can check people who clicked the join button by checking in. People who clicked the join button will be checked as being participated in the event if they check in. You can check multiple people in at once by sending an array of user ids by the field users.
