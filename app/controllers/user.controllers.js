@@ -1098,9 +1098,10 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 					profile.username = availableUsername;
 					user = new User(profile);
 					user.generateToken( (err,rtoken) =>{
-						token = token;
-						user.refresh_token = token.refresh_token;
-						user.refresh_token_exp = token.refresh_token_exp;
+						token = rtoken;
+						console.log(token);
+						user.refresh_token = _.get(token,'refresh_token',undefined);
+						user.refresh_token_exp = _.get(token,'refresh_token_exp',undefined);
 						user.save(callback);
 					});
 				});
@@ -1109,8 +1110,8 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 				user.generateToken( (err,rtoken) =>{
 					token = rtoken;
 					console.log(token);
-					profile.refresh_token = token.refresh_token;
-					profile.refresh_token_exp = token.refresh_token_exp;
+					profile.refresh_token = _.get(token,'refresh_token',undefined);
+					profile.refresh_token_exp = _.get(token,'refresh_token_exp',undefined);
 					console.log(profile.refresh_token_exp);
 					console.log(typeof profile.refresh_token_exp);
 					user.update(profile,callback);

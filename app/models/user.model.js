@@ -7,14 +7,14 @@ var jwtSecret = require('../../config/config').jwtSecret;
 var token_lifetime = require('../../config/config').token_lifetime;
 var _ = require('lodash');
 var refresh_token_lifetime = require('../../config/config').refresh_token_lifetime;
-var userSchema = new Schema({
 
+var userSchema = new Schema({
 //personal infomation
 	name :{
 		type:String,
 		trim : true,
-		unique : true,
-		// index:true,
+	//	unique : true,
+		index:true,
 		// required:true,
 		validate: [
 			function(name){
@@ -24,7 +24,7 @@ var userSchema = new Schema({
 	},
 	username:{
 		type:String,
-		unique : true,
+		//unique : true,
 		trim : true,
 		required: true,
 		validate: [
@@ -249,17 +249,20 @@ userSchema.methods.generateToken = function(done){
 		const access_token = jwt.sign(payload, jwtSecret,{ expiresIn: token_lifetime });
 		const refresh_token = crypto.randomBytes(30).toString('base64');
 		const refresh_token_exp = new Date().getTime() + refresh_token_lifetime;
+		if(!access_token) throw(new Error("cannot generate access token"));
+		if(!refresh_token) throw(new Error("cannot generate refresh token"));
+		if(!refresh_token_exp) throw(new Error("cannot generate refresh token exp"));
 		done(null,{
 			access_token: access_token,
 			refresh_token: refresh_token,
-			refresh_token_exp: refresh_token_exp 
+			refresh_token_exp: refresh_token_exp
 		});
 	}catch(err){
 		console.error(new Date().toString());
 		console.error(err);
 		done(err);
 		return;
-	}	
+	}
 }
 
 
