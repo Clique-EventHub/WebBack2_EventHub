@@ -42,7 +42,8 @@ var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
 		var promises = [];
 		var fields = ['_id','title','about','video','channel','location','date_start','expire','refs','join','time_each_day',
-		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes','who_join','who_interest'];
+		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes','who_join','who_interest',
+		'time_start','time_end','contact_information','require_field','optional_field'];
 		if(isStat) fields.push(['visit']);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
