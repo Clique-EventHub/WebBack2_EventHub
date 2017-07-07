@@ -3,7 +3,7 @@
 ---
 ## Get Picture
 create picture in the server and response the url
-* **URL** 
+* **URL**
 
   `/picture/(name_of_the_picture) ` *use server's generated url*
 
@@ -21,7 +21,7 @@ create picture in the server and response the url
 
 * **Success Response:**
 
-  * **Code:** `2xx` 
+  * **Code:** `2xx`
 
     **Content:**
     Sends the picture file
@@ -30,7 +30,7 @@ create picture in the server and response the url
 
   * **Code:** 500
 
-    **Content:** 
+    **Content:**
     {"msg" : "error in finding file"}
 
 ---
@@ -40,7 +40,8 @@ create picture in the server and response the url
 create picture in the server and response the url
 If repost small picture, server will automatically remove the old one.
 If post large picture, server will add a new one to the list.
-* **URL** 
+
+* **URL**
 
   `/picture`
 
@@ -61,25 +62,26 @@ If post large picture, server will add a new one to the list.
 * **Data Params**
 
 	`type: form-data`
-	`key: picture , value: picture file` 
+	`key: pictures , value: picture file` _accept multiple picture_
+
 
 * **Success Response:**
-  * **Code:** 201 
+  * **Code:** 201
     **Content:**
     `{msg : "done"}`
-    `{ url : "link of the picture"}`
+    `{ urls : list of picture url}`
 
 
 * **Error Response:**
 
-  * **Code:** 404 NOT FOUND 
-    **Content:** 
+  * **Code:** 500,404
+    **Content:**
 `"something went wrong"` //should be fixed to response in msg
-`{msg : "error find event : postPicture - picture.controllers"}`
-`{msg : "event not found : postPicture - picture.controllers"}`
-`{msg : "something went wrong"}`
-`{msg : "error find channel : postPicture - picture.controllers"}`
-`{msg : "channel not found : postPicture - picture.controllers"}`
+`{err : "error find event"}`
+`{err : "event not found"`
+`{err : "something went wrong"}`
+`{err : "error find channel"}`
+`{err : "channel not found"}`
 `{ error : "event not found" }`
 
 
@@ -89,36 +91,41 @@ If post large picture, server will add a new one to the list.
 ## Delete picture
 Delete picture
 
-* **URL** 
+url in list must belong to the same event/channel
 
-  `/picture/:name` *use server's generated url*
+* **URL**
+
+  `/picture/
 
 * **Method:**
 
   `DELETE`
 
+* **Authentication:**
+
+  `Require`
+
 *  **URL Params**
 
-   `id=[id]`
-	 
+    `None`
+
 * **Data Params**
-		
-	`None`
+
+	```JSON
+  {
+      urls : [ list of url]
+  }
+  ```
 
 * **Success Response:**
 
-  * **Code:** `201`
+  * **Code:** `200`
 
     **Content:** `{ msg : "done" }`
 
 * **Error Response:**
 
-  * **Code:** `404 NOT FOUND`
-    **Content:** 
-    `{ msg : "event not found" }`
-    `{ msg : "error" }`
-    `{ msg : "error1" }`
-    `{ msg : "error2" }`
-    `{ msg : "picture is not found" }`
+  * **Code:** `400,500`
+    **Content:**
+    `{ msg : "Something went wrong" }`
 ---
-
