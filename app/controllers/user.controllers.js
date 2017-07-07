@@ -13,6 +13,7 @@ var getUserProfileFields = require('../../config/utility').getUserProfileFields;
 var getFBUserProfile = require('../../config/utility').getFBUserProfile;
 var _ = require('lodash');
 var jwt = require('jsonwebtoken');
+var RefreshValidTime = require('../../config/config').refresh_valid_time;
 
 exports.render = function(request, response){
 	response.render('user-login',{
@@ -1483,10 +1484,15 @@ exports.revokeToken = function(request, response){
 	}
 	try{
 		var decoded = jwt.verify(access_token,config.jwtSecret,{ignoreExpiration:true});
+		if(decoded.exp*1000 + RefreshValidTime < new Date().getTime()){
+			throw new Error("token expired");
+		}
 		console.log(decoded);
 	}catch(err){
 		console.error(err);
-		response.status(500).json({err:"Something went wrong"});
+		if(err.msg === "token expired")
+			response.status(400).json({err:"token expired"});
+		else response.status(500).json({err:"Something went wrong"});
 		return;
 	}
 	new Promise( (resolve,reject) => {

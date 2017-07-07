@@ -968,7 +968,7 @@ exports.updatehotEvent = function(request,response,next){
  		for(var i=0;i<events.length;i++){
  			events[i].momentum = 0;
  			var t = Math.max(0,events[i].visit_per_day.length-3);
- 			for(var j=events[i].visit_per_day.length-1;j>=t;j--){
+ 			for(var j=events[i].visit_per_day.length-1; j>=t; j--){
  				for(var key in events[i].visit_per_day[j]){
  					//var date = new Date(key).getTime();
  					var date = new moment(key).unix();
@@ -1042,7 +1042,11 @@ exports.updatehotEvent = function(request,response,next){
 
 //route /event/hot
 exports.gethotEvent = function(request,response,next){
-	response.sendFile(path.join(__dirname,`${storagePath}hotEvent.json`));
+	try{
+		response.sendFile(path.join(__dirname,`${storagePath}hotEvent.json`));
+	}catch(err){
+		response.status(500).json({"err" : "Something went wrong"});
+	}
 }
 
 var querySearchEvent = function(events,info){
