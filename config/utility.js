@@ -4,10 +4,8 @@ let User = require('mongoose').model('User');
 let Form = require('mongoose').model('Form');
 
 // help function should be in this file
-exports.checkPermission = function (request, id, opt, callback) {
-	let user = request.user;
+exports.checkPermission = function ({ user, authentication_info }, id, opt, callback) {
 	console.log(new Date(),'checking permission ',id,opt);
-	console.log(request);
 	if(user){
 		if(opt === "event"){
 			if(user.admin_events.indexOf(id) === -1){
@@ -26,10 +24,10 @@ exports.checkPermission = function (request, id, opt, callback) {
 	}
 	else{
 		console.log('no user');
-		if(request.authentication_info.message === "No auth token")
+		if(authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info.message});
+			response.status(403).json({err:authentication_info.message});
 	}
 }
 
@@ -113,9 +111,16 @@ exports.findMODEL = function(id,opt,callback){
 }
 
 
+exports.getableFieldEvent = ['about','video','location','date_start','date_end',
+	'time_start','time_end','picture','picture_large',
+	'year_require','faculty_require','tags','refs',
+	'agreement','contact_information','joinable_start_time','joinable_end_time',
+	'joinable_amount','time_start','time_end','optional_field','require_field',
+	'show','outsider_accessible','notes','time_each_day'];
+
 exports.editableFieldEvent = ['about','video','location','date_start','date_end',
 	'time_start','time_end','picture','picture_large',
-	'year_require','faculty_require','tags',
+	'year_require','faculty_require','tags','refs',
 	'agreement','contact_information','joinable_start_time','joinable_end_time',
 	'joinable_amount','time_start','time_end','optional_field','require_field',
 	'show','outsider_accessible','notes','time_each_day'];
