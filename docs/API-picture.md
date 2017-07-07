@@ -113,7 +113,12 @@ url in list must belong to the same event/channel
 
 	```JSON
   {
-      urls : [ list of url]
+      "urls" : [
+               "https://api.cueventhub.com/picture/cl595fdb9aa87059006ee48817nfc521499459423556.jpg",
+               "https://api.cueventhub.com/picture/cl595fdb9aa87059006ee48817j5ot71499459423744.jpg",
+               "https://api.cueventhub.com/picture/cl595fdb9aa87059006ee48817eozo61499459423804.jpg",
+               "https://api.cueventhub.com/picture/cl595fdb9aa87059006ee488174d40y1499459423941.jpg"
+           ]
   }
   ```
 
