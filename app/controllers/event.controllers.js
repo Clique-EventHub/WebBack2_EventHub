@@ -5,9 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
-const modify_log_size = require('../../config/config').modify_log_size;
+const config = require('../../config/config');
 const editableFieldEvent = require('../../config/utility').editableFieldEvent;
-const storagePath = require('../../config/config').storagePath;
+const { storagePath, modify_log_size, getableStatEvent, getableFieldEvent } = config;
 const _ = require('lodash');
 //route /
 exports.hi = function(request,response,next){
@@ -41,10 +41,8 @@ exports.listAll = function(request,response,next){
 var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
 		var promises = [];
-		var fields = ['_id','title','about','video','channel','location','date_start','expire','refs','join','time_each_day',
-		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes','who_join','who_interest',
-		'time_start','time_end','contact_information','require_field','optional_field'];
-		if(isStat) fields.push(['visit']);
+		var fields = getableFieldEvent;
+		if(isStat) fields = [...fields, ...getableStatEvent];
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
 				if((fields[i]==='year_require'||fields[i]==='faculty_require')){
@@ -76,7 +74,7 @@ var queryGetEvent = function(event, isStat, info){
 	});
 };
 
-//route /event?id=...&stat=bool
+//route GET /event?id=...&stat=bool
 exports.getEvent = function(request,response,next){
 	var id = request.query.id;
 	var info = {};
@@ -96,7 +94,7 @@ exports.getEvent = function(request,response,next){
 		}
 		else{
 			var isStat = false;
-			if(request.query.stat) isStat = true;
+			if(request.query.stat === "true") isStat = true;
 			queryGetEvent(event, isStat, info)
 			.catch(function(err){
 				response.status(500).json({err:err});
@@ -197,6 +195,7 @@ exports.postEvent = function(request,response,next){
 					})
 					.then(function(info){
 						console.log("post new Event");
+						info.id = newEvent._id;
 						if(request.user && request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
 							response.status(201).json(info);
@@ -358,7 +357,7 @@ exports.getStat = function(request,response,next){
 	check_permission(request,function(code,err,event){
 		if(code!=200) response.status(code).json(err);
 		else{
-			var fields = ['visit','visit_per_day'];
+			var fields = getableStatEvent;
 			for(var i=0;i<fields.length;i++){
 				info[fields[i]]=event[fields[i]];
 			}

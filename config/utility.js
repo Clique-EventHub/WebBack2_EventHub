@@ -25,9 +25,9 @@ exports.checkPermission = function ({ user, authentication_info }, id, opt, call
 	else{
 		console.log('no user');
 		if(authentication_info.message === "No auth token")
-			response.status(403).json({err:"Please login"});
+			callback({err:"Please login"});
 		else
-			response.status(403).json({err:authentication_info.message});
+			callback({err:authentication_info.message});
 	}
 }
 
@@ -109,14 +109,22 @@ exports.findMODEL = function(id,opt,callback){
 	}
 	else callback({err:'invalid model'});
 }
+var fields = [];
 
+exports.getableFieldEvent = ['_id','title','about','video','channel','location',
+	'date_start','date_end','time_start','time_end','expire','refs','join','time_each_day',
+	'picture','picture_large','year_require','faculty_require',
+	'tags','forms','notes',
+	'contact_information','require_field','optional_field','refs',
+	'agreement','joinable_start_time','joinable_end_time',
+	'joinable_amount','optional_field','require_field',
+	'show','outsider_accessible'];
 
-exports.getableFieldEvent = ['about','video','location','date_start','date_end',
-	'time_start','time_end','picture','picture_large',
-	'year_require','faculty_require','tags','refs',
-	'agreement','contact_information','joinable_start_time','joinable_end_time',
-	'joinable_amount','time_start','time_end','optional_field','require_field',
-	'show','outsider_accessible','notes','time_each_day'];
+exports.getableStatEvent = ['who_join','who_interest',
+	'rating','rating_voter',
+	'visit', 'visit_gender', 'visit_year','visit_per_day'
+	'interest','interest_gender','interest_year',
+	'join','join_gender','join_year', 'join_per_day'];
 
 exports.editableFieldEvent = ['about','video','location','date_start','date_end',
 	'time_start','time_end','picture','picture_large',

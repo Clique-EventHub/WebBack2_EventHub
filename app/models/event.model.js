@@ -65,6 +65,10 @@ var eventSchema = new Schema({
 
 	forms : [{}], // list of objects { title : id }
 
+	joinable_start_time:Date,   //the period that user can join.
+	joinable_end_time:Date,			//the period that user can join.
+	time_start:Date,				//the actual time that this event will start.
+	time_end:Date,					//the actual time that this event will end.
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,
@@ -74,10 +78,7 @@ var eventSchema = new Schema({
 		type:Number,
 		default:0
 	},
-	joinable_start_time:Date,   //the period that user can join.
-	joinable_end_time:Date,			//the period that user can join.
-	time_start:Date,				//the actual time that this event will start.
-	time_end:Date,					//the actual time that this event will end.
+	
 	optional_field:{
 		type:[],
 		default:[]
