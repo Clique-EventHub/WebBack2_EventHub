@@ -6,6 +6,8 @@ let Form = require('mongoose').model('Form');
 // help function should be in this file
 exports.checkPermission = function ({ user, authentication_info }, id, opt, callback) {
 	console.log(new Date(),'checking permission ',id,opt);
+	console.log(user);
+	console.log(authentication_info);
 	if(user){
 		if(opt === "event"){
 			if(user.admin_events.indexOf(id) === -1){
@@ -109,7 +111,6 @@ exports.findMODEL = function(id,opt,callback){
 	}
 	else callback({err:'invalid model'});
 }
-var fields = [];
 
 exports.getableFieldEvent = ['_id','title','about','video','channel','location',
 	'date_start','date_end','time_start','time_end','expire','refs','join','time_each_day',
@@ -122,7 +123,7 @@ exports.getableFieldEvent = ['_id','title','about','video','channel','location',
 
 exports.getableStatEvent = ['who_join','who_interest',
 	'rating','rating_voter',
-	'visit', 'visit_gender', 'visit_year','visit_per_day'
+	'visit', 'visit_gender', 'visit_year','visit_per_day',
 	'interest','interest_gender','interest_year',
 	'join','join_gender','join_year', 'join_per_day'];
 

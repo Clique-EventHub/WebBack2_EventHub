@@ -34,8 +34,8 @@ module.exports = function(){
 				done(null,result);
 			}
 			else{
-				console.log('passport case 3 ');
-				done(null,false);
+				console.log('passport case 3');
+				done(new Error("no user"),false);
 			}
 		});
 	}));

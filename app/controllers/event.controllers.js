@@ -6,8 +6,9 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const config = require('../../config/config');
-const editableFieldEvent = require('../../config/utility').editableFieldEvent;
-const { storagePath, modify_log_size, getableStatEvent, getableFieldEvent } = config;
+const utility = require('../../config/utility');
+const { storagePath, modify_log_size } = config;
+const { getableStatEvent, getableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
 exports.hi = function(request,response,next){
@@ -40,9 +41,11 @@ exports.listAll = function(request,response,next){
 // query data of event
 var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
-		var promises = [];
-		var fields = getableFieldEvent;
+		let promises = [];
+		let fields = getableFieldEvent;
 		if(isStat) fields = [...fields, ...getableStatEvent];
+		console.log(getableFieldEvent);
+		console.log(fields);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
 				if((fields[i]==='year_require'||fields[i]==='faculty_require')){
@@ -97,12 +100,16 @@ exports.getEvent = function(request,response,next){
 			if(request.query.stat === "true") isStat = true;
 			queryGetEvent(event, isStat, info)
 			.catch(function(err){
+				console.error(new Date().toString());
+				console.error("queryGetEvent error");
 				response.status(500).json({err:err});
 				// return next(err);
 			}).then(function(returnedInfo){
 				putStat(id, function(info){
 					if(info.code != 201){
 						response.status(info.code).json(info.msg);
+						console.error(new Date().toString());
+						console.error("putstat error");
 					}
 					else{
 						if(request.user && request.user.notification != undefined && request.user.notification != null){
