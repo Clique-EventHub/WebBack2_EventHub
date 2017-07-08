@@ -361,7 +361,7 @@ var checkUserAndChannel = function(user, channel){
     Promise.all(promises)
     .catch(function(err){
 			info.msg = err.msg;
-			ingo.code = err.code;
+			info.code = err.code;
       resolve(info);
     })
     .then(function(returnedInfo){
@@ -435,7 +435,7 @@ var checkUserAndEvent = function(user, event){
     Promise.all(promises)
     .catch(function(err){
 			info.msg = err.msg;
-			ingo.code = err.code;
+			info.code = err.code;
       // info['msg'] = [];
       // for(var i=0; i<err.length; i++){
       //   info['msg'][i] = err[i];
