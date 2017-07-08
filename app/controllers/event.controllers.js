@@ -8,7 +8,7 @@ const moment = require('moment-timezone');
 const config = require('../../config/config');
 const utility = require('../../config/utility');
 const { storagePath, modify_log_size } = config;
-const { getableStatEvent, getableFieldEvent } = utility;
+const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
 exports.hi = function(request,response,next){

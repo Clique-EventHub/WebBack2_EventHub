@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 
 
 var eventSchema = new Schema({
+	// normal info
 	title : {
 		trim : true,
 		type:String,
@@ -42,18 +43,7 @@ var eventSchema = new Schema({
 		type:String,
 		default:null
 	},
-	date_start:Date,
-	date_end:Date,
-	contact_information: {
-		type:String,
-		default:null
-	},
 	tags:[],
-	expire:{
-		type:Boolean,
-		default:false
-	},
-	admins : [Schema.Types.ObjectId],
 	notes:{
 		type : [],
 		default : []
@@ -64,11 +54,7 @@ var eventSchema = new Schema({
 	},
 
 	forms : [{}], // list of objects { title : id }
-
-	joinable_start_time:Date,   //the period that user can join.
-	joinable_end_time:Date,			//the period that user can join.
-	time_start:Date,				//the actual time that this event will start.
-	time_end:Date,					//the actual time that this event will end.
+	
 	optional_field:{
 		type:[],
 		default:[]
@@ -77,7 +63,34 @@ var eventSchema = new Schema({
 		type:[],
 		default:[]
 	},
+	admins : [Schema.Types.ObjectId],
+	// date time -------------------------------
+	date_start:Date,
+	date_end:Date,
+	contact_information: {
+		type:String,
+		default:null
+	},
+	time_each_day : {
+		type : [],
+		default : []
+	},
+	joinable_start_time:Date,   //the period that user can join.
+	joinable_end_time:Date,			//the period that user can join.
+	time_start:Date,				//the actual time that this event will start.
+	time_end:Date,					//the actual time that this event will end.
 	
+	expire:{
+		type:Boolean,
+		default:false
+	},
+	
+
+	tokenDelete:{
+		type:Boolean,
+		default: false
+	},
+
 	//stat-----------------------------------------------
 	rating:{
 		type:Number,
@@ -88,24 +101,33 @@ var eventSchema = new Schema({
 		default:0
 	},
 	
+	momentum:{type:Number,default:0},
+	
+	// visit ---------
 	visit:{
 		type:Number,
 		default:0
 	},
+
 	visit_gender:{
 		type:{},
 		default:{'male':0,'female':0}
 	},
+
 	visit_year:{}, // { '58':10 , '59':30  }
+	visit_per_day:[], // {YYYY-MM-DD,number}
 
 	joinable_amount:{					// the max number of people that can join this event.
 		type:Number,
 		default:-1	//infinity
 	},
+
 	show:{								// show this event to public or not.
 		type:Boolean,
 		default:true
 	},
+	
+	// interest ----------------------------
 	interest:{
 		type:Number,
 		default:0
@@ -118,7 +140,12 @@ var eventSchema = new Schema({
 		type : {},
 		default : {}
 	}, // { '57':10 , '58':30  }
-
+	interest_faculty:{
+		type:{},
+		default : {}
+	},
+	
+	// join -------------------------------
 	join:{
 		type:Number,
 		default:0
@@ -131,16 +158,17 @@ var eventSchema = new Schema({
 		type:{},
 		default:null
 	}, // { '57':10 , '58':30  }
-	join_per_day:[], // {YYYY-MM-DD,number}
-	visit_per_day:[], // {YYYY-MM-DD,number}
-	momentum:{type:Number,default:0},
-
-	//stat-------------------------------------------------
-
-	tokenDelete:{
-		type:Boolean,
-		default: false
+	join_faculty:{
+		type:{},
+		default:{}
 	},
+	join_data:{
+		type: [],
+		default : []
+	},
+	join_per_day:[], // {YYYY-MM-DD,number}
+
+	// who ------------------------------------------
 	who_join: [Schema.Types.ObjectId],
 	who_interest: {
 		type:[Schema.Types.ObjectId],
@@ -162,10 +190,12 @@ var eventSchema = new Schema({
 		type : [Schema.Types.ObjectId],
 		default : []
 	},
-	time_each_day : {
-		type : [],
-		default : []
+		outsider_accessible : {
+		type : Boolean,
+		default : true
 	},
+	// log -------------------------------------
+
 	created_date:{
 		type:'Moment',
 		default: new Moment()
@@ -175,22 +205,7 @@ var eventSchema = new Schema({
 		type:[],
 		default:[]
 	},
-	outsider_accessible : {
-		type : Boolean,
-		default : true
-	},
-	join_faculty:{
-		type:{},
-		default:{}
-	},
-	interest_faculty:{
-		type:{},
-		default : {}
-	},
-	join_data:{
-		type: [],
-		default : []
-	}
+
  });
 
 
