@@ -1251,7 +1251,6 @@ exports.getForYou = function(request,response){
 			events.forEach( event => {
 				weight[event._id] = 0;
 				let p = -1;
-				//
 				// calculate duration from now to date_start
 				if(event.date_start) p = Math.floor((new moment(event.date_start).unix() - now)/(60*60*24));
 //				console.log(now);
@@ -1273,6 +1272,7 @@ exports.getForYou = function(request,response){
 			response.status(200).json({events});
 		}
 	});
+}
 
 exports.getUpcoming = function(request,response){
 	const now = new Date();
@@ -1291,5 +1291,4 @@ exports.getUpcoming = function(request,response){
 				response.status(200).json({events});
 			}
 		});
-
 }
