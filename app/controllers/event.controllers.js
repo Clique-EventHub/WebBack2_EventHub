@@ -1245,23 +1245,29 @@ exports.getForYou = function(request,response){
 		}
 		else{
 			const now = new moment().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).unix();
+
 			let weight = new Map();
 			events.forEach( event => {
 				weight[event._id] = 0;
 				let p = -1;
-				if(event.date_start) p = new moment(event.date_start).unix() - now;
-				
+				// calculate duration from now to date_start
+				if(event.date_start) p = Math.floor((new moment(event.date_start).unix() - now)/(60*60*24));
+//				console.log(now);
+//				console.log(new moment(event.date_start).unix());
+//				console.log(p);				
 				weight[event._id] += _.get(day_weight,p,0);
+				weight[event._id] -= user.join_events.indexOf(event._id)>=0 ? 1 : 0;
 				event.tags.forEach( tag => {
 					if(user.tag_like.indexOf(tag) >=0 ){
 						weight[event._id] += tag_weight;	
 					}
 				});			
 			});
-			events.sort( (left,right) => {
-				return (weight[left._id] < weight[right._id] );
-			});
 
+			events.sort( (left,right) => {
+				if (weight[left._id] < weight[right._id] );
+			});
+			console.log(weight);
 			response.status(200).json({events});
 		}
 	});
