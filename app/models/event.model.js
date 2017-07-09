@@ -65,8 +65,14 @@ var eventSchema = new Schema({
 	},
 	admins : [Schema.Types.ObjectId],
 	// date time -------------------------------
-	date_start:Date,
-	date_end:Date,
+	date_start:{
+		type : Date,
+		default: null
+	},
+	date_end:{
+		type : Date,
+		default: null
+	},
 	contact_information: {
 		type:String,
 		default:null
