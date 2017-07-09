@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const config = require('../../config/config');
 const utility = require('../../config/utility');
-const { storagePath, modify_log_size } = config;
+const { storagePath, modify_log_size, tag_weight, day_weight } = config;
 const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
@@ -1219,6 +1219,50 @@ var check_permission = function(request,callback){
 				// if permsion ok
 				callback(200,null,event);
 			}
+		}
+	});
+}
+
+exports.getForYou = function(request,response){	
+	const user = request.user;
+	if(!user){
+		const ret = _.get(request,'authentication_info',{err:"Please login"})
+		response.status(400).json(ret);
+		return;
+	}
+	Event.find({
+		tokenDelete: false,
+		expire: false,
+	//	date_start: {$nin: [undefined, null]},
+		tags: {$in: user.tag_like}
+	},getableFieldEvent,{
+		sort: {'date_start' : 1}
+	}, (err,events) => {
+		if(err){
+			console.error(new Date());
+			console.error(err);
+			response.status(400).json({err:"Please login"});
+		}
+		else{
+			const now = new moment().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).unix();
+			let weight = new Map();
+			events.forEach( event => {
+				weight[event._id] = 0;
+				let p = -1;
+				if(event.date_start) p = new moment(event.date_start).unix() - now;
+				
+				weight[event._id] += _.get(day_weight,p,0);
+				event.tags.forEach( tag => {
+					if(user.tag_like.indexOf(tag) >=0 ){
+						weight[event._id] += tag_weight;	
+					}
+				});			
+			});
+			events.sort( (left,right) => {
+				return (weight[left._id] < weight[right._id] );
+			});
+
+			response.status(200).json({events});
 		}
 	});
 }

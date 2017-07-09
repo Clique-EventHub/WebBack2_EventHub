@@ -14,6 +14,7 @@ module.exports = function(app){
 	
 	app.get('/event/new',event.newEvent);
  	app.get('/event/hot',event.gethotEvent);
+	app.get('/event/foryou',event.getForYou);
 
  	app.get('/update/perday',event.updateStatperDay);
  	app.get('/update/hot',event.updatehotEvent);
