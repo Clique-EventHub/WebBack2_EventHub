@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const config = require('../../config/config');
 const utility = require('../../config/utility');
-const { storagePath, modify_log_size } = config;
+const { storagePath, modify_log_size, tag_weight, day_weight } = config;
 const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
@@ -1223,6 +1223,56 @@ var check_permission = function(request,callback){
 	});
 }
 
+
+exports.getForYou = function(request,response){	
+	const user = request.user;
+	if(!user){
+		const ret = _.get(request,'authentication_info',{err:"Please login"})
+		response.status(400).json(ret);
+		return;
+	}
+	Event.find({
+		tokenDelete: false,
+		expire: false,
+	//	date_start: {$nin: [undefined, null]},
+		tags: {$in: user.tag_like}
+	},getableFieldEvent,{
+		sort: {'date_start' : 1}
+	}, (err,events) => {
+		if(err){
+			console.error(new Date());
+			console.error(err);
+			response.status(400).json({err:"Please login"});
+		}
+		else{
+			const now = new moment().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).unix();
+
+			let weight = new Map();
+			events.forEach( event => {
+				weight[event._id] = 0;
+				let p = -1;
+				// calculate duration from now to date_start
+				if(event.date_start) p = Math.floor((new moment(event.date_start).unix() - now)/(60*60*24));
+//				console.log(now);
+//				console.log(new moment(event.date_start).unix());
+//				console.log(p);				
+				weight[event._id] += _.get(day_weight,p,0);
+				weight[event._id] -= user.join_events.indexOf(event._id)>=0 ? 1 : 0;
+				event.tags.forEach( tag => {
+					if(user.tag_like.indexOf(tag) >=0 ){
+						weight[event._id] += tag_weight;	
+					}
+				});			
+			});
+
+			events.sort( (left,right) => {
+				if (weight[left._id] < weight[right._id] );
+			});
+			console.log(weight);
+			response.status(200).json({events});
+		}
+	});
+
 exports.getUpcoming = function(request,response){
 	const now = new Date();
  	Event.find({ 
@@ -1240,4 +1290,5 @@ exports.getUpcoming = function(request,response){
 				response.status(200).json({events});
 			}
 		});
+
 }
