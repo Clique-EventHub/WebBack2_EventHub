@@ -98,14 +98,14 @@ var eventSchema = new Schema({
 	},
 
 	//stat-----------------------------------------------
-	rating:{
-		type:Number,
-		default:0
-	},
-	rating_voter:{
-		type:Number,
-		default:0
-	},
+//	rating:{
+//		type:Number,
+//		default:0
+//	},
+//	rating_voter:{
+//		type:Number,
+//		default:0
+//	},
 	
 	momentum:{type:Number,default:0},
 	
@@ -115,18 +115,13 @@ var eventSchema = new Schema({
 		default:0
 	},
 
-	visit_gender:{
-		type:{},
-		default:{'male':0,'female':0}
-	},
-
-	visit_year:{}, // { '58':10 , '59':30  }
+//	visit_gender:{
+//		type:{},
+//		default:{'male':0,'female':0}
+//	},
+//
+//	visit_year:{}, // { '58':10 , '59':30  }
 	visit_per_day:[], // {YYYY-MM-DD,number}
-
-	joinable_amount:{					// the max number of people that can join this event.
-		type:Number,
-		default:-1	//infinity
-	},
 
 	show:{								// show this event to public or not.
 		type:Boolean,
@@ -159,6 +154,10 @@ var eventSchema = new Schema({
 	join_gender:{
 		type:{},
 		default:{'male':0,'female':0}
+	},
+	joinable_amount:{					// the max number of people that can join this event.
+		type:Number,
+		default:-1	//infinity
 	},
 	join_year:{
 		type:{},

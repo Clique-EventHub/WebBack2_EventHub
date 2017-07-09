@@ -130,8 +130,7 @@ exports.getableFieldEventAdmin = ['_id','title','about','video','channel','locat
 	'joinable_amount','optional_field','require_field',
 	'show','outsider_accessible'];
 exports.getableStatEvent = ['who_join','who_interest',
-	'rating','rating_voter',
-	'visit', 'visit_gender', 'visit_year','visit_per_day',
+	'visit', 'visit_per_day',
 	'interest','interest_gender','interest_year',
 	'join','join_gender','join_year', 'join_per_day'];
 
