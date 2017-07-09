@@ -1223,6 +1223,7 @@ var check_permission = function(request,callback){
 	});
 }
 
+
 exports.getForYou = function(request,response){	
 	const user = request.user;
 	if(!user){
@@ -1271,4 +1272,23 @@ exports.getForYou = function(request,response){
 			response.status(200).json({events});
 		}
 	});
+
+exports.getUpcoming = function(request,response){
+	const now = new Date();
+ 	Event.find({ 
+		tokenDelete:false,
+		expire:false,
+		date_start: {$nin:[undefined,null]}
+		},getableFieldEvent,{
+			sort: {'date_start':1}	
+		}, (err,events) => {
+			if(err){
+				console.error(err);
+				response.status(500).json({err:"Internal Error"});
+			}
+			else{
+				response.status(200).json({events});
+			}
+		});
+
 }
