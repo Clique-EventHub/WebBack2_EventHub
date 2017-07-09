@@ -1222,3 +1222,32 @@ var check_permission = function(request,callback){
 		}
 	});
 }
+
+exports.getUpcoming = function(request,response){
+	const now = new Date();
+ 	Event.find({ 
+		tokenDelete:false,
+		expire:false,
+		date_start: {$nin:[undefined,null]}
+		},getableFieldEvent,{
+			sort: {'date_start':1}	
+		}, (err,events) => {
+			if(err){
+				console.error(err);
+				response.status(500).json({err:"Internal Error"});
+			}
+			else{
+				response.status(200).json(events);
+			}
+		});
+	
+//	.exec(function(err,events){
+//		if(err){
+//			console.error(err);
+//			response.status(500).json({err:"Internal Error"});
+//		}
+//		else{
+//			response.json(events);
+//		}
+//	});
+}
