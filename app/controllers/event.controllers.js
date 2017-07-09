@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const config = require('../../config/config');
 const utility = require('../../config/utility');
-const { storagePath, modify_log_size, tag_weight, day_weight } = config;
+const { storagePath, modify_log_size, tag_weight, day_weight, join_weight } = config;
 const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
@@ -1234,7 +1234,7 @@ exports.getForYou = function(request,response){
 	Event.find({
 		tokenDelete: false,
 		expire: false,
-	//	date_start: {$nin: [undefined, null]},
+		date_start: {$nin: [undefined, null]},
 		tags: {$in: user.tag_like}
 	},getableFieldEvent,{
 		sort: {'date_start' : 1}
@@ -1251,13 +1251,14 @@ exports.getForYou = function(request,response){
 			events.forEach( event => {
 				weight[event._id] = 0;
 				let p = -1;
+				//
 				// calculate duration from now to date_start
 				if(event.date_start) p = Math.floor((new moment(event.date_start).unix() - now)/(60*60*24));
 //				console.log(now);
 //				console.log(new moment(event.date_start).unix());
 //				console.log(p);				
 				weight[event._id] += _.get(day_weight,p,0);
-				weight[event._id] -= user.join_events.indexOf(event._id)>=0 ? 1 : 0;
+				weight[event._id] -= user.join_events.indexOf(event._id)>=0 ? join_weight : 0;
 				event.tags.forEach( tag => {
 					if(user.tag_like.indexOf(tag) >=0 ){
 						weight[event._id] += tag_weight;	
