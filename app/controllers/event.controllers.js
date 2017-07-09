@@ -906,39 +906,45 @@ exports.newEvent = function(request,response,next){
 //route GET /update/perday
 //set expire if it's out of active date
 exports.updateStatperDay = function(request,response,next){
- 	//var d = new time.Date().setTimezone('Asia/Bangkok');
+	const now = new moment().tz("Asia/Bangkok").format("YYYY-MM-DD");
  	var cnt=0;
  	var info={};
  	Event.find({$and :[ {tokenDelete:{$ne:true}}, {expire:{$ne:true}} ]},function(err,events){
 		if(err){
-			info.msg = "unhandle error";
+			info.err = "unhandle error";
 			response.status(500).json(info);
 			// return next(err);
 		}
-		if(events.length==0){
+		if(events.length===0){
 			info.msg = "no active event";
 			response.json(info);
 			return;
 		}
  		events.forEach(function(event){
 			//if(event.date_end.getTime()<d.getTime()){
-			if(new moment(event.date_end).isBefore(new moment()) ){
-				console.log('inside moment');
+			const vlen = event.visit_per_day.length;
+			const jlen = event.join_per_day.length; 
+			if(_.get(event,['visit_per_day',vlen-1,now],null)){
+				_.set(event,['visit_per_day',vlen,now],0);
+			}
+			if(_.get(event,['join_per_day',jlen-1,now],null)){
+				_.set(event,['join_per_day',vlen,now],0);
+			} 
+			if(new moment(event.date_end).isBefore(new moment())){
 				event.expire=true;
-				event.update(event,function(err){
-					if(err){
-						info.msg = "error";
-						response.status(500).json(info);
-						console.error("error update event : updateStatperDay : event.controllers");
-						// return next(err);
-					}
-				});
 			}
-			if(++cnt===events.length){
-				info.msg = "done";
-				response.json(info);
-			}
-			console.log("cnt:"+cnt);
+			event.update(event,function(err){
+				if(err){
+					info.msg = "error";
+					response.status(500).json(info);
+					console.error("error update event : updateStatperDay : event.controllers");
+				}
+			});
+				if(++cnt===events.length){
+					info.msg = "done";
+					response.status(200).json(info);
+					response.end();
+				}
 		});
 	});
 }
@@ -959,12 +965,15 @@ var checkhot = function(hot,event){
 	return hot;
 };
 
+let calculateMomentum = function(callback){
+
+}
+
 //route /update/hot
 exports.updatehotEvent = function(request,response,next){
  	var hot = {};
- 	//var t = new time.Date().setTimezone('Asia/Bangkok');
+
  	var t = new moment().format('YYYY-MM-DD');
- 	//var d1 = new time.Date(t.getFullYear(),t.getMonth(),t.getDate()).setTimezone('Asia/Bangkok').getTime();
  	var d1 = new moment(t).unix();
  	var d2 = d1-86400000;
  	var d3 = d2-86400000;
@@ -976,7 +985,6 @@ exports.updatehotEvent = function(request,response,next){
  			var t = Math.max(0,events[i].visit_per_day.length-3);
  			for(var j=events[i].visit_per_day.length-1; j>=t; j--){
  				for(var key in events[i].visit_per_day[j]){
- 					//var date = new Date(key).getTime();
  					var date = new moment(key).unix();
  					if( date === d1 || date === d2 || date === d3 )
  						events[i].momentum+=events[i].visit_per_day[j][key];
@@ -1232,7 +1240,7 @@ exports.getForYou = function(request,response){
 		return;
 	}
 	Event.find({
-		tokenDelete: false,
+		tokenDelete: {$ne: true},
 		expire: false,
 		date_start: {$nin: [undefined, null]},
 		tags: {$in: user.tag_like}
@@ -1277,7 +1285,7 @@ exports.getForYou = function(request,response){
 exports.getUpcoming = function(request,response){
 	const now = new Date();
  	Event.find({ 
-		tokenDelete:false,
+		tokenDelete:{$ne: true},
 		expire:false,
 		date_start: {$nin:[undefined,null]}
 		},getableFieldEvent,{
