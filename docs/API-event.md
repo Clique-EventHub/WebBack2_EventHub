@@ -234,3 +234,41 @@ Return event in date period
 
     **Content:** `{ "err" : error detail }`
 ---
+
+## Upcoming event
+
+Return upcoming event sort in ascending order 
+
+* **URL**
+
+  `/event/upcoming`
+
+* **Method**
+
+  `GET`
+
+* **Authentication**
+
+    `Optional`
+
+*  **URL Params**
+
+    `None` 
+
+* **Body**
+
+    `None`
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{ events : list of events }`
+
+
+* **Error Response:**
+
+  * **Code:** 500
+
+    **Content:** `{ "err" : Internal Error }`
+---

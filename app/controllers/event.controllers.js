@@ -1237,17 +1237,7 @@ exports.getUpcoming = function(request,response){
 				response.status(500).json({err:"Internal Error"});
 			}
 			else{
-				response.status(200).json(events);
+				response.status(200).json({events});
 			}
 		});
-	
-//	.exec(function(err,events){
-//		if(err){
-//			console.error(err);
-//			response.status(500).json({err:"Internal Error"});
-//		}
-//		else{
-//			response.json(events);
-//		}
-//	});
 }
