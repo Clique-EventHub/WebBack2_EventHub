@@ -235,6 +235,44 @@ Return event in date period
     **Content:** `{ "err" : error detail }`
 ---
 
+## Event for you 
+
+Return upcoming event sort in ascending order 
+
+* **URL**
+
+  `/event/foryou`
+
+* **Method**
+
+  `GET`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+    `None` 
+
+* **Body**
+
+    `None`
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{ events : list of events }`
+
+
+* **Error Response:**
+
+  * **Code:** 500
+
+    **Content:** `{ "err" : Internal Error }`
+---
+
 ## Upcoming event
 
 Return upcoming event sort in ascending order 
@@ -268,7 +306,8 @@ Return upcoming event sort in ascending order
 
 * **Error Response:**
 
-  * **Code:** 500
+ * **Code:** 500
 
-    **Content:** `{ "err" : Internal Error }`
----
+    **Content:**
+    `{ "err" : Internal Error }`
+    `{ "err" : Authentication info }`

@@ -1242,7 +1242,7 @@ exports.getForYou = function(request,response){
 		if(err){
 			console.error(new Date());
 			console.error(err);
-			response.status(400).json({err:"Please login"});
+			response.status(400).json({err:"Internal Error"});
 		}
 		else{
 			const now = new moment().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).unix();
