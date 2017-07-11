@@ -1366,7 +1366,7 @@ exports.checkRegChula = function(request, response){
 						}
 						else {
 							info.gender = 'female';
-							if(arr[0].substr(0,6) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
+							if(arr[0].substr(0,4) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
 							else info.firstNameTH = arr[0].substr(3, arr[0].length);
 							info.lastNameTH = arr[1];
 						}
