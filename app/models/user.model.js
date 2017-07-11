@@ -152,10 +152,26 @@ var userSchema = new Schema({
 		type : [Schema.Types.ObjectId],
 		default : []
 	},
-	join_events:[Schema.Types.ObjectId],
-	interest_events:[Schema.Types.ObjectId],
-	subscribe_channels:[Schema.Types.ObjectId],
-	already_joined_events:[Schema.Types.ObjectId],
+	accepted_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	join_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	interest_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	subscribe_channels: {
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	already_joined_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
 	tag_like:[String],
 
 	dorm_building:String,

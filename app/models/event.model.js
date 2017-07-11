@@ -45,8 +45,12 @@ var eventSchema = new Schema({
 	date_start:Date,
 	date_end:Date,
 	contact_information: {
-		type:String,
+		type:[],
 		default:null
+	},
+	choose_joins : {
+		type : Boolean,
+		default : false
 	},
 	tags:[],
 	expire:{

@@ -298,6 +298,176 @@ exports.deleteAdminEvent = function(request, response){
   });
 };
 
+exports.selectPending = function(request, response){
+  var accepteds = request.body.yes;
+  var rejecteds = request.body.no;
+  check_permission(request, function(code, err, returnedInfo){
+    if(code != 200){
+      response.status(code).json({err});
+    }
+    else if(!returnedInfo.choose_joins){
+      response.status(400).json({msg : "this event cannot choose join people."});
+    }
+    else{
+      var promises = [];
+      if(accepteds){
+        promises.push(new Promise(function(resolve, reject){
+            let promises2 = [];
+            for(let i=0;i<accepteds.length;i++){
+              promises2.push(new Promise(function(resolve, reject){
+                let index = i;
+                let theIndex = returnedInfo.who_accepted.indexOf(accepteds[index]);
+                if(theIndex == -1){
+                  returnedInfo.who_accepted.push(accepteds[index]);
+                }
+                theIndex = returnedInfo.who_pending.indexOf(accepteds[index]);
+                if(theIndex != -1){
+                  returnedInfo.who_pending.splice(theIndex, 1);
+                }
+                resolve();
+              }));
+            }
+            Promise.all(promises2).then(function(){
+              resolve();
+            });
+        }));
+      }
+      if(rejecteds){
+        promises.push(new Promise(function(resolve, reject){
+          let promises2 = [];
+          for(let i=0;i<rejecteds.length;i++){
+            promises2.push(new Promise(function(resolve, reject){
+              let index = i;
+              let theIndex = returnedInfo.who_rejected.indexOf(rejecteds[index]);
+              if(theIndex == -1){
+                returnedInfo.who_rejected.push(rejecteds[index]);
+              }
+              theIndex = returnedInfo.who_pending.indexOf(rejecteds[index]);
+              if(theIndex != -1){
+                returnedInfo.who_pending.splice(theIndex, 1);
+              }
+              theIndex = returnedInfo.who_join.indexOf(rejecteds[index]);
+              if(theIndex != -1){
+                returnedInfo.who_join.splice(theIndex, 1);
+              }
+              resolve();
+            }));
+          }
+          Promise.all(promises2).then(function(){
+            resolve();
+          });
+        }));
+      }
+      Promise.all(promises).then(function(){
+        Event.findByIdAndUpdate(request.query.id, {
+          $set : {
+            who_accepted : returnedInfo.who_accepted,
+            who_rejected : returnedInfo.who_rejected,
+            who_pending : returnedInfo.who_pending,
+            who_join : returnedInfo.who_join
+          }
+        }, function(err, updatedEvent){
+          if(err){
+            response.status(500).json({msg : "internal error."});
+          }
+          else if(!updatedEvent){
+            response.status(404).json({msg : "event not found."});
+          }
+          else{
+            let promises3 = [];
+            let errorList = [];
+            promises3.push(new Promise(function(resolve, reject){
+              let promises4 = [];
+              let noti = {};
+              noti.title = "You are accepted from "+updatedEvent.title+" to join this event.";
+              noti.link = 'https://www.cueventhub.com/event?id='+updatedEvent._id+'&stat=true';
+              noti.photo = updatedEvent.picture;
+              noti.source = updatedEvent.title;
+              noti.seen = false;
+              let date = new Date();
+              noti.timestamp = date.getTime();
+              if(accepteds){
+                for(let i=0;i<accepteds.length;i++){
+                  promises4.push(new Promise(function(resolve, reject){
+                    let index = i;
+                    User.findByIdAndUpdate(accepteds[index], {
+                      $addToSet : { notification : noti,
+                                    accepted_events : updatedEvent._id}
+                    }, function(err, updatedUser){
+                      if(err){
+                        errorList.push(accepteds[index]);
+                        resolve();
+                      }
+                      else if(!updatedUser){
+                        errorList.push(accepteds[index]);
+                        resolve();
+                      }
+                      else{
+                        resolve();
+                      }
+                    });
+                  }));
+                }
+              }
+              Promise.all(promises4).then(function(){
+                resolve();
+              });
+            }));
+            promises3.push(new Promise(function(resolve, reject){
+              let promises4 = [];
+              let noti = {};
+              noti.title = "You are rejected from "+updatedEvent.title+"to join this event.";
+              noti.link = 'https://www.cueventhub.com/event?id='+updatedEvent._id+'&stat=true';
+              noti.photo = updatedEvent.picture;
+              noti.source = updatedEvent.title;
+              noti.seen = false;
+              let date = new Date();
+              noti.timestamp = date.getTime();
+              if(rejecteds){
+                for(let i=0;i<rejecteds.length;i++){
+                  promises4.push(new Promise(function(resolve, reject){
+                    let index = i;
+                    User.findByIdAndUpdate(rejecteds[index], {
+                      $addToSet : { notification : noti },
+                      $pull : { join_events : updatedEvent._id }
+                    }, function(err, updatedUser){
+                      if(err){
+                        errorList.push(rejecteds[index]);
+                        resolve();
+                      }
+                      else if(!updatedUser){
+                        errorList.push(rejecteds[index]);
+                        resolve();
+                      }
+                      else{
+                        resolve();
+                      }
+                    });
+                  }));
+                }
+              }
+              Promise.all(promises4).then(function(){
+                resolve();
+              });
+            }));
+            Promise.all(promises3).then(function(){
+              if(errorList.length == 0){
+                response.status(201).json({msg : "done."});
+              }
+              else{
+                let info = {};
+                info.msg = "error.";
+                info.users = errorList;
+                response.status(500).json(info);
+              }
+            });
+          }
+        });
+      });
+    }
+  });
+};
+
 var checkUserAndChannel = function(user, channel){
 	return new Promise(function(resolve, reject){
     var info = {};
@@ -361,7 +531,7 @@ var checkUserAndChannel = function(user, channel){
     Promise.all(promises)
     .catch(function(err){
 			info.msg = err.msg;
-			ingo.code = err.code;
+			info.code = err.code;
       resolve(info);
     })
     .then(function(returnedInfo){
@@ -435,7 +605,7 @@ var checkUserAndEvent = function(user, event){
     Promise.all(promises)
     .catch(function(err){
 			info.msg = err.msg;
-			ingo.code = err.code;
+			info.code = err.code;
       // info['msg'] = [];
       // for(var i=0; i<err.length; i++){
       //   info['msg'][i] = err[i];
@@ -470,7 +640,7 @@ exports.checkJoinPeopleIn = function(request, response){
           Event.findById(request.query.id, function(err, event){
             var join_users = [];
             for(let i=0;i<request.body.users.length;i++){
-              if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
+              if(event.who_accepted.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
             }
             var timeDiff1 = Math.abs(current.getTime() - event.date_start.getTime());
             var timeSign1 = current.getTime() - event.date_start.getTime();
@@ -484,7 +654,7 @@ exports.checkJoinPeopleIn = function(request, response){
             }
             Event.findByIdAndUpdate(event._id, {
               $addToSet : {who_completed : {$each : join_users}},
-              $pull : {who_join : {$in : join_users}}
+              $pull : {who_accepted : {$in : join_users}}
             }, function(err, updatedEvent){
               if(err){
                 response.status(500).json({msg:"internal error."});
@@ -542,7 +712,7 @@ exports.checkJoinPeopleIn = function(request, response){
       Event.findById(request.query.id, function(err, event){
         var join_users = [];
         for(let i=0;i<request.body.users.length;i++){
-          if(event.who_join.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
+          if(event.who_accepted.indexOf(request.body.users[i]) != -1) join_users.push(mongoose.Types.ObjectId(request.body.users[i]));
         }
         var timeDiff1 = Math.abs(current.getTime() - event.date_start.getTime());
         var timeSign1 = current.getTime() - event.date_start.getTime();
@@ -556,7 +726,7 @@ exports.checkJoinPeopleIn = function(request, response){
         }
         Event.findByIdAndUpdate(event._id, {
           $addToSet : {who_completed : {$each : join_users}},
-          $pull : {who_join : {$in : join_users}}
+          $pull : {who_accepted : {$in : join_users}}
         }, function(err, updatedEvent){
           if(err){
             response.status(500).json({msg:"internal error."});
@@ -1248,3 +1418,5 @@ exports.deleteAdminEventMG = function(request, response){
     }
   });
 };
+
+//============temporarily code while regId is not working (end) =====================

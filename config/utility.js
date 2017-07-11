@@ -123,7 +123,8 @@ exports.editableFieldEvent = ['about','video','location','date_start','date_end'
 
 exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail','url','video'];
 
-exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail','url','video'];
+exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail',
+															'url','video','who_subscribe'];
 
 const userField = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
@@ -131,7 +132,7 @@ const userField = ['nick_name','picture','picture_200px','birth_day','twitterUse
 
 exports.editableFieldUser = userField;
 
-exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','facebookId',
+exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','facebookId','accepted_events',
 				'admin_events', 'already_joined_events','subscribe_channels','interest_events','join_events','major',
 				'admin_channels','admin_channels','firstNameTH','lastNameTH', ...userField ];
 
@@ -140,7 +141,7 @@ exports.postFieldForm = ['title','event','channel','questions'];
 exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
 	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
 	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
-	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
+	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH','accepted_events'];
 
 exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','gender','major','admin_events','admin_channels',
-'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','regId','firstNameTH','lastNameTH'];
+'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','regId','firstNameTH','lastNameTH','accepted_events'];

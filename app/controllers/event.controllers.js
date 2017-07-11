@@ -43,7 +43,7 @@ var queryGetEvent = function(event, isStat, info){
 		var promises = [];
 		var fields = ['_id','title','about','video','channel','location','date_start','expire','refs','join','time_each_day',
 		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes','who_join','who_interest',
-		'time_start','time_end','contact_information','require_field','optional_field'];
+		'time_start','time_end','contact_information','require_field','optional_field','choose_joins'];
 		if(isStat) fields.push(['visit']);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
@@ -199,6 +199,7 @@ exports.postEvent = function(request,response,next){
 						console.log("post new Event");
 						if(request.user && request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
+							info.id = newEvent._id;
 							response.status(201).json(info);
 						}
 						else{
