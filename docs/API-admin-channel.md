@@ -688,7 +688,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** `{ "msg":"done.", "notification":data, "id":newEvent's id }`
 
 * **Error Response:**
 

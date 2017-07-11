@@ -5,9 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
-const modify_log_size = require('../../config/config').modify_log_size;
-const editableFieldEvent = require('../../config/utility').editableFieldEvent;
-const storagePath = require('../../config/config').storagePath;
+const config = require('../../config/config');
+const utility = require('../../config/utility');
+const { storagePath, modify_log_size, tag_weight, day_weight, join_weight } = config;
+const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
 exports.hi = function(request,response,next){
@@ -40,11 +41,11 @@ exports.listAll = function(request,response,next){
 // query data of event
 var queryGetEvent = function(event, isStat, info){
 	return new Promise(function(resolve, reject){
-		var promises = [];
-		var fields = ['_id','title','about','video','channel','location','date_start','expire','refs','join','time_each_day',
-		'date_end','picture','picture_large','year_require','faculty_require','tags','forms','notes','who_join','who_interest',
-		'time_start','time_end','contact_information','require_field','optional_field','choose_joins'];
-		if(isStat) fields.push(['visit']);
+		let promises = [];
+		let fields = getableFieldEvent;
+		if(isStat) fields = [...fields, ...getableStatEvent];
+		console.log(getableFieldEvent);
+		console.log(fields);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
 				if((fields[i]==='year_require'||fields[i]==='faculty_require')){
@@ -76,7 +77,7 @@ var queryGetEvent = function(event, isStat, info){
 	});
 };
 
-//route /event?id=...&stat=bool
+//route GET /event?id=...&stat=bool
 exports.getEvent = function(request,response,next){
 	var id = request.query.id;
 	var info = {};
@@ -96,15 +97,19 @@ exports.getEvent = function(request,response,next){
 		}
 		else{
 			var isStat = false;
-			if(request.query.stat) isStat = true;
+			if(request.query.stat === "true") isStat = true;
 			queryGetEvent(event, isStat, info)
 			.catch(function(err){
+				console.error(new Date().toString());
+				console.error("queryGetEvent error");
 				response.status(500).json({err:err});
 				// return next(err);
 			}).then(function(returnedInfo){
 				putStat(id, function(info){
 					if(info.code != 201){
 						response.status(info.code).json(info.msg);
+						console.error(new Date().toString());
+						console.error("putstat error");
 					}
 					else{
 						if(request.user && request.user.notification != undefined && request.user.notification != null){
@@ -197,6 +202,7 @@ exports.postEvent = function(request,response,next){
 					})
 					.then(function(info){
 						console.log("post new Event");
+						info.id = newEvent._id;
 						if(request.user && request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
 							info.id = newEvent._id;
@@ -359,7 +365,7 @@ exports.getStat = function(request,response,next){
 	check_permission(request,function(code,err,event){
 		if(code!=200) response.status(code).json(err);
 		else{
-			var fields = ['visit','visit_per_day'];
+			var fields = getableStatEvent;
 			for(var i=0;i<fields.length;i++){
 				info[fields[i]]=event[fields[i]];
 			}
@@ -969,7 +975,7 @@ exports.updatehotEvent = function(request,response,next){
  		for(var i=0;i<events.length;i++){
  			events[i].momentum = 0;
  			var t = Math.max(0,events[i].visit_per_day.length-3);
- 			for(var j=events[i].visit_per_day.length-1;j>=t;j--){
+ 			for(var j=events[i].visit_per_day.length-1; j>=t; j--){
  				for(var key in events[i].visit_per_day[j]){
  					//var date = new Date(key).getTime();
  					var date = new moment(key).unix();
@@ -1043,7 +1049,11 @@ exports.updatehotEvent = function(request,response,next){
 
 //route /event/hot
 exports.gethotEvent = function(request,response,next){
-	response.sendFile(path.join(__dirname,`${storagePath}hotEvent.json`));
+	try{
+		response.sendFile(path.join(__dirname,`${storagePath}hotEvent.json`));
+	}catch(err){
+		response.status(500).json({"err" : "Something went wrong"});
+	}
 }
 
 var querySearchEvent = function(events,info){
@@ -1212,4 +1222,74 @@ var check_permission = function(request,callback){
 			}
 		}
 	});
+}
+
+
+exports.getForYou = function(request,response){
+	const user = request.user;
+	if(!user){
+		const ret = _.get(request,'authentication_info',{err:"Please login"})
+		response.status(400).json(ret);
+		return;
+	}
+	Event.find({
+		tokenDelete: false,
+		expire: false,
+		date_start: {$nin: [undefined, null]},
+		tags: {$in: user.tag_like}
+	},getableFieldEvent,{
+		sort: {'date_start' : 1}
+	}, (err,events) => {
+		if(err){
+			console.error(new Date());
+			console.error(err);
+			response.status(400).json({err:"Internal Error"});
+		}
+		else{
+			const now = new moment().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0).unix();
+
+			let weight = new Map();
+			events.forEach( event => {
+				weight[event._id] = 0;
+				let p = -1;
+				// calculate duration from now to date_start
+				if(event.date_start) p = Math.floor((new moment(event.date_start).unix() - now)/(60*60*24));
+//				console.log(now);
+//				console.log(new moment(event.date_start).unix());
+//				console.log(p);
+				weight[event._id] += _.get(day_weight,p,0);
+				weight[event._id] -= user.join_events.indexOf(event._id)>=0 ? join_weight : 0;
+				event.tags.forEach( tag => {
+					if(user.tag_like.indexOf(tag) >=0 ){
+						weight[event._id] += tag_weight;
+					}
+				});
+			});
+
+			events.sort( (left,right) => {
+				if (weight[left._id] < weight[right._id] );
+			});
+			console.log(weight);
+			response.status(200).json({events});
+		}
+	});
+}
+
+exports.getUpcoming = function(request,response){
+	const now = new Date();
+ 	Event.find({
+		tokenDelete:false,
+		expire:false,
+		date_start: {$nin:[undefined,null]}
+		},getableFieldEvent,{
+			sort: {'date_start':1}
+		}, (err,events) => {
+			if(err){
+				console.error(err);
+				response.status(500).json({err:"Internal Error"});
+			}
+			else{
+				response.status(200).json({events});
+			}
+		});
 }

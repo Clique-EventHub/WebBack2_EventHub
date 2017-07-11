@@ -342,7 +342,8 @@ exports.responseForm = function(request, response){
 }
 
 
-// delete form
+// DELETE /form&id=
+// body 
 exports.deleteForm = function(request,response){
 	Form.findByIdAndUpdate(request.query.id,{
 		tokenDelete : true

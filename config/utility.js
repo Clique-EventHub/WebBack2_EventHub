@@ -4,10 +4,10 @@ let User = require('mongoose').model('User');
 let Form = require('mongoose').model('Form');
 
 // help function should be in this file
-exports.checkPermission = function (request, id, opt, callback) {
-	let user = request.user;
+exports.checkPermission = function ({ user, authentication_info }, id, opt, callback) {
 	console.log(new Date(),'checking permission ',id,opt);
-	console.log(request);
+	console.log(user);
+	console.log(authentication_info);
 	if(user){
 		if(opt === "event"){
 			if(user.admin_events.indexOf(id) === -1){
@@ -26,10 +26,10 @@ exports.checkPermission = function (request, id, opt, callback) {
 	}
 	else{
 		console.log('no user');
-		if(request.authentication_info.message === "No auth token")
-			response.status(403).json({err:"Please login"});
+		if(authentication_info.message === "No auth token")
+			callback({err:"Please login"});
 		else
-			response.status(403).json({err:request.authentication_info.message});
+			callback({err:authentication_info.message});
 	}
 }
 
@@ -112,10 +112,31 @@ exports.findMODEL = function(id,opt,callback){
 	else callback({err:'invalid model'});
 }
 
+exports.getableFieldEvent = ['_id','title','about','video','channel','location',
+	'date_start','date_end','time_start','time_end','refs','time_each_day',
+	'picture','picture_large','year_require','faculty_require',
+	'tags','forms','notes',
+	'contact_information','require_field','optional_field',
+	'agreement','joinable_start_time','joinable_end_time',
+	'joinable_amount','optional_field','require_field',
+	'outsider_accessible','choose_joins'];
+
+exports.getableFieldEventAdmin = ['_id','title','about','video','channel','location',
+	'date_start','date_end','time_start','time_end','expire','refs','join','time_each_day',
+	'picture','picture_large','year_require','faculty_require',
+	'tags','forms','notes',
+	'contact_information','require_field','optional_field','refs',
+	'agreement','joinable_start_time','joinable_end_time',
+	'joinable_amount','optional_field','require_field',
+	'show','outsider_accessible'];
+exports.getableStatEvent = ['who_join','who_interest',
+	'visit', 'visit_per_day',
+	'interest','interest_gender','interest_year',
+	'join','join_gender','join_year', 'join_per_day'];
 
 exports.editableFieldEvent = ['about','video','location','date_start','date_end',
 	'time_start','time_end','picture','picture_large',
-	'year_require','faculty_require','tags',
+	'year_require','faculty_require','tags','refs',
 	'agreement','contact_information','joinable_start_time','joinable_end_time',
 	'joinable_amount','time_start','time_end','optional_field','require_field',
 	'show','outsider_accessible','notes','time_each_day'];
