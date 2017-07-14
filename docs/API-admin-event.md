@@ -493,3 +493,46 @@ Change details of event
 
     **Content:** `{msg : error detail}`
 ---
+
+## Choose join people
+
+Choose who can join the event you supervising. This function automatically send notification to people that are accepted or rejected.
+
+* **URL**
+
+  `/admin/event/choose`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: yes(array of mongo ids of accepted people), no(array of mongo ids of rejected people)*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{fields : data}`
+
+    *__fields__: msg*
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---

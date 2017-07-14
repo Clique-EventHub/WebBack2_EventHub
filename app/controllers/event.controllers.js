@@ -205,6 +205,7 @@ exports.postEvent = function(request,response,next){
 						info.id = newEvent._id;
 						if(request.user && request.user.notification != undefined && request.user.notification != null){
 							info.notification = request.user.notification;
+							info.id = newEvent._id;
 							response.status(201).json(info);
 						}
 						else{
@@ -1232,7 +1233,7 @@ var check_permission = function(request,callback){
 }
 
 
-exports.getForYou = function(request,response){	
+exports.getForYou = function(request,response){
 	const user = request.user;
 	if(!user){
 		const ret = _.get(request,'authentication_info',{err:"Please login"})
@@ -1263,14 +1264,14 @@ exports.getForYou = function(request,response){
 				if(event.date_start) p = Math.floor((new moment(event.date_start).unix() - now)/(60*60*24));
 //				console.log(now);
 //				console.log(new moment(event.date_start).unix());
-//				console.log(p);				
+//				console.log(p);
 				weight[event._id] += _.get(day_weight,p,0);
 				weight[event._id] -= user.join_events.indexOf(event._id)>=0 ? join_weight : 0;
 				event.tags.forEach( tag => {
 					if(user.tag_like.indexOf(tag) >=0 ){
-						weight[event._id] += tag_weight;	
+						weight[event._id] += tag_weight;
 					}
-				});			
+				});
 			});
 
 			events.sort( (left,right) => {
@@ -1289,7 +1290,7 @@ exports.getUpcoming = function(request,response){
 		expire:false,
 		date_start: {$nin:[undefined,null]}
 		},getableFieldEvent,{
-			sort: {'date_start':1}	
+			sort: {'date_start':1}
 		}, (err,events) => {
 			if(err){
 				console.error(err);

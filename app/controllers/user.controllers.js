@@ -697,7 +697,7 @@ var putJoin = function(event_id, user, body, callback){
 			info.code = 404;
 			callback(info);
 		}
-		else if(returnedEvent.who_join.indexOf(user._id) != -1){
+		else if(returnedEvent.who_join.indexOf(user._id) != -1 || returnedEvent.who_completed.indexOf(user._id) != -1){
 			var info = {};
 			info.msg = "already join this event.";
 			info.code = 403;
@@ -705,13 +705,14 @@ var putJoin = function(event_id, user, body, callback){
 		}
 		else if(returnedEvent.joinable_start_time > currentTime || currentTime > returnedEvent.joinable_end_time || returnedEvent.expire){
 			var info = {};
+			console.log(returnedEvent.joinable_start_time);
 			console.log(currentTime);
 			console.log(returnedEvent.joinable_end_time);
 			info.msg = "not in joinable period.";
 			info.code = 403;
 			callback(info);
 		}
-		else if(returnedEvent.joinable_amount < 0 && returnedEvent.join == returnedEvent.joinable_amount){
+		else if(!returnedEvent.choose_joins && returnedEvent.joinable_amount >= 0 && returnedEvent.join == returnedEvent.joinable_amount){
 			var info={};
 			info.msg = "no more seats left.";
 			info.code = 403;
@@ -778,6 +779,12 @@ var putJoin = function(event_id, user, body, callback){
 			}
 			else returnedEvent.join_per_day[returnedEvent.join_per_day.length-1][date]+=1;
 
+			if(!returnedEvent.choose_joins){
+				returnedEvent.who_accepted.push(user._id);
+			}
+			else{
+				returnedEvent.who_pending.push(user._id);
+			}
 			returnedEvent.who_join.push(user._id);
 			returnedEvent.update(returnedEvent, function(err){
 				if(err){
@@ -804,6 +811,7 @@ var putJoin = function(event_id, user, body, callback){
 						}
 						else{
 							returnedUser.lastOnline = date;
+							if(!returnedEvent.choose_joins) returnedUser.accepted_events.push(returnedEvent._id);
 							if(returnedUser.join_events.indexOf(returnedEvent._id) == -1) returnedUser.join_events.push(returnedEvent._id);
 							returnedUser.update(returnedUser, function(err){
 								if(err){
@@ -1358,7 +1366,7 @@ exports.checkRegChula = function(request, response){
 						}
 						else {
 							info.gender = 'female';
-							if(arr[0].substr(0,6) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
+							if(arr[0].substr(0,4) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
 							else info.firstNameTH = arr[0].substr(3, arr[0].length);
 							info.lastNameTH = arr[1];
 						}
@@ -1385,14 +1393,14 @@ exports.checkRegChula = function(request, response){
 									response.status(404).json({msg:"user not found."});
 								}
 								else{
-									var info = {};
-									info.firstName = updatedUser.firstName;
-									info.lastName = updatedUser.lastName;
-									info.firstNameTH = updatedUser.firstNameTH;
-									info.lastNameTH = updatedUser.lastNameTH;
-									info.gender = updatedUser.gender;
-									info.regId = updatedUser.regId;
-									response.status(201).json(info);
+									var info2 = {};
+									info2.firstName = info.firstName;
+									info2.lastName = info.lastName;
+									info2.firstNameTH = info.firstNameTH;
+									info2.lastNameTH = info.lastNameTH;
+									info2.gender = info.gender;
+									info2.regId = obj.content.studentid;
+									response.status(201).json(info2);
 								}
 						});
 					}

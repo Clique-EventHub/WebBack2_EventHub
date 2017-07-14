@@ -20,4 +20,5 @@ module.exports  = function(app){
   app.put('/admin/channel/addmg', admin.addAdminChannelMG);
   app.delete('/admin/channel/deletemg', admin.deleteAdminChannelMG);
 
+  app.put('/admin/event/choose', admin.selectPending);
 }

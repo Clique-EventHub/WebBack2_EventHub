@@ -43,6 +43,16 @@ var eventSchema = new Schema({
 		type:String,
 		default:null
 	},
+	date_start:Date,
+	date_end:Date,
+	contact_information: {
+		type:[],
+		default:null
+	},
+	choose_joins : {
+		type : Boolean,
+		default : false
+	},
 	tags:[],
 	notes:{
 		type : [],
@@ -54,7 +64,7 @@ var eventSchema = new Schema({
 	},
 
 	forms : [{}], // list of objects { title : id }
-	
+
 	optional_field:{
 		type:[],
 		default:[]
@@ -85,12 +95,12 @@ var eventSchema = new Schema({
 	joinable_end_time:Date,			//the period that user can join.
 	time_start:Date,				//the actual time that this event will start.
 	time_end:Date,					//the actual time that this event will end.
-	
+
 	expire:{
 		type:Boolean,
 		default:false
 	},
-	
+
 
 	tokenDelete:{
 		type:Boolean,
@@ -106,9 +116,9 @@ var eventSchema = new Schema({
 //		type:Number,
 //		default:0
 //	},
-	
+
 	momentum:{type:Number,default:0},
-	
+
 	// visit ---------
 	visit:{
 		type:Number,
@@ -127,7 +137,7 @@ var eventSchema = new Schema({
 		type:Boolean,
 		default:true
 	},
-	
+
 	// interest ----------------------------
 	interest:{
 		type:Number,
@@ -145,7 +155,7 @@ var eventSchema = new Schema({
 		type:{},
 		default : {}
 	},
-	
+
 	// join -------------------------------
 	join:{
 		type:Number,
