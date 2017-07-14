@@ -1,10 +1,11 @@
 
 module.exports = function(app){
 	var channel = require('../controllers/channel.controllers');
-
-	app.get('/channel/listall',channel.listAll);
-	app.delete('/channel/clear',channel.clear);
-
+	
+	if(process.env.NODE_ENV==="development"){
+		app.get('/channel/listall',channel.listAll);
+		app.delete('/channel/clear',channel.clear);
+	}
 	// chaining : same path different request , run different function
 	app.route('/channel')		
 		.get(channel.getChannel) // request with query "id"
