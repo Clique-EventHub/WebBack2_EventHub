@@ -7,7 +7,8 @@ const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const config = require('../../config/config');
 const utility = require('../../config/utility');
-const { storagePath, modify_log_size, tag_weight, day_weight, join_weight } = config;
+const { storagePath, modify_log_size, tag_weight, 
+			day_weight, join_weight, MomemtumDays } = config;
 const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
@@ -92,7 +93,7 @@ exports.getEvent = function(request,response,next){
 		else if(!event){
 			info.err = "event not found";
 			console.error("\x1b[31m",new moment().tz("Asia/Bangkok").toString())
-			console.error("\x1b[37m","event not found",request);
+			console.error("\x1b[37m","event not found");
 			response.status(400).json(info);
 		}
 		else{
