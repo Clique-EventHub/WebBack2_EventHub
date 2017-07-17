@@ -16,12 +16,9 @@ module.exports = function(){
 	var app = express();
 
 	// setting environment ---------------------------------------
-	if(process.env.NODE_ENV === 'production'){
-		app.use(compression());
-		app.use(morgan(':remote-addr :remote-user [:date[clf]] HTTP/:http-version" :method :url :status :res[content-length] - :response-time ms :user-agent'));
-	} 
-	
-	else app.use(morgan('dev'));
+	app.use(compression());
+	app.use(morgan(':remote-addr :remote-user [:date[clf]] HTTP/:http-version" :method :url :status :res[content-length] - :response-time ms :user-agent'));
+
 
 
 //	app.use(session({
