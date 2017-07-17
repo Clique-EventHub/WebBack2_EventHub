@@ -7,8 +7,8 @@ const mkdirp = require('mkdirp');
 const moment = require('moment-timezone');
 const config = require('../../config/config');
 const utility = require('../../config/utility');
-const { storagePath, modify_log_size, tag_weight, 
-			day_weight, join_weight, MomemtumDays } = config;
+const { storagePath, modify_log_size, tag_weight,
+			day_weight, join_weight, MomentumDays, NumberOfHotEvent } = config;
 const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
@@ -909,9 +909,9 @@ exports.newEvent = function(request,response,next){
 //set expire if it's out of active date
 exports.updateStatperDay = function(request,response,next){
 	const now = new moment().tz("Asia/Bangkok").format("YYYY-MM-DD");
- 	var cnt=0;
- 	var info={};
- 	Event.find({$and :[ {tokenDelete:{$ne:true}}, {expire:{$ne:true}} ]},function(err,events){
+	var cnt=0;
+	var info={};
+	Event.find({$and :[ {tokenDelete:{$ne:true}}, {expire:{$ne:true}} ]},function(err,events){
 		if(err){
 			info.err = "unhandle error";
 			response.status(500).json(info);
@@ -922,16 +922,16 @@ exports.updateStatperDay = function(request,response,next){
 			response.json(info);
 			return;
 		}
- 		events.forEach(function(event){
+		events.forEach(function(event){
 			//if(event.date_end.getTime()<d.getTime()){
 			const vlen = event.visit_per_day.length;
-			const jlen = event.join_per_day.length; 
-			if(_.get(event,['visit_per_day',vlen-1,now],null)){
-				_.set(event,['visit_per_day',vlen,now],0);
+			const jlen = event.join_per_day.length;
+			if(_.get(event,['visit_per_day',vlen-1,'date'],null) !== now){
+				_.set(event,['visit_per_day',vlen],{date:now, amount:0 });
 			}
-			if(_.get(event,['join_per_day',jlen-1,now],null)){
-				_.set(event,['join_per_day',vlen,now],0);
-			} 
+			if(_.get(event,['join_per_day',jlen-1,'date'],null) !== now){
+				_.set(event,['join_per_day',vlen],{date:now, amount:0 });
+			}
 			if(new moment(event.date_end).isBefore(new moment())){
 				event.expire=true;
 			}
@@ -951,108 +951,98 @@ exports.updateStatperDay = function(request,response,next){
 	});
 }
 
-var checkhot = function(hot,event){
-	if(!hot['first']) hot['first']=event;
-	else if(event.momentum>=hot['first'].momentum){
-		if(hot['second'])	hot['third'] = hot['second'];
-		hot['second'] = hot['first'];
-		hot['first'] = event;
+let calculateHot = function(events,callback){
+	events.sort( (left,right) =>{
+		return right.moment >= left.momentum;
+	});	
+	events.splice(NumberOfHotEvent);			
+	let ret = [];
+	events.forEach( event => {
+		let i=0;
+		getableFieldEvent.forEach( field => {
+			_.set(ret, [i,field], _.get(event,field,undefined));
+			i++;
+		});
+	});
+	console.log(ret);
+	const json = JSON.stringify(ret);
+	const file = path.join(__dirname,`${storagePath}hotEvent.json`);
+	try{
+		fs.writeFileSync(file, json);
+		callback(null);
+	}catch(err){
+		callback({err:"Something Went Wrong"});
 	}
-	else if(!hot['second'])	hot['second']=event;
-	else if(event.momentum>=hot.second.momentum){
-		hot['third'] = hot['second'];
-		hot['second'] = event;
-	}
-	else if(!hot['third'] || event.momentum>=hot.third.momentum)	hot['third']=event;
-	return hot;
-};
+}
 
 let calculateMomentum = function(callback){
+	const today_date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+	let countDate = new Map(); // pair of YYYY-MM-DD and unix-time/1000
 
+	for(let i=0; i<MomentumDays; i++){
+		let prevDate = _.get(countDate, i-1, undefined);
+		if(prevDate){
+			prevDate -= 86400;	// backward one day
+			countDate.set(new moment(prevDate*1000).format("YYYY-MM-DD"),prevDate);
+		}
+		else{
+			today = new moment(today_date);
+			countDate.set(today.format("YYYY-MM-DD"), today.unix());
+		}
+	}
+
+	Event.find({
+		tokenDelete:{$ne: true},
+		expire: {$ne: true}
+	},function(err,events){
+		if(err){
+			console.error(new Date().toString());
+			console.error(err);
+			callback({err:"Something went wrong"});
+		}
+		else{
+			let promises = [];
+			events.forEach( event => {
+				event.momentum = 0;
+				const visit = event.visit_per_day;
+				for(let visitIndex=visit.length-1; visitIndex>=visit.length-MomentumDays; visitIndex--){
+					if(countDate.get(visit[visitIndex])){
+						event.momentum += visit[visitIndex];
+					}
+				}
+				promises.push(new Promise((resolve,reject) => {
+					event.update(event, (err) => {
+						if(err){
+							console.err(err);
+						}
+						resolve();
+					});
+				}));
+			});
+			Promise.all(promises).then( () => {
+				callback(null,events);
+			});
+		}
+	});
 }
+
 
 //route /update/hot
 exports.updatehotEvent = function(request,response,next){
- 	var hot = {};
 
- 	var t = new moment().format('YYYY-MM-DD');
- 	var d1 = new moment(t).unix();
- 	var d2 = d1-86400000;
- 	var d3 = d2-86400000;
-
- 	// all event that is not delete
- 	Event.find({tokenDelete:{$ne:true}},function(err,events){
- 		for(var i=0;i<events.length;i++){
- 			events[i].momentum = 0;
- 			var t = Math.max(0,events[i].visit_per_day.length-3);
- 			for(var j=events[i].visit_per_day.length-1; j>=t; j--){
- 				for(var key in events[i].visit_per_day[j]){
- 					var date = new moment(key).unix();
- 					if( date === d1 || date === d2 || date === d3 )
- 						events[i].momentum+=events[i].visit_per_day[j][key];
-
-	 				if(j == t){
-
-			 			events[i].update(events[i],function(err){
-			 				if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
-			 			});
-
-			 			hot = checkhot(hot,events[i]);
-
-			 			if(i+1==events.length){
-					 		var field = ['_id','title','picture','momentum'];
-					 		var result={};
-					 		for(var key in hot){
-					 			result[key] = {};
-					 			for(var k=0;k<field.length;k++){
-					 				result[key][field[k]] = hot[key][field[k]];
-					 			}
-					 		}
-					 		mkdirp(path.join(__dirname,storagePath),function(err){
-						 		if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
-						 		else{
-							 		fs.writeFile(path.join(__dirname,`${storagePath}hotEvent.json`),
-							 			JSON.stringify(result,null,2),function(err,data){
-							 			if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
-							 			else response.send('done');
-							 		});
-						 		}
-					 		});
-			 			}
-	 				}
- 				}
- 			}
-
-			if(events[i].visit_per_day.length==0){
-
- 				hot = checkhot(hot,events[i]);
-		 		if(i+1==events.length){
-					var field = ['_id','title','picture','momentum'];
-					var result={};
-					for(var key in hot){
-			 			result[key] = {};
-
-			 			for(var k=0;k<field.length;k++){
-			 				result[key][field[k]] = hot[key][field[k]];
-
-			 			}
-			 		}
-			 		mkdirp(path.join(__dirname,'../data/'),function(err){
-				 		if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
-				 		else{
-					 		fs.writeFile(path.join(__dirname,`${storagePath}hotEvent.json`),
-					 			JSON.stringify(result,null,2),function(err,data){
-					 			if(err) response.status(500).json({msg:"internal error in updatehotEvent"});
-					 			else response.send('done');
-					 		});
-				 		}
-			 		});
-	 			}
-
- 			}
+	// all event that is not delete
+	calculateMomentum( (err,events) => {
+		if(err){
+			console.log(err);
+			response.status(500).json({err:"Something Went Wrong"});
 		}
-		if(events.length == 0 )response.status(500).json({err:"no event"});
- 	});
+		else{
+			calculateHot(events, (err) => {
+				if(err) response.status(500).json({err:"Internal Error"});
+				else response.status(200).json({msg:"done"});
+			});
+		}
+	});
 }
 
 
@@ -1156,25 +1146,25 @@ exports.searchByDate = function(request,response,next){
 	var startdateinterval = new Date(request.query.date_start*1000); //request.date_start is in unix time
 	console.log(request.query.date_end);
 	console.log(request.query.date_start);
- 	Event.find({
+	Event.find({
 		$and : [ {$or : [ {$and : [ {date_end:{$gte:enddateinterval} }, {date_start:{$lte:enddateinterval} } ] 			},
 											{$and :	[ {date_end:{$gte:startdateinterval} }, {date_start:{$lte:startdateinterval} } ] 	},
 											{$and : [ {date_end:{$lte:enddateinterval} }, {date_start:{$gte:startdateinterval} } ] 		}
 										]},
-						 {tokenDelete:{$ne:true}},
-						 {expire:{$ne:true}}
-					 ]
+						{tokenDelete:{$ne:true}},
+						{expire:{$ne:true}}
+					]
 	}, function(err, events){
- 		if(err){
- 			info.err = "error.";
- 			response.status(500).json(info);
- 		// 	return next(err);
- 		}
- 		else if(events.length==0){
- 			info.err = "no event match.";
+		if(err){
+			info.err = "error.";
+			response.status(500).json(info);
+		// 	return next(err);
+		}
+		else if(events.length==0){
+			info.err = "no event match.";
 			response.status(400).json(info);
- 		}
- 		else {
+		}
+		else {
 			info.events = [];
 			querySearchEvent(events,info)
 			.catch(function(err){
@@ -1196,7 +1186,7 @@ exports.searchByDate = function(request,response,next){
 					response.status(200).json(returnedInfo);
 				}
 			});
- 		}
+		}
 	});
 }
 
@@ -1286,7 +1276,7 @@ exports.getForYou = function(request,response){
 
 exports.getUpcoming = function(request,response){
 	const now = new Date();
- 	Event.find({ 
+	Event.find({
 		tokenDelete:{$ne: true},
 		expire:false,
 		date_start: {$nin:[undefined,null]}
