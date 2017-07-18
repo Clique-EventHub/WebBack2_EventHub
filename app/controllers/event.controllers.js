@@ -439,9 +439,7 @@ exports.personalNotification = function(request, response){
 
 // increase stat when getEvent
 var putStat = function(id,callback){
-	//var d = new time.Date().setTimezone('Asia/Bangkok');
-	//var date = d.getMonth()+1+'/'+d.getDate()+'/'+d.getFullYear();
-	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+	var today = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	Event.findById(id,function(err,event){
 		if(err){
 			console.error("error find event : putStat - event.controllers");
@@ -461,17 +459,13 @@ var putStat = function(id,callback){
 		else{
 		//	event.lastModified = moment().format();
 			event.visit+=1;								//add visit
-			if(event.visit_per_day.length==0){			//add object to empty array
-				event.visit_per_day.push({});
-				event.visit_per_day[0][date]=1;
-			}
+
 			// add date for the first visit for the day
-			else if(!event.visit_per_day[event.visit_per_day.length-1].hasOwnProperty(date)){
-				event.visit_per_day.push({});
-				event.visit_per_day[event.visit_per_day.length-1][date]=1;
+			if(_.get(event, ['visit_per_day', event.visit_per_day.length-1, 'date'], undefined) !== today){
+				event.visit_per_day.push({date: today, amount: 1});
 			}
 			// add visit_per_day
-			else event.visit_per_day[event.visit_per_day.length-1][date]+=1;
+			else event.visit_per_day[event.visit_per_day.length-1]["amount"] += 1;
 
 			event.update(event,function(err){
 				if(err){
@@ -956,16 +950,12 @@ let calculateHot = function(events,callback){
 		return right.moment >= left.momentum;
 	});	
 	events.splice(NumberOfHotEvent);			
-	let ret = [];
+	console.log(events);
 	events.forEach( event => {
-		let i=0;
-		getableFieldEvent.forEach( field => {
-			_.set(ret, [i,field], _.get(event,field,undefined));
-			i++;
-		});
+	//	event.momentum = undefined;
+		event.visit_per_day = undefined;
 	});
-	console.log(ret);
-	const json = JSON.stringify(ret);
+	const json = JSON.stringify(events, null, 4);
 	const file = path.join(__dirname,`${storagePath}hotEvent.json`);
 	try{
 		fs.writeFileSync(file, json);
@@ -994,7 +984,11 @@ let calculateMomentum = function(callback){
 	Event.find({
 		tokenDelete:{$ne: true},
 		expire: {$ne: true}
-	},function(err,events){
+	},[
+		...getableFieldEvent,
+		'visit_per_day',
+		'momentum'
+	],function(err,events){
 		if(err){
 			console.error(new Date().toString());
 			console.error(err);
@@ -1006,8 +1000,8 @@ let calculateMomentum = function(callback){
 				event.momentum = 0;
 				const visit = event.visit_per_day;
 				for(let visitIndex=visit.length-1; visitIndex>=visit.length-MomentumDays; visitIndex--){
-					if(countDate.get(visit[visitIndex])){
-						event.momentum += visit[visitIndex];
+					if(_.get(visit, visitIndex, undefined) && countDate.get(visit[visitIndex].date)){
+						event.momentum += visit[visitIndex].amount;
 					}
 				}
 				promises.push(new Promise((resolve,reject) => {
