@@ -947,10 +947,9 @@ exports.updateStatperDay = function(request,response,next){
 
 let calculateHot = function(events,callback){
 	events.sort( (left,right) =>{
-		return right.moment >= left.momentum;
+		return right.momentum >= left.momentum;
 	});	
 	events.splice(NumberOfHotEvent);			
-	console.log(events);
 	events.forEach( event => {
 	//	event.momentum = undefined;
 		event.visit_per_day = undefined;
@@ -968,18 +967,22 @@ let calculateHot = function(events,callback){
 let calculateMomentum = function(callback){
 	const today_date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	let countDate = new Map(); // pair of YYYY-MM-DD and unix-time/1000
+	
+	let tempDate = null;
 
 	for(let i=0; i<MomentumDays; i++){
-		let prevDate = _.get(countDate, i-1, undefined);
-		if(prevDate){
-			prevDate -= 86400;	// backward one day
-			countDate.set(new moment(prevDate*1000).format("YYYY-MM-DD"),prevDate);
+		
+		if(tempDate){
+			tempDate -= 86400;	// backward one day
+			countDate.set(new moment(tempDate*1000).format("YYYY-MM-DD"),tempDate);
 		}
 		else{
 			today = new moment(today_date);
 			countDate.set(today.format("YYYY-MM-DD"), today.unix());
+			tempDate = today.unix();
 		}
 	}
+	
 
 	Event.find({
 		tokenDelete:{$ne: true},
