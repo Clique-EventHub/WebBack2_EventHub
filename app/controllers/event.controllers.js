@@ -1010,6 +1010,12 @@ let calculateMomentum = function(callback){
 					if(_.get(visit, visitIndex, undefined) && countDate.get(visit[visitIndex].date)){
 						event.momentum += visit[visitIndex].amount;
 					}
+					else{
+						let day = Object.keys(visit[visitIndex])[0];
+						if(countDate.get(day)){
+							event.momentum += visit[visitIndex][day];
+						}
+					}
 				}
 				promises.push(new Promise((resolve,reject) => {
 					event.update(event, (err) => {
