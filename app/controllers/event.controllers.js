@@ -988,7 +988,11 @@ let calculateMomentum = function(callback){
 		tokenDelete:{$ne: true},
 		expire: {$ne: true}
 	},[
-		...getableFieldEvent,
+		'_id',
+		'title',
+		'picture',
+		'picture_large',
+		'tags',
 		'visit_per_day',
 		'momentum'
 	],function(err,events){
