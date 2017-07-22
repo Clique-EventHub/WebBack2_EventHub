@@ -2,10 +2,11 @@
 
 ---
 ## get data 
-create picture in the server and response the url
+get fields of data
+
 * **URL**
 
-  `/reqdata ` *use server's generated url*
+  `/reqdata` 
 
 * **Method:**
 
@@ -31,7 +32,7 @@ create picture in the server and response the url
   * **Code:** 500
 
     **Content:**
-    {"msg" : "error in finding file"}
+    {"msg" : "error"}
 
 ---
 
