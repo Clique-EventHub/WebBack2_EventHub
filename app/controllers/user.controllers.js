@@ -7,13 +7,13 @@ var https = require('https');
 var passport = require('passport');
 var moment = require('moment-timezone');
 var querystring = require('querystring');
-var editableFieldUser = require('../../config/utility').editableFieldUser;
 var mongoose = require('mongoose');
-var getUserProfileFields = require('../../config/utility').getUserProfileFields;
-var getFBUserProfile = require('../../config/utility').getFBUserProfile;
 var _ = require('lodash');
 var jwt = require('jsonwebtoken');
 var RefreshValidTime = require('../../config/config').refresh_valid_time;
+var { editableFieldUser,getUserProfileFields,
+			getFBUserProfile, requestableFieldUser } = require('../../config/utility'); 
+var utility = require('../../config/utility');
 
 exports.render = function(request, response){
 	response.render('user-login',{
