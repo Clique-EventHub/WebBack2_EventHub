@@ -16,10 +16,10 @@ module.exports = function(){
 	var app = express();
 
 	// setting environment ---------------------------------------
+	app.use(compression());
+	app.use(morgan(':remote-addr :remote-user [:date[clf]] HTTP/:http-version" :method :url :status :res[content-length] - :response-time ms :user-agent'));
 
-	if(process.env.NODE_ENV === 'development') app.use(morgan('dev'));
-	else if(process.env.NODE_ENV ==='common') app.use(morgan('common'));
-	else app.use(compression);
+
 
 //	app.use(session({
 //		secret: 'secret_key',
@@ -69,6 +69,7 @@ module.exports = function(){
 	// require('../app/routes/provider.routes')(app);
 	require('../app/routes/user.routes')(app);
 	require('../app/routes/form.routes')(app);
+	require('../app/routes/utility.routes')(app);
 	//end setting up routing -------------------------------------
  	app.use(express.static('./public'));
 

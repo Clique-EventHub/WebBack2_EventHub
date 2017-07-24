@@ -268,7 +268,7 @@ exports.createForm = function(request, response){
 				else status = 201;
 				let returnedData = {};
 				for(let i=0; i < postFieldForm.length; i++){
-					returnedData[postFieldForm[i]] = _.get(returnedForm,postFieldFormi,undefined);
+					returnedData[postFieldForm[i]] = _.get(returnedForm,postFieldForm[i],undefined);
 				}
 				response.status(status).json({msg:'done',id:newForm._id,form:returnedData});
 			});

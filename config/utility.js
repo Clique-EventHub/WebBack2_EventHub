@@ -111,7 +111,7 @@ exports.findMODEL = function(id,opt,callback){
 	}
 	else callback({err:'invalid model'});
 }
-
+// event
 exports.getableFieldEvent = ['_id','title','about','video','channel','location',
 	'date_start','date_end','time_start','time_end','refs','time_each_day',
 	'picture','picture_large','year_require','faculty_require',
@@ -129,6 +129,7 @@ exports.getableFieldEventAdmin = ['_id','title','about','video','channel','locat
 	'agreement','joinable_start_time','joinable_end_time',
 	'joinable_amount','optional_field','require_field',
 	'show','outsider_accessible'];
+
 exports.getableStatEvent = ['who_join','who_interest',
 	'visit', 'visit_per_day',
 	'interest','interest_gender','interest_year',
@@ -141,12 +142,13 @@ exports.editableFieldEvent = ['about','video','location','date_start','date_end'
 	'joinable_amount','time_start','time_end','optional_field','require_field',
 	'show','outsider_accessible','notes','time_each_day'];
 
-
+// channel
 exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail','url','video'];
 
 exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail',
 															'url','video','who_subscribe'];
 
+// user
 const userField = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
@@ -157,7 +159,6 @@ exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','faceb
 				'admin_events', 'already_joined_events','subscribe_channels','interest_events','join_events','major',
 				'admin_channels','admin_channels','firstNameTH','lastNameTH', ...userField ];
 
-exports.postFieldForm = ['title','event','channel','questions'];
 
 exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
 	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
@@ -169,3 +170,13 @@ exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','
 
 exports.getMGUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','gender','major','admin_events','admin_channels',
 'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','regId','firstNameTH','lastNameTH','accepted_events'];
+
+exports.requestableFieldUser = ['firstName','lastName',
+	'firstNameTH','lastNameTH','nick_name','gender','birth_day',
+	'major','regId','shirt_size','allergy','disease',
+	'lineId', 'twitterUsername','phone','emer_phone',
+	'dorm_room','dorm_building','dorm_bed',
+	'picture','picture_200px'];
+
+// form
+exports.postFieldForm = ['title','event','channel','questions'];
