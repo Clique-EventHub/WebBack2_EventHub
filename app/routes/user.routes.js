@@ -17,6 +17,7 @@ module.exports = function(app){
   }));
 
   app.get('/findfb', user.findUserFromFB);
+  app.get('/findmg', user.getUserProfileFromMongo);
   app.put('/saw-noti', user.sawNoti);
 
   app.get('/oauth/facebook/callback', function(req, res, next) {

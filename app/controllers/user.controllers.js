@@ -11,6 +11,7 @@ var editableFieldUser = require('../../config/utility').editableFieldUser;
 var mongoose = require('mongoose');
 var getUserProfileFields = require('../../config/utility').getUserProfileFields;
 var getFBUserProfile = require('../../config/utility').getFBUserProfile;
+var getMGUserProfile = require('../../config/utility').getMGUserProfile;
 var _ = require('lodash');
 var jwt = require('jsonwebtoken');
 var RefreshValidTime = require('../../config/config').refresh_valid_time;
@@ -362,6 +363,30 @@ exports.findUserFromFB = function(request, response){
 			}
 			else{
 				var fields = getFBUserProfile;
+				var info = {};
+				for(let i=0;i<fields.length;i++){
+					info[fields[i]] = user[fields[i]];
+				}
+				response.status(200).json({user_info : info});
+			}
+		});
+	}
+	else{
+		response.status(404).json({msg : "user not found."});
+	}
+};
+
+exports.getUserProfileFromMongo = function(request, response){
+	if(request.query.user){
+		User.findById(request.query.user, function(err, user){
+			if(err){
+				response.status(500).json({msg : "internal error."});
+			}
+			else if(!user){
+				response.status(404).json({msg : "user not found."});
+			}
+			else{
+				var fields = getMGUserProfile;
 				var info = {};
 				for(let i=0;i<fields.length;i++){
 					info[fields[i]] = user[fields[i]];
