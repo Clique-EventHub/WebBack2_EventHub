@@ -115,7 +115,7 @@ exports.findMODEL = function(id,opt,callback){
 exports.getableFieldEvent = ['_id','title','about','video','channel','location',
 	'date_start','date_end','time_start','time_end','refs','time_each_day',
 	'picture','picture_large','year_require','faculty_require',
-	'tags','forms','notes',
+	'tags','forms','notes','admins',
 	'contact_information','require_field','optional_field',
 	'agreement','joinable_start_time','joinable_end_time',
 	'joinable_amount','optional_field','require_field',
