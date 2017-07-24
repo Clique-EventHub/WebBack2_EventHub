@@ -591,3 +591,43 @@ Read the new notification. That notification will become 'seen'.
     **Content:** `{msg : detail of error}`
 
 ---
+
+## Get user profile from Mongo ID
+
+ Returns json data about detail of user from Mongo id
+
+* **URL**
+
+  `/findmg`
+
+* **Method:**
+
+  `GET`
+
+* **Authentication**
+
+    `Optional`
+
+*  **URL Params**
+
+    user
+
+* **Body**
+
+    None
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{fields : data}`
+
+    *__fields__: _id, firstName, lastName, nick_name, picture, picture_200px, gender, major, admin_events, admin_channels, join_events, interest_events, subscribe_channels, already_joined_events, tag_like, regId, firstNameTH, lastNameTH*
+
+* **Error Response:**
+
+  * **Code:** 404, 500
+
+    **Content:** `{msg : detail of error}`
+
+---
