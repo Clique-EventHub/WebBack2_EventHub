@@ -165,11 +165,9 @@ exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','pictur
 	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
 	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH','accepted_events'];
 
-exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','gender','major','admin_events','admin_channels',
-'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','regId','firstNameTH','lastNameTH','accepted_events'];
+exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH'];
 
-exports.getMGUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','gender','major','admin_events','admin_channels',
-'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','regId','firstNameTH','lastNameTH','accepted_events'];
+exports.getMGUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH'];
 
 exports.requestableFieldUser = ['firstName','lastName',
 	'firstNameTH','lastNameTH','nick_name','gender','birth_day',
