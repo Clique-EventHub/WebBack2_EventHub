@@ -69,7 +69,7 @@ say hello
 
     *__fields__: _id,title,about,video,channel,location,date_start,expire,refs,join,time_each_day,
 		date_end,picture,picture_large,year_require,faculty_require,tags,forms,notes,who_join,who_interest,
-    time_start,time_end,contact_information,optional_field,require_field*
+    time_start,time_end,contact_information,optional_field,require_field,msg_after_join*
 
 * **Error Response:**
 

@@ -27,7 +27,7 @@ Change details of event
 
   `{fields : data}`
 
-  *__fields__: about, video, location, date_start, date_end, picture, picture_large, year_require, faculty_require, tags, agreement, contact_information, joinable_start_time, joinable_end_time, joinable_amount, time_start, time_end, optional_field, require_field, show, outsider_accessible*
+  *__fields__: about, video, location, date_start, date_end, picture, picture_large, year_require, faculty_require, tags, agreement, contact_information, joinable_start_time, joinable_end_time, joinable_amount, time_start, time_end, optional_field, require_field, show, outsider_accessible, msg_after_join*
 
 * **Success Response:**
 

@@ -73,7 +73,12 @@ var eventSchema = new Schema({
 		type:[],
 		default:[]
 	},
+	msg_after_join:{
+		type: String,
+		default: null
+	},
 	admins : [Schema.Types.ObjectId],
+
 	// date time -------------------------------
 	date_start:{
 		type : Date,
