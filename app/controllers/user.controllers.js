@@ -414,7 +414,6 @@ exports.findUserFromReg = function(request, response){
 			}
 			else{
 				var fields = getRegUserProfile;
-				console.log(fields);
 				var info = {};
 				for(let i=0;i<fields.length;i++){
 					info[fields[i]] = user[fields[i]];
