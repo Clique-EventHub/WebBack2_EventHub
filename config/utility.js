@@ -169,6 +169,8 @@ exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','
 
 exports.getMGUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH'];
 
+exports.getRegUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH'];
+
 exports.requestableFieldUser = ['firstName','lastName',
 	'firstNameTH','lastNameTH','nick_name','gender','birth_day',
 	'major','regId','shirt_size','allergy','disease',

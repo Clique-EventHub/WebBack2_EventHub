@@ -18,6 +18,7 @@ module.exports = function(app){
 
   app.get('/findfb', user.findUserFromFB);
   app.get('/findmg', user.getUserProfileFromMongo);
+  app.get('/findreg', user.findUserFromReg);
   app.put('/saw-noti', user.sawNoti);
 
   app.get('/oauth/facebook/callback', function(req, res, next) {
@@ -53,7 +54,7 @@ module.exports = function(app){
 
   app.put('/user/uninterest', user.uninterestAnEvent);
   app.put('/user/reg', user.checkRegChula);
-	
+
 	if(process.env.NODE_ENV === "development"){
 		app.delete('/user/clear', user.clear);   // use in test only removing user from database
 		app.get('/user/listall', user.listAll);
