@@ -582,7 +582,7 @@ Read the new notification. That notification will become 'seen'.
 
     **Content:** `{fields : data}`
 
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH*
+    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId*
 
 * **Error Response:**
 
@@ -622,7 +622,7 @@ Read the new notification. That notification will become 'seen'.
 
     **Content:** `{fields : data}`
 
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH*
+    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId*
 
 * **Error Response:**
 
@@ -662,7 +662,7 @@ Read the new notification. That notification will become 'seen'.
 
     **Content:** `{fields : data}`
 
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH*
+    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId*
 
 * **Error Response:**
 
