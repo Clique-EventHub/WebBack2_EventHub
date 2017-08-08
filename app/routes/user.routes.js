@@ -7,7 +7,7 @@ module.exports = function(app){
     .get(user.getProfile)
     .put(user.putEditProfile);
 
-  app.get('/user/listall', user.listAll);
+
 
   //app.post('/user/logout',user.logout);
 
@@ -16,6 +16,9 @@ module.exports = function(app){
     scope : 'email'
   }));
 
+  app.get('/findfb', user.findUserFromFB);
+  app.get('/findmg', user.getUserProfileFromMongo);
+  app.get('/findreg', user.findUserFromReg);
   app.put('/saw-noti', user.sawNoti);
 
   app.get('/oauth/facebook/callback', function(req, res, next) {
@@ -39,6 +42,8 @@ module.exports = function(app){
       .get(user.getSubbedChannnel)
       .put(user.subScribeChannel);
 
+  app.put('/user/unsubscribe',user.unsubScribe);
+
   app.route('/user/join')
       .get(user.getJoinedEvent)
       .put(user.joinAnEvent);
@@ -48,15 +53,17 @@ module.exports = function(app){
       .put(user.interestAnEvent);
 
   app.put('/user/uninterest', user.uninterestAnEvent);
-
   app.put('/user/reg', user.checkRegChula);
 
-  app.delete('/user/clear', user.clear);   // use in test only removing user from database
+	if(process.env.NODE_ENV === "development"){
+		app.delete('/user/clear', user.clear);   // use in test only removing user from database
+		app.get('/user/listall', user.listAll);
+	}
   // app.get('/user/help', user.getHelp);
   // app.get('/user/setting', user.getSetting);
   // app.get('user/message', user.getMessage);
 
   app.get('/login/facebook',user.login_fb);
-
+	app.post('/auth/revoke',user.revokeToken);
 
 }

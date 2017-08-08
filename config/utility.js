@@ -4,10 +4,10 @@ let User = require('mongoose').model('User');
 let Form = require('mongoose').model('Form');
 
 // help function should be in this file
-exports.checkPermission = function (request, id, opt, callback) {
-	let user = request.user;
+exports.checkPermission = function ({ user, authentication_info }, id, opt, callback) {
 	console.log(new Date(),'checking permission ',id,opt);
-	console.log(request);
+	console.log(user);
+	console.log(authentication_info);
 	if(user){
 		if(opt === "event"){
 			if(user.admin_events.indexOf(id) === -1){
@@ -26,10 +26,10 @@ exports.checkPermission = function (request, id, opt, callback) {
 	}
 	else{
 		console.log('no user');
-		if(Object.keys(request.authen).length === 0 )
-			callback({err:"Please login", code:403});
+		if(authentication_info.message === "No auth token")
+			callback({err:"Please login"});
 		else
-			callback({err:request.authen, code:403});
+			callback({err:authentication_info.message});
 	}
 }
 
@@ -111,16 +111,72 @@ exports.findMODEL = function(id,opt,callback){
 	}
 	else callback({err:'invalid model'});
 }
+// event
+exports.getableFieldEvent = ['_id','title','about','video','channel','location',
+	'date_start','date_end','time_start','time_end','refs','time_each_day',
+	'picture','picture_large','year_require','faculty_require',
+	'tags','forms','notes','admins','msg_after_join',
+	'contact_information','require_field','optional_field',
+	'agreement','joinable_start_time','joinable_end_time',
+	'joinable_amount','optional_field','require_field',
+	'outsider_accessible','choose_joins'];
 
+exports.getableFieldEventAdmin = ['_id','title','about','video','channel','location',
+	'date_start','date_end','time_start','time_end','expire','refs','join','time_each_day',
+	'picture','picture_large','year_require','faculty_require',
+	'tags','forms','notes','msg_after_join',
+	'contact_information','require_field','optional_field','refs',
+	'agreement','joinable_start_time','joinable_end_time',
+	'joinable_amount','optional_field','require_field',
+	'show','outsider_accessible'];
+
+exports.getableStatEvent = ['who_join','who_interest',
+	'visit', 'visit_per_day',
+	'interest','interest_gender','interest_year',
+	'join','join_gender','join_year', 'join_per_day'];
 
 exports.editableFieldEvent = ['about','video','location','date_start','date_end',
-'picture','picture_large','year_require','faculty_require','tags',
+	'time_start','time_end','picture','picture_large','msg_after_join',
+	'year_require','faculty_require','tags','refs',
 	'agreement','contact_information','joinable_start_time','joinable_end_time',
 	'joinable_amount','time_start','time_end','optional_field','require_field',
-	'show','outsider_accessible','notes'];
+	'show','outsider_accessible','notes','time_each_day'];
 
-exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail'];
-exports.editableFieldUser = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
+// channel
+exports.editableFieldChannel = ['name', 'picture', 'picture_large','detail','url','video'];
+
+exports.getableFieldChannel = ['_id','name','verified','picture','picture_large','admins','events','detail',
+															'url','video','who_subscribe'];
+
+// user
+const userField = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
 											'twitterUsername','lineId','notification'];
-exports.postFieldForm = ['title','event','channel','questions','responses'];
+
+exports.editableFieldUser = userField;
+
+exports.loginFieldUser = ['_id', 'firstName','lastName', 'gender','regId','facebookId','accepted_events',
+				'admin_events', 'already_joined_events','subscribe_channels','interest_events','join_events','major',
+				'admin_channels','admin_channels','firstNameTH','lastNameTH', ...userField ];
+
+
+exports.getUserProfileFields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
+	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
+	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
+	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH','accepted_events'];
+
+exports.getFBUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH','regId'];
+
+exports.getMGUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH','regId'];
+
+exports.getRegUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH','regId'];
+
+exports.requestableFieldUser = ['firstName','lastName',
+	'firstNameTH','lastNameTH','nick_name','gender','birth_day',
+	'major','regId','shirt_size','allergy','disease',
+	'lineId', 'twitterUsername','phone','emer_phone',
+	'dorm_room','dorm_building','dorm_bed',
+	'picture','picture_200px'];
+
+// form
+exports.postFieldForm = ['title','event','channel','questions'];

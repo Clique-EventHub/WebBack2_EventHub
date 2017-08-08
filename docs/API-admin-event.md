@@ -27,7 +27,7 @@ Change details of event
 
   `{fields : data}`
 
-  *__fields__: about, video, location, date_start, date_end, picture, picture_large, year_require, faculty_require, tags, agreement, contact_information, joinable_start_time, joinable_end_time, joinable_amount, time_start, time_end, optional_field, require_field, show, outsider_accessible*
+  *__fields__: about, video, location, date_start, date_end, picture, picture_large, year_require, faculty_require, tags, agreement, contact_information, joinable_start_time, joinable_end_time, joinable_amount, time_start, time_end, optional_field, require_field, show, outsider_accessible, msg_after_join*
 
 * **Success Response:**
 
@@ -132,6 +132,170 @@ Change details of event
 * **URL**
 
   `/admin/event/delete`
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Add admin event by facebook id
+
+ Channel's admins have permission to add colleagues to be an admin event. They can only add colleagues one-by-one. They can add themselves to be the admin of that event, too. It uses facebook id.
+
+* **URL**
+
+  `/admin/event/addfb`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Delete admin event by facebook id
+
+ Channel's admins also have permission to delete colleagues from being an admin event. They can only delete colleagues one-by-one. They can delete themselves, too. It uses facebook id.
+
+* **URL**
+
+  `/admin/event/deletefb`
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Add admin event by facebook id
+
+ Channel's admins have permission to add colleagues to be an admin event. They can only add colleagues one-by-one. They can add themselves to be the admin of that event, too. It uses mongo id.
+
+* **URL**
+
+  `/admin/event/addmg`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: user*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Delete admin event by facebook id
+
+ Channel's admins also have permission to delete colleagues from being an admin event. They can only delete colleagues one-by-one. They can delete themselves, too. It uses mongo id.
+
+* **URL**
+
+  `/admin/event/deletemg`
 
 * **Method:**
 
@@ -322,6 +486,49 @@ Change details of event
   * **Code:** 201
 
     **Content:** `{ "msg":"done.", "notification":data }`
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
+
+## Choose join people
+
+Choose who can join the event you supervising. This function automatically send notification to people that are accepted or rejected.
+
+* **URL**
+
+  `/admin/event/choose`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Require`
+
+*  **URL Params**
+
+    **Required:**
+
+    `id = event's id`
+
+* **Body**
+
+  `{fields : data}`
+
+  *__fields__: yes(array of mongo ids of accepted people), no(array of mongo ids of rejected people)*
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:** `{fields : data}`
+
+    *__fields__: msg*
 
 * **Error Response:**
 

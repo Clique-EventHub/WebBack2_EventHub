@@ -21,3 +21,4 @@ var notiCronJob = notiCj();
 app.listen(config.PORT);
 
 console.log("Server is running at " +config.IP +":"+config.PORT);
+console.log("Server mode: "+process.env.NODE_ENV);

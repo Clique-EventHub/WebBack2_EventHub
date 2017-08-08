@@ -2,14 +2,22 @@ var User = require('mongoose').model('User');
 var Channel = require('mongoose').model('Channel');
 var Event = require('mongoose').model('Event');
 var config = require('../../config/config');
-var jwt = require('jsonwebtoken');
 var http = require('http');
 var https = require('https');
 var passport = require('passport');
 var moment = require('moment-timezone');
 var querystring = require('querystring');
+var mongoose = require('mongoose');
+var getUserProfileFields = require('../../config/utility').getUserProfileFields;
+var getFBUserProfile = require('../../config/utility').getFBUserProfile;
+var getMGUserProfile = require('../../config/utility').getMGUserProfile;
+var getRegUserProfile = require('../../config/utility').getRegUserProfile;
+var _ = require('lodash');
+var jwt = require('jsonwebtoken');
+var RefreshValidTime = require('../../config/config').refresh_valid_time;
+var { editableFieldUser,getUserProfileFields,
+			getFBUserProfile, requestableFieldUser } = require('../../config/utility');
 var utility = require('../../config/utility');
-
 
 exports.render = function(request, response){
 	response.render('user-login',{
@@ -51,10 +59,10 @@ exports.render = function(request, response){
 // 		});
 // 	}
 // 	else{
-// 		if(Object.keys(request.authen).length == 0 )
+// 		if(Object.keys(request.authentication_info).length == 0 )
 // 			response.status(403).json({err:"Please login"});
 // 		else
-// 			response.status(403).json({err:request.authen});
+// 			response.status(403).json({err:request.authentication_info});
 // 	}
 // };
 
@@ -78,10 +86,10 @@ exports.joinAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -98,10 +106,10 @@ exports.interestAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -153,10 +161,10 @@ exports.getAdminEvents = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -193,10 +201,10 @@ exports.getAdminChannels = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -213,10 +221,10 @@ exports.uninterestAnEvent = function(request, response, next){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -253,10 +261,7 @@ exports.listAll = function(request,response,next){
 exports.getProfile = function(request, response){
 	var user = request.user;
 	var res = {};
-	var fields = ['_id','firstName','lastName','nick_name','picture','picture_200px','email',
-	'gender','phone','shirt_size','birth_day','allergy','disease','major','emer_phone','admin_events','admin_channels',
-	'join_events','interest_events','subscribe_channels','already_joined_events','tag_like','dorm_bed','dorm_room','dorm_building',
-	'regId','facebookId','twitterUsername','lineId','notification','firstNameTH','lastNameTH'];
+	let fields = getUserProfileFields;
 	if(user){
 		fields.forEach(function(field){
 			if(field != 'notification' || (field == 'notification' && (user[field] != undefined && user[field] != null))){
@@ -267,10 +272,10 @@ exports.getProfile = function(request, response){
 
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 // require body
@@ -280,7 +285,7 @@ exports.putEditProfile = function(request, response){
 	if(user){
 		console.log('editing...');
 		var keys = Object.keys(request.body);
-		var editableFields = utility.editableFieldUser;
+		var editableFields = editableFieldUser;
 		for(var i=0;i<keys.length;i++){
 			if(editableFields.indexOf(keys[i]) == -1){
 				delete request.body[keys[i]];
@@ -313,10 +318,10 @@ exports.putEditProfile = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -350,6 +355,78 @@ var queryFindChannelForUser = function(id){
 	});
 };
 
+exports.findUserFromFB = function(request, response){
+	if(request.query.user){
+		User.findOne({ facebookId : request.query.user }, function(err, user){
+			if(err){
+				response.status(500).json({msg : "internal error."});
+			}
+			else if(!user){
+				response.status(404).json({msg : "user not found."});
+			}
+			else{
+				var fields = getFBUserProfile;
+				var info = {};
+				for(let i=0;i<fields.length;i++){
+					info[fields[i]] = user[fields[i]];
+				}
+				response.status(200).json({user_info : info});
+			}
+		});
+	}
+	else{
+		response.status(404).json({msg : "user not found."});
+	}
+};
+
+exports.getUserProfileFromMongo = function(request, response){
+	if(request.query.user){
+		User.findById(request.query.user, function(err, user){
+			if(err){
+				response.status(500).json({msg : "internal error."});
+			}
+			else if(!user){
+				response.status(404).json({msg : "user not found."});
+			}
+			else{
+				var fields = getMGUserProfile;
+				var info = {};
+				for(let i=0;i<fields.length;i++){
+					info[fields[i]] = user[fields[i]];
+				}
+				response.status(200).json({user_info : info});
+			}
+		});
+	}
+	else{
+		response.status(404).json({msg : "user not found."});
+	}
+};
+
+exports.findUserFromReg = function(request, response){
+	if(request.query.user){
+		User.findOne({ regId : request.query.user }, function(err, user){
+			if(err){
+				response.status(500).json({msg : "internal error."});
+			}
+			else if(!user){
+				response.status(404).json({msg : "user not found."});
+			}
+			else{
+				var fields = getRegUserProfile;
+				var info = {};
+				for(let i=0;i<fields.length;i++){
+					info[fields[i]] = user[fields[i]];
+				}
+				response.status(200).json({user_info : info});
+			}
+		});
+	}
+	else{
+		response.status(404).json({msg : "user not found."});
+	}
+};
+
 exports.sawNoti = function(request, response){
 	if(request.user){
 		for(let i=0;i<request.body.notification.length;i++){
@@ -377,10 +454,10 @@ exports.sawNoti = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -419,10 +496,47 @@ exports.subScribeChannel = function(request, response){
 		});
 	}
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
+	}
+};
+
+exports.unsubScribe = function(request, response){
+	if(request.user){
+		checkUserAndChannel(request.user._id, request.query.id)
+		.then(function(returnedInfo){
+			if(returnedInfo.hasOwnProperty('msg')){
+				response.status(returnedInfo.code).json({msg:returnedInfo.msg});
+			}
+			Channel.findByIdAndUpdate(request.query.id, {
+				$pull : { who_subscribe : request.user._id }
+			}, function(err, updatedChannel){
+				if(err){
+					response.status(500).json({msg:"internal error."});
+				}
+				else{
+					request.query.id = mongoose.Types.ObjectId(request.query.id);
+					User.findByIdAndUpdate(request.user._id, {
+							$pull : { subscribe_channels : request.query.id }
+					}, function(err, updatedUser){
+						if(err){
+							response.status(500).json({msg:"internal error."});
+						}
+						else{
+							response.status(201).json({msg:"done."});
+						}
+					});
+				}
+			});
+		});
+	}
+	else{
+		if(request.authentication_info.message === "No auth token")
+			response.status(403).json({err:"Please login"});
+		else
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -464,10 +578,10 @@ exports.getSubbedChannnel = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -546,10 +660,10 @@ exports.getJoinedEvent = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -584,10 +698,10 @@ exports.getInterestedEvent = function(request,response){
 		});
   }
 	else{
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 }
 
@@ -614,7 +728,7 @@ var putJoin = function(event_id, user, body, callback){
 	var regId = user.regId;
 	var year, faculty;
 	var date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
-	var currentTime = new Date();
+	var currentTime = new Date(date);
 	// user.lastModified = date;
 	if(regId != null && regId != undefined){
 		year = regId.substring(0,2);
@@ -635,7 +749,7 @@ var putJoin = function(event_id, user, body, callback){
 			info.code = 404;
 			callback(info);
 		}
-		else if(returnedEvent.who_join.indexOf(user._id) != -1){
+		else if(returnedEvent.who_join.indexOf(user._id) != -1 || returnedEvent.who_completed.indexOf(user._id) != -1){
 			var info = {};
 			info.msg = "already join this event.";
 			info.code = 403;
@@ -643,11 +757,14 @@ var putJoin = function(event_id, user, body, callback){
 		}
 		else if(returnedEvent.joinable_start_time > currentTime || currentTime > returnedEvent.joinable_end_time || returnedEvent.expire){
 			var info = {};
+			console.log(returnedEvent.joinable_start_time);
+			console.log(currentTime);
+			console.log(returnedEvent.joinable_end_time);
 			info.msg = "not in joinable period.";
 			info.code = 403;
 			callback(info);
 		}
-		else if(returnedEvent.joinable_amount < 0 && returnedEvent.join == returnedEvent.joinable_amount){
+		else if(!returnedEvent.choose_joins && returnedEvent.joinable_amount >= 0 && returnedEvent.join == returnedEvent.joinable_amount){
 			var info={};
 			info.msg = "no more seats left.";
 			info.code = 403;
@@ -714,6 +831,12 @@ var putJoin = function(event_id, user, body, callback){
 			}
 			else returnedEvent.join_per_day[returnedEvent.join_per_day.length-1][date]+=1;
 
+			if(!returnedEvent.choose_joins){
+				returnedEvent.who_accepted.push(user._id);
+			}
+			else{
+				returnedEvent.who_pending.push(user._id);
+			}
 			returnedEvent.who_join.push(user._id);
 			returnedEvent.update(returnedEvent, function(err){
 				if(err){
@@ -740,6 +863,7 @@ var putJoin = function(event_id, user, body, callback){
 						}
 						else{
 							returnedUser.lastOnline = date;
+							if(!returnedEvent.choose_joins) returnedUser.accepted_events.push(returnedEvent._id);
 							if(returnedUser.join_events.indexOf(returnedEvent._id) == -1) returnedUser.join_events.push(returnedEvent._id);
 							returnedUser.update(returnedUser, function(err){
 								if(err){
@@ -996,27 +1120,25 @@ var putInterest = function(event_id,user,callback){
 };
 
 
-var generateToken = function(id,done){
-	var payload = {id: id};
-    var token = jwt.sign(payload, config.jwtSecret,{ expiresIn: config.token_lifetime });
-    done(null,null,token);
-}
 
 var saveOAuthUserProfile_fromClient = function(response,profile){
-
-	var callback = function(err,user,token){
+	let token = null;
+	var callback = function(err){
 		if(!err){
-			var info = {
-				msg : 'done',
-				access_token : token
-			};
-			response.status(200).json(info);
+			let ret = new Object();
+			ret.msg = "OK";
+			ret.access_token = _.get(token,'access_token',null);
+			ret.refresh_token = _.get(token,'refresh_token',null);
+			response.status(200).json(ret);
 		}
 		else{
-			response.status(500).json({msg:'error',err:err});
+			console.error(new Date().toString());
+			console.error(err);
+			response.status(500).json({msg:'error'});
 		}
 	}
-	console.log('findOne:'+ profile.provider + '&' + profile.id);
+
+	console.log('findOne:'+ profile.provider + '&' + profile.facebookId);
 
 	User.findOne({
 		provider : profile.provider,
@@ -1027,8 +1149,8 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 			if(!user){
 				if(profile.email) var possibleUsername = profile.email ? profile.email.split('@')[0] : '';
 				else{
-					var fname = profile.name.split(' ')[0];
-					var lname = profile.name.split(' ')[1];
+					var fname = profile.firstName;
+					var lname = profile.lastName;
 					if(lname.length <3 ) var len = lname.length;
 					else var len = 3;
 					var possibleUsername = fname + '.' + lname.substring(0,len);
@@ -1036,17 +1158,24 @@ var saveOAuthUserProfile_fromClient = function(response,profile){
 				User.findUniqueUsername(possibleUsername, null, function(availableUsername){
 					profile.username = availableUsername;
 					user = new User(profile);
-					console.log(user);
-					user.save(function(err){
-						if(err) response.status(500).json({msg:'error save new user',err:err});
-						else generateToken(user._id,callback);
+					user.generateToken( (err,rtoken) =>{
+						token = rtoken;
+						console.log(token);
+						user.refresh_token = _.get(token,'refresh_token',undefined);
+						user.refresh_token_exp = _.get(token,'refresh_token_exp',undefined);
+						user.save(callback);
 					});
 				});
 			}
 			else{
-				user.update(profile,function(err){
-					if(err) response.status(500).json({msg:'error',err:err});
-					else generateToken(user._id,callback);
+				user.generateToken( (err,rtoken) =>{
+					token = rtoken;
+					console.log(token);
+					profile.refresh_token = _.get(token,'refresh_token',undefined);
+					profile.refresh_token_exp = _.get(token,'refresh_token_exp',undefined);
+					console.log(profile.refresh_token_exp);
+					console.log(typeof profile.refresh_token_exp);
+					user.update(profile,callback);
 				});
 			}
 		}
@@ -1116,7 +1245,7 @@ var checkUserAndChannel = function(user, channel){
     Promise.all(promises)
     .catch(function(err){
 			info.msg = err.msg;
-			ingo.code = err.code;
+			info.code = err.code;
       resolve(info);
     })
     .then(function(returnedInfo){
@@ -1190,7 +1319,7 @@ var checkUserAndEvent = function(user, event){
     Promise.all(promises)
     .catch(function(err){
 			info.msg = err.msg;
-			ingo.code = err.code;
+			info.code = err.code;
       // info['msg'] = [];
       // for(var i=0; i<err.length; i++){
       //   info['msg'][i] = err[i];
@@ -1223,9 +1352,7 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 					user.save(function(err){
 						if(err) return done(err);
 						else return generateToken(user._id,done);
-
 					});
-
 				//	user.save(function(err){
 				//		if(err){
 				//			console.log(err);
@@ -1250,14 +1377,12 @@ exports.saveOAuthUserProfile = function(req, profile, done){
 
 exports.checkRegChula = function(request, response){
 	if(request.user){
-		// console.log('in 1');
 		var postData = querystring.stringify({
 			'appid' : config.regAppId,
 			'appsecret' : config.regAppSecret,
 			'username' : request.body.username,
 			'password' : request.body.password
 		});
-		// console.log('in 2');
 		var options = {
 			host: 'www.cas.chula.ac.th',
 			port: 443,
@@ -1265,17 +1390,16 @@ exports.checkRegChula = function(request, response){
 			headers : {'Content-Type' : 'application/x-www-form-urlencoded'},
 			method : 'POST'
 		};
-		// console.log('in 3');
 		var req = https.request(options, function(res){
 			var str = '';
 			console.log(options.host + ':' + res.statusCode);
 			res.setEncoding('utf8');
 			res.on('data', function(chunk){
 				str+=chunk;
-				// console.log('BODY: ${chunk} = '+chunk);
+				console.log('BODY: ${chunk} = '+chunk);
 			});
 			res.on('end', function(){
-				// console.log('eieina');
+				console.log('eieina');
 				var obj = JSON.parse(str);
 				if(!obj.hasOwnProperty('type') || obj.type == 'error'){
 					response.status(400).json(obj);
@@ -1294,7 +1418,7 @@ exports.checkRegChula = function(request, response){
 						}
 						else {
 							info.gender = 'female';
-							if(arr[0].substr(0,6) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
+							if(arr[0].substr(0,4) == 'น.ส.') info.firstNameTH = arr[0].substr(4, arr[0].length);
 							else info.firstNameTH = arr[0].substr(3, arr[0].length);
 							info.lastNameTH = arr[1];
 						}
@@ -1321,14 +1445,14 @@ exports.checkRegChula = function(request, response){
 									response.status(404).json({msg:"user not found."});
 								}
 								else{
-									var info = {};
-									info.firstName = updatedUser.firstName;
-									info.lastName = updatedUser.lastName;
-									info.firstNameTH = updatedUser.firstNameTH;
-									info.lastNameTH = updatedUser.lastNameTH;
-									info.gender = updatedUser.gender;
-									info.regId = updatedUser.regId;
-									response.status(201).json(info);
+									var info2 = {};
+									info2.firstName = info.firstName;
+									info2.lastName = info.lastName;
+									info2.firstNameTH = info.firstNameTH;
+									info2.lastNameTH = info.lastNameTH;
+									info2.gender = info.gender;
+									info2.regId = obj.content.studentid;
+									response.status(201).json(info2);
 								}
 						});
 					}
@@ -1341,14 +1465,17 @@ exports.checkRegChula = function(request, response){
 			});
 		});
 		req.write(postData);
+    req.on('error', (e) => {
+      console.error(e);
+    });
 		req.end();
 	}
 	else{
 		console.log('not in1');
-		if(Object.keys(request.authen).length == 0 )
+		if(request.authentication_info.message === "No auth token")
 			response.status(403).json({err:"Please login"});
 		else
-			response.status(403).json({err:request.authen});
+			response.status(403).json({err:request.authentication_info.message});
 	}
 };
 
@@ -1385,18 +1512,19 @@ exports.login_fb = function(request,response){
 							return ;
             }
             else{
-	        	obj.provider = 'facebook';
-	        	obj.picture = obj.picture.data.url;
-	        	obj.firstName = obj.first_name;
-	        	obj.lastName = obj.last_name;
-	        	obj.facebookId = id;
-	        	obj.access_token = access_token;
-						obj.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
-						delete obj.first_name;
-	        	delete obj.last_name;
-	        	delete obj.id;
-						console.log(obj);
-						saveOAuthUserProfile_fromClient(response,obj);
+						let profile = {};
+						profile.facebookData = obj;
+	        	profile.provider = 'facebook';
+	        	profile.picture = obj.picture.data.url;
+	        	profile.firstName = obj.first_name;
+	        	profile.lastName = obj.last_name;
+	        	profile.facebookId = id;
+	        	profile.access_token = access_token;
+						profile.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
+
+						console.log(profile);
+						console.log(profile.facebookData);
+						saveOAuthUserProfile_fromClient(response,profile);
         	}
         });
 	});
@@ -1405,4 +1533,75 @@ exports.login_fb = function(request,response){
 	    response.json({error:err.message,msg:"error"});
 	});
     req.end();
+}
+
+exports.revokeToken = function(request, response){
+	const access_token = request.get("Authorization").split(" ")[1];
+	const refresh_token = request.body.refresh_token;
+	if(!access_token || !refresh_token){
+		response.status(400).json({err:"no token provided"});
+		return;
+	}
+	try{
+		var decoded = jwt.verify(access_token,config.jwtSecret,{ignoreExpiration:true});
+		if(decoded.exp*1000 + RefreshValidTime < new Date().getTime()){
+			throw new Error("token expired");
+		}
+		console.log(decoded);
+	}catch(err){
+		console.error(err);
+		if(err.msg === "token expired")
+			response.status(400).json({err:"token expired"});
+		else response.status(500).json({err:"Something went wrong"});
+		return;
+	}
+	new Promise( (resolve,reject) => {
+		User.findById(decoded.id,(err,user) => {
+			if(err){
+				console.error(new Date().toString());
+				console.error(err);
+				reject({code:500,err:"Internal error"});
+			}
+			else if(!user){
+				console.error(new Date().toString());
+				console.error("revoke token : user not found");
+				reject({code:400,err:"Invalid Token"});
+			}
+			else if(user.refresh_token !== refresh_token){
+				console.error(new Date().toString());
+				console.error("revoke token : invalid refresh token");
+				reject({code:400,err:"Invalid refresh token"});
+			}
+			else if(user.refresh_token_exp < new Date().getTime()){
+				console.error(new Date().toString());
+				console.error("revoke token fail : refresh token expired");
+				let ret = {};
+				ret.err = "refresh token expired";
+				ret.expired = new Date(user.refresh_token_exp);
+				reject({code:403,err:ret});
+			}
+			else resolve(user);
+		});
+	}).then( (user) => {
+		return new Promise( (resolve,reject) => {
+			user.generateToken( (err,rtoken) =>{
+				if(err){
+					resolve({code:500,err:"Internal Error"});
+				}
+				else{
+					resolve({msg:"OK",access_token:rtoken.access_token});
+				}
+			});
+		});
+	}).catch( err => {
+		console.error('error',err);
+		return Promise.resolve(err);
+	}).then( (payload) =>{
+		if(payload.msg === "OK")
+			code = 200;
+		else code = _.get(payload,'code',500);
+		payload = payload ? payload : {"err":"Internal Error"};
+		delete payload.code;
+		response.status(code).json(payload);
+	});
 }

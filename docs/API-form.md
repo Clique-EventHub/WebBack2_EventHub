@@ -33,7 +33,16 @@ Return detail of form.
 
    **Required:**
 
-    `id = form's id`
+    `id=form's id`
+		
+    **Optional:**
+
+	`opt=responses`	
+    
+	**Example**
+	```
+	api.cueventhub.com?id=123456789&opt=responses
+	```
 
 * **Body**
 
@@ -99,6 +108,26 @@ Otherwise, API will create a new form by use body as data.
 
     "choices": [String]  *left this field as empty list if question's type has no choice*
     
+    *__Example__*
+    ```JSON
+    {
+        "title" : "test form",
+        "channel" : "5940251ee7b3640011dbe34f",
+        "event" : "5940256930a51800266b0cfb",
+        "questions" : [
+                {
+                        "question" : "Where do you wanna go?",
+                        "choices" : [],
+                        "type" : "short answer"
+                },
+                {
+                        "question" : "What do you wanna eat?",
+                        "choices" : ["Dak galbi","Kouen","Oishi grand","KFC","BBQ plaza"],
+                        "type" : "check box"
+                }
+        ]
+    }
+    ```
 	
 * **Success Response:**
 
@@ -148,12 +177,21 @@ Otherwise, API will create a new form by use body as data.
 
     **Content:** `{"msg" : "done"}`
 
-
+	**Example**
+	```JSON
+	{
+		"Where do you wanna go?" : "go to home",
+		"What do you wanna eat?" : ["Kouen", "Oishi grand"]
+	}
+	```
+	
 * **Error Response:**
 
   * **Code:** 403,404,500
 
     **Content:** `{err : error detail}`
+	
+
 ---
 
 ## Delete form

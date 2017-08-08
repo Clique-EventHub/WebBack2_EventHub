@@ -4,6 +4,8 @@ var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken');
 var User = require('mongoose').model('User');
 var config =require('../config');
+var _ = require('lodash');
+var fields = require('../utility').loginFieldUser;
 
 module.exports = function(){
 	var jwtOptions = {};
@@ -14,24 +16,28 @@ module.exports = function(){
 	passport.use(new JwtStrategy(jwtOptions,function(payload,done){
 		User.findById(payload.id,function(err, user){
 			if(err){
+				console.error(new Date().toString());
+				console.error(payload);
 				console.error(err);
 				done(err,false);
 			}
 			else if(user){
 				var result = {};
-				var fields = ['_id','firstName','lastName','picture','picture_200px',
-				'gender','phone','shirt_size','birth_day','allergy','disease','nick_name',
-				'regId','facebookId','twitterUsername','lineId','notification','admin_events',
-				'subscribe_channels','interest_events','join_events','admin_channels','admin_channels','email'];
+
 				fields.forEach(function(field){
-					result[field] = user[field] ? user[field] : null;
+					result[field] = _.get(user,field,null);
 				});
+				let email = _.get(user,'email', null);
+				if(email){
+					result['email'] = email;
+				}
 				done(null,result);
 			}
 			else{
-				console.log('case3');
-				done(null,false);
+				console.log('passport case 3');
+				done(new Error("no user"),false);
 			}
 		});
 	}));
+
 }

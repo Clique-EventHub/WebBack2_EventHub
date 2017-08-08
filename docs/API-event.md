@@ -67,7 +67,9 @@ say hello
 
     **Content:** `{fields : data}`
 
-    *__fields__: title,about,video,channel,location,date_start,expire,date_end,picture,picture_large, year_require,faculty_require,tags,forms*
+    *__fields__: _id,title,about,video,channel,location,date_start,expire,refs,join,time_each_day,
+		date_end,picture,picture_large,year_require,faculty_require,tags,forms,notes,who_join,who_interest,
+    time_start,time_end,contact_information,optional_field,require_field,msg_after_join*
 
 * **Error Response:**
 
@@ -145,7 +147,7 @@ get the most 3 hot event
 
     **Content:** `{ fields : event }`
 
-    *__fields:__ first , second , thrid*
+    *__fields:__ first , second , third*
 ---
 
 
@@ -167,7 +169,15 @@ search event
 
 *  **URL Params**
 
-    **Require:** `keyword = [ keyword of searching ]`
+    **Require:** `keyword=key1,key2,key3`
+
+*  **Example**
+
+		```
+				You can use both keyword and keywords
+				/event/search?keyword=water
+				/event/search?keywords=winter,fell,down
+		```
 
 * **Body**
     None
@@ -224,3 +234,80 @@ Return event in date period
 
     **Content:** `{ "err" : error detail }`
 ---
+
+## Event for you 
+
+Return upcoming event sort in ascending order 
+
+* **URL**
+
+  `/event/foryou`
+
+* **Method**
+
+  `GET`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+    `None` 
+
+* **Body**
+
+    `None`
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{ events : list of events }`
+
+
+* **Error Response:**
+
+  * **Code:** 500
+
+    **Content:** `{ "err" : Internal Error }`
+---
+
+## Upcoming event
+
+Return upcoming event sort in ascending order 
+
+* **URL**
+
+  `/event/upcoming`
+
+* **Method**
+
+  `GET`
+
+* **Authentication**
+
+    `Optional`
+
+*  **URL Params**
+
+    `None` 
+
+* **Body**
+
+    `None`
+
+* **Success Response:**
+
+  * **Code:** 200
+
+    **Content:** `{ events : list of events }`
+
+
+* **Error Response:**
+
+ * **Code:** 500
+
+    **Content:**
+    `{ "err" : Internal Error }`
+    `{ "err" : Authentication info }`

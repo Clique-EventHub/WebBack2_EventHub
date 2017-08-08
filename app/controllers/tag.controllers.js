@@ -4,10 +4,11 @@ var mkdirp = require('mkdirp');
 
 var Event = require('mongoose').model('Event');
 
+const storagePath = require('../../config/config').storagePath;
 //route POST /tags/modify
 exports.modifyTag = function(request,response){
     var info = {};
-	mkdirp(path.join(__dirname,'../data/'),function(err){
+	mkdirp(path.join(__dirname,storagePath),function(err){
 		if(err){
             info.msg ="error";
             response.status(500).json(info);
@@ -15,7 +16,7 @@ exports.modifyTag = function(request,response){
 		}
         else{
             // modify tags type in file
-			fs.writeFile(path.join(__dirname,'../../data/tags.json'),JSON.stringify(request.body,null,2),function(err){
+			fs.writeFile(path.join(__dirname,`${storagePath}tags.json`),JSON.stringify(request.body,null,2),function(err){
 				if(err){
                     console.log(err);
                     info.msg = "error2";

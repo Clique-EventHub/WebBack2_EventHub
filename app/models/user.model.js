@@ -2,14 +2,19 @@ var mongoose = require('mongoose');
 var crypto = require('crypto');
 var Moment = require('moment-timezone');
 var Schema = mongoose.Schema;
-var userSchema = new Schema({
+var jwt = require('jsonwebtoken');
+var jwtSecret = require('../../config/config').jwtSecret;
+var token_lifetime = require('../../config/config').token_lifetime;
+var _ = require('lodash');
+var refresh_token_lifetime = require('../../config/config').refresh_token_lifetime;
 
+var userSchema = new Schema({
 //personal infomation
 	name :{
 		type:String,
 		trim : true,
-		unique : true,
-		// index:true,
+	//	unique : true,
+		index:true,
 		// required:true,
 		validate: [
 			function(name){
@@ -19,7 +24,7 @@ var userSchema = new Schema({
 	},
 	username:{
 		type:String,
-		unique : true,
+		//unique : true,
 		trim : true,
 		required: true,
 		validate: [
@@ -147,11 +152,31 @@ var userSchema = new Schema({
 		type : [Schema.Types.ObjectId],
 		default : []
 	},
-	join_events:[Schema.Types.ObjectId],
-	interest_events:[Schema.Types.ObjectId],
-	subscribe_channels:[Schema.Types.ObjectId],
-	already_joined_events:[Schema.Types.ObjectId],
+	accepted_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	join_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	interest_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	subscribe_channels: {
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
+	already_joined_events:{
+		type : [Schema.Types.ObjectId],
+		default : []
+	},
 	tag_like:[String],
+
+	dorm_building:String,
+	dorm_room:String,
+	dorm_bed:String,
 
 //stat
 	tag_visit:{},
@@ -187,9 +212,9 @@ var userSchema = new Schema({
 		type: String,
 		default: null
 	},
-	dorm_building:String,
-	dorm_room:String,
-	dorm_bed:String
+// authentication
+	refresh_token: String,
+	refresh_token_exp: Number,
 });
 // do this before save
 userSchema.pre('save',function(next){
@@ -223,5 +248,38 @@ userSchema.statics.findUniqueUsername = function(username, suffix, callback){
 		}
 	});
 };
+
+userSchema.methods.generateToken = function(done){
+	const user = this.toObject({
+		versionKey: false,
+		transform: (doc, ret, options) => {
+			let obj = {};
+			obj.id = ret._id;
+			obj.firstName = _.get(ret,'firstName',undefined);
+			obj.lastName  = _.get(ret,'lastName',undefined);
+			return obj;
+		}
+	});
+	const payload = user;
+	try{
+		const access_token = jwt.sign(payload, jwtSecret,{ expiresIn: token_lifetime });
+		const refresh_token = crypto.randomBytes(30).toString('base64');
+		const refresh_token_exp = new Date().getTime() + refresh_token_lifetime;
+		if(!access_token) throw(new Error("cannot generate access token"));
+		if(!refresh_token) throw(new Error("cannot generate refresh token"));
+		if(!refresh_token_exp) throw(new Error("cannot generate refresh token exp"));
+		done(null,{
+			access_token: access_token,
+			refresh_token: refresh_token,
+			refresh_token_exp: refresh_token_exp
+		});
+	}catch(err){
+		console.error(new Date().toString());
+		console.error(err);
+		done(err);
+		return;
+	}
+}
+
 
 mongoose.model('User',userSchema);

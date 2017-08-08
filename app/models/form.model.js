@@ -5,6 +5,7 @@ let Moment = require('moment-timezone');
 
 let formSchema = new Schema({
 	title :{
+		index: true,
 		type: String,
 		trim: true,
 		default: "Untitled",
