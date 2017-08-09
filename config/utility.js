@@ -133,7 +133,7 @@ exports.getableFieldEventAdmin = ['_id','title','about','video','channel','locat
 exports.getableStatEvent = ['who_join','who_interest',
 	'visit', 'visit_per_day',
 	'interest','interest_gender','interest_year',
-	'join','join_gender','join_year', 'join_per_day'];
+	'join','join_gender','join_year', 'join_per_day','join_data'];
 
 exports.editableFieldEvent = ['about','video','location','date_start','date_end',
 	'time_start','time_end','picture','picture_large','msg_after_join',
