@@ -75,7 +75,7 @@ Change details of event
 
     **Content:** `{fields : data}`
 
-    *__fields__: visit, visit_per_day, notification*
+    *__fields__: who_join, who_interest, visit, visit_per_day, interest, interest_gender, interest_year, join, join_gender, join_year, join_per_day, join_data, notification*
 
 * **Error Response:**
 
