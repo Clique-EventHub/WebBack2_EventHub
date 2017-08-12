@@ -1067,7 +1067,7 @@ var putInterest = function(event_id,user,callback){
 				else event.interest_faculty[faculty]++;
 			}
 			event.who_interest[event.who_interest.length] = user._id;
-			if(interest_events.indexOf(event._id) != -1) interest_events[interest_events.length] = event._id;
+			if(interest_events.indexOf(event._id) == -1) interest_events.push(event_id);
 			event.update(event,function(err){
 				if(err){
 					console.error("internal error : putInterest - user.controllers");
