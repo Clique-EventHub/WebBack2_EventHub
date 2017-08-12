@@ -43,6 +43,7 @@ Change details of event
 
     **Content:** `{msg : error detail}`
 ---
+
 ## Get event stat
 
  Returns the event's statistic data.
@@ -75,7 +76,8 @@ Change details of event
 
     **Content:** `{fields : data}`
 
-    *__fields__: who_join, who_interest, visit, visit_per_day, interest, interest_gender, interest_year, join, join_gender, join_year, join_per_day, join_data, notification*
+    *__fields__: who_join, who_interest, who_pending,
+    who_accepted, who_rejected, who_completed, visit, visit_per_day, interest, interest_gender, interest_year, join, join_gender, join_year, join_per_day, join_data, notification*
 
 * **Error Response:**
 
