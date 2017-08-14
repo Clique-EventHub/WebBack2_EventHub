@@ -30,7 +30,7 @@
 
     **Content:** `{fields : data}`
 
-    *__fields__: _id, firstName, lastName, picture, picture_200px, email, gender, shirt_size, phone, regId, facebookId, twitterUsername, lineId, disease, birth_day, allergy, notification, firstNameTH, lastNameTH, major, emer_phone, admin_events, admin_channels, join_events, interest_events, subscribe_channels, already_joined_events, tag_like, dorm_bed, dorm_building, dorm_room*
+    *__fields__: _id, firstName, lastName, picture, picture_200px, email, gender, shirt_size, phone, regId, facebookId, twitterUsername, lineId, disease, birth_day, allergy, notification, firstNameTH, lastNameTH, major, emer_phone, admin_events, admin_channels, join_events, interest_events, subscribe_channels, already_joined_events, tag_like, dorm_bed, dorm_building, dorm_room, facebookLink*
 
 * **Error Response:**
 
@@ -63,7 +63,7 @@ Edit user profile
 * **Body**
 
     `{fields : data}`
-      *__fields__: nick_name, picture, picture_200px, birth_da, twitterUsername, phone, shirt_size, allergy, disease, emer_phone, tag_like, dorm_room, dorm_building, dorm_bed, twitterUsername, lineId, notification*
+      *__fields__: nick_name, picture, picture_200px, birth_da, twitterUsername, phone, shirt_size, allergy, disease, emer_phone, tag_like, dorm_room, dorm_building, dorm_bed, twitterUsername, lineId, notification, facebookLink*
 
 * **Success Response:**
 
@@ -570,7 +570,7 @@ Read the new notification. That notification will become 'seen'.
 
 *  **URL Params**
 
-    user
+    user = fb id
 
 * **Body**
 
@@ -582,7 +582,7 @@ Read the new notification. That notification will become 'seen'.
 
     **Content:** `{fields : data}`
 
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId*
+    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId,facebookLink*
 
 * **Error Response:**
 
