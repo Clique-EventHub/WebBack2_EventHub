@@ -176,7 +176,7 @@ exports.requestableFieldUser = ['firstName','lastName',
 	'major','regId','shirt_size','allergy','disease',
 	'lineId', 'twitterUsername','phone','emer_phone',
 	'dorm_room','dorm_building','dorm_bed',
-	'picture','picture_200px'];
+	'picture','picture_200px','facebookLink'];
 
 // form
 exports.postFieldForm = ['title','event','channel','questions'];
