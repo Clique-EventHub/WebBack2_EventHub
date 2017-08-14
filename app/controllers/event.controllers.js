@@ -45,8 +45,6 @@ var queryGetEvent = function(event, isStat, info){
 		let promises = [];
 		let fields = getableFieldEvent;
 		if(isStat) fields = [...fields, ...getableStatEvent];
-		console.log(getableFieldEvent);
-		console.log(fields);
 		for(var i=0; i<fields.length; i++){
 			if(event[fields[i]] || fields[i]=='expire'){
 				if((fields[i]==='year_require'||fields[i]==='faculty_require')){
