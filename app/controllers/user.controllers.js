@@ -1482,7 +1482,7 @@ exports.checkRegChula = function(request, response){
 exports.login_fb = function(request,response){
 	var id = request.query.id;
 	var access_token = request.query.access_token;
-	var fields = "fields=id%2Cgender%2Cbirthday%2Cemail%2Cage_range%2Cpicture%7Burl%7D%2Cfirst_name%2Clast_name%2Cname";
+	var fields = "fields=id%2Cgender%2Cbirthday%2Cemail%2Cage_range%2Cpicture%7Burl%7D%2Cfirst_name%2Clast_name%2Cname%2Clink";
 
 	var options = {
 		host: 'graph.facebook.com',
@@ -1521,6 +1521,7 @@ exports.login_fb = function(request,response){
 	        	profile.facebookId = id;
 	        	profile.access_token = access_token;
 						profile.picture_200px = "https://"+"graph.facebook.com/"+id+"/picture?width=200&heigh=200";
+						profile.facebookLink = obj.link;
 
 						console.log(profile);
 						console.log(profile.facebookData);

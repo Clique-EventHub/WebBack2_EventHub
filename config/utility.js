@@ -151,7 +151,7 @@ exports.getableFieldChannel = ['_id','name','verified','picture','picture_large'
 // user
 const userField = ['nick_name','picture','picture_200px','birth_day','twitterUsername','phone','shirt_size',
 											'allergy','disease','emer_phone','tag_like','dorm_room','dorm_building','dorm_bed',
-											'twitterUsername','lineId','notification'];
+											'twitterUsername','lineId','notification','facebookLink'];
 
 exports.editableFieldUser = userField;
 

@@ -134,6 +134,10 @@ var userSchema = new Schema({
 		type:String,
 		default:null
 	},
+	facebookLink:{
+		type: String,
+		default: null
+	},
 	facebookData:{},
 	twitterUsername:{
 		type:String,
