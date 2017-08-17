@@ -310,6 +310,7 @@ exports.selectPending = function(request, response){
     }
     else{
       var promises = [];
+      var completedButRejected = [];
       if(accepteds){
         promises.push(new Promise(function(resolve, reject){
             let promises2 = [];
@@ -350,6 +351,11 @@ exports.selectPending = function(request, response){
               if(theIndex != -1){
                 returnedInfo.who_join.splice(theIndex, 1);
               }
+              theIndex = returnedInfo.who_completed.indexOf(rejecteds[index]);
+              if(theIndex != -1){
+                returnedInfo.who_completed.splice(theIndex, 1);
+                completedButRejected.push(rejecteds[index]);
+              }
               resolve();
             }));
           }
@@ -364,7 +370,8 @@ exports.selectPending = function(request, response){
             who_accepted : returnedInfo.who_accepted,
             who_rejected : returnedInfo.who_rejected,
             who_pending : returnedInfo.who_pending,
-            who_join : returnedInfo.who_join
+            who_join : returnedInfo.who_join,
+            who_completed : returnedInfo.who_completed
           }
         }, function(err, updatedEvent){
           if(err){
@@ -429,7 +436,7 @@ exports.selectPending = function(request, response){
                     let index = i;
                     User.findByIdAndUpdate(rejecteds[index], {
                       $addToSet : { notification : noti },
-                      $pull : { join_events : updatedEvent._id }
+                      $pull : { join_events : updatedEvent._id, already_joined_events : updatedEvent._id }
                     }, function(err, updatedUser){
                       if(err){
                         errorList.push(rejecteds[index]);
