@@ -95,7 +95,7 @@ function findForm(id,callback){
 		Form.findById(id,function(err,returnedForm){
 			if(err){
 				console.error({"err":"finding form error","code":500});
-				callback ({"err":"fining form error",code:500});
+				callback ({"err":"finding form error",code:500});
 				//return ({"err":"fining form error","code":500});
 			}
 			else if(!returnedForm || returnedForm.tokenDelete){
