@@ -10,7 +10,7 @@ Refresh token will regenerate everytime user login by Facebook.
 * **URL**
 
   `/login/facebook`
-
+  
 * **Method:**
 
   `GET`
@@ -22,27 +22,45 @@ Refresh token will regenerate everytime user login by Facebook.
 *  **URL Params**
 
     **Require**
-    `id = [facebook's id]`
-    `access_token = [facebook's access_token]`
+    `id = facebook's id`
+    `access_token = facebook's access_token`
 
 * **Body**
 
     None
 
+* **Example**
+    
+    `GET /login/facebook?id=1234&access_token=abcde`
 
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{"msg" : "done", access_token : server's access token, refresh_token: servers's refresh_token}`
-
+    **Content:** 
+    ```JSON
+    {
+        "msg" : "done",
+        "access_token" : server's access token,
+        "refresh_token" : servers's refresh_token
+    }   
+    ```
 
 * **Error Response:**
 
   * **Code:** 400, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```JSON
+    {
+        "msg" : detail of error
+    }   
+    ```
+    
     *__detail of error:__ " invalid facebook's access token " , etc.*
+    
+
+
 
 ---
 
@@ -70,23 +88,34 @@ get new access token
 
    ```JSON
    {
-        "refresh_token" : "give me new token"
+        "refresh_token" : refresh token
    }
    ```
-
 
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{ msg , access_token }`
+    **Content:** 
 
+    ```JSON
+    {
+        "msg" : "OK",
+        "access_token" : new access token
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 400, 403, 500
 
-    **Content:** `{err : detail of error}`
+    **Content:** 
+    
+    ```JSON
+    {
+        "err" : detail of error
+    }
+    ```
 
 	**detail of error**
 
