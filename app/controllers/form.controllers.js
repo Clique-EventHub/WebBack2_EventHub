@@ -7,7 +7,7 @@ var moment = require('moment-timezone');
 var bluebird = require("bluebird");
 var jsonexport = require('jsonexport');
 var fs = require('fs');
-var postFieldForm = require('../../config/utility').postFieldForm;
+var { postFieldForm, getableFieldForm } = require('../../config/utility');
 var _ = require('lodash');
 
 const filePath = path.join(__dirname,'../..',`data/exportCSV/`);
@@ -92,7 +92,7 @@ function checkPermission (request, event, callback) {
 }
 
 function findForm(id,callback){
-		Form.findById(id,function(err,returnedForm){
+		Form.findById(id,getableFieldForm,function(err,returnedForm){
 			if(err){
 				console.error({"err":"finding form error","code":500});
 				callback ({"err":"finding form error",code:500});
@@ -214,7 +214,7 @@ exports.createForm = function(request, response){
 			let obj = {};
 			for(let i=0;i<postFieldForm.length;i++){
 					obj[postFieldForm[i]] = _.get(request.body, postFieldForm[i], undefined);
-				}
+			}
 
 			if(form_id !== undefined){
 				return new Promise( (resolve,reject) => {
@@ -259,7 +259,7 @@ exports.createForm = function(request, response){
 			console.log('create form',obj);
 			Event.findByIdAndUpdate(request.body.event,{
 				$push : {forms: obj }
-				}, (err, returnedForm) => {
+				}, (err, returnedEvent) => {
 				if(err){
 					response.status(500).json({msg:"Internal error"});
 					console.error("update form to event error");
@@ -269,7 +269,7 @@ exports.createForm = function(request, response){
 				else status = 201;
 				let returnedData = {};
 				for(let i=0; i < postFieldForm.length; i++){
-					returnedData[postFieldForm[i]] = _.get(returnedForm,postFieldForm[i],undefined);
+					returnedData[postFieldForm[i]] = _.get(newForm,postFieldForm[i],undefined);
 				}
 				response.status(status).json({msg:'done',id:newForm._id,form:returnedData});
 			});

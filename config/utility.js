@@ -172,30 +172,45 @@ exports.getMGUserProfile = ['_id','firstName','lastName','nick_name','picture','
 exports.getRegUserProfile = ['_id','firstName','lastName','nick_name','picture','picture_200px','firstNameTH','lastNameTH','regId','facebookLink'];
 
 exports.requestableFieldUser = [
-				"_id",
-        "nick_name",
-        "lastName",
-        "firstName",      
-				"lastNameTH",
-        "firstNameTH",
-        "birth_day",
-				"major",
-				"gender",
-				"lineId",
-        "twitterUsername",
-        "facebookLink",
-        "facebookId",
-        "regId",
-        "disease",
-        "allergy", 
-        "shirt_size",
-        "emer_phone", 
-        "phone",
-        "picture_200px",
-        "picture",
-				"dorm_room",
-        "dorm_building",
-        "dorm_bed"
-]
+	"_id",
+	"nick_name",
+	"lastName",
+	"firstName",      
+	"lastNameTH",
+	"firstNameTH",
+	"birth_day",
+	"major",
+	"gender",
+	"lineId",
+	"twitterUsername",
+	"facebookLink",
+	"facebookId",
+	"regId",
+	"disease",
+	"allergy", 
+	"shirt_size",
+	"emer_phone", 
+	"phone",
+	"picture_200px",
+	"picture",
+	"dorm_room",
+	"dorm_building",
+	"dorm_bed"
+];
 // form
-exports.postFieldForm = ['title','event','channel','questions'];
+exports.postFieldForm = [
+	"title",
+	"event",
+	"channel",
+	"questions",
+];
+
+exports.getableFieldForm = [
+	"_id", 
+	"event",
+	"channel",
+	"lastModified",
+	"created_date",
+	"questions",
+	"title"
+];

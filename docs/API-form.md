@@ -1,5 +1,5 @@
 # **FORM**
-
+---
 
 ## Get form
 
@@ -12,8 +12,6 @@ Return detail of form.
 *responses:* include responses
 
 *export:* return csv of responses
-
-
 
 * **URL**
 
@@ -39,28 +37,70 @@ Return detail of form.
 
 	`opt=responses`	
     
-	**Example**
-	```
-	api.cueventhub.com?id=123456789&opt=responses
-	```
 
 * **Body**
 
     None
 
+* **Example**
+	```
+    GET /form?id=123456789
+    GET /form?id=123456789&opt=responses
+	```
+
 * **Success Response:**
 
   * **Code:** 202
 
-    **Content:** `{ "fields": ... }`
+    **Content:** 
     
-    *__fields__: title, event, channel, questions, responses*
+    ```JSON
+    {
+    "msg": "OK",
+    "form": {
+        "_id": "599518e87ee4650030b23f7b",
+        "event": "599518137ee4650030b23f7a",
+        "channel": "599516237ee4650030b23f78",
+        "lastModified": 1502942512724,
+        "created_date": 1502942512724,
+        "questions": [
+            {
+                "question": "Where do you wanna go?",
+                "_id": "599518e87ee4650030b23f7d",
+                "choices": [],
+                "type": "short answer"
+            },
+            {
+                "question": "What do you wanna eat?",
+                "_id": "599518e87ee4650030b23f7c",
+                "choices": [
+                    "Dak galbi",
+                    "Kouen",
+                    "Oishi grand",
+                    "KFC",
+                    "BBQ plaza"
+                ],
+                "type": "check box"
+            }
+        ],
+        "title": "test form"
+    },
+    "code": 200
+    }
+    ```
+    
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** 
+    
+    ```JSON
+    {
+        "err" : error detail
+    }
+    ```
 ---
 
 
@@ -124,7 +164,17 @@ Otherwise, API will create a new form by use body as data.
                         "question" : "What do you wanna eat?",
                         "choices" : ["Dak galbi","Kouen","Oishi grand","KFC","BBQ plaza"],
                         "type" : "check box"
-                }
+                },
+                {
+                        "question" : "Who is your daddy?",
+                        "choices" : ["Jon","Therian","Jamie"],
+                        "type" : "bullet"
+                },
+                {
+                        "question" : "Which weapon do you prefer?",
+                        "choices" : ["Sword","Dragon","Arrow","Hammer","Run"],
+                        "type" : "spinner"
+                },
         ]
     }
     ```
@@ -133,15 +183,25 @@ Otherwise, API will create a new form by use body as data.
 
   * **Code:** 200
 
-    **Content:** `{fields : ...}`
-
-    *__fields__: msg, id*
+    **Content:** 
+    ```JSON
+    {
+        "msg": "done",
+        "id": "5995ed0fcb0d840079dc174c",
+        "form": obj detail of created form
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** 
+    ```JSON
+    {
+        "err" : error detail
+    }
+    ```
 
 ---
 
@@ -169,29 +229,41 @@ Otherwise, API will create a new form by use body as data.
 
 * **Body**
 
-  `{_${question} : answer}` *insert _ for preventing object from sorting questions*
+  `{question : answer}` 
 
+* **Example**
+    ```
+    PUT /form?id=1234567890
+    ```
+    with JSON body
+    ```JSON	
+    {
+		"Where do you wanna go?" : "go to home",
+		"What do you wanna eat?" : ["Kouen", "Oishi grand"],
+		"Who is your daddy?" : ["No one"]
+	}
+	```
+	
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{"msg" : "done"}`
+    **Content:** 
+    
+    ```JSON
+    {"msg" : "done"}
+    ```
 
-	**Example**
-	```JSON
-	{
-		"Where do you wanna go?" : "go to home",
-		"What do you wanna eat?" : ["Kouen", "Oishi grand"]
-	}
-	```
-	
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** 
+    
+    ```JSON
+    {"err" : error detail}
+    ```
 	
-
 ---
 
 ## Delete form
@@ -220,18 +292,28 @@ Otherwise, API will create a new form by use body as data.
 
   `None`
 
+* **Example**
+    
+    ```
+    DELETE /form?id=1234567890
+    ```
+
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{"msg" : "done"}`
+    **Content:** 
+    ```JSON
+    {"msg" : "done"}
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{err : error detail}`
+    **Content:** 
+    ```JSON
+    {"err" : error detail}
+    ```
 ---
-
-
