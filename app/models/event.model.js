@@ -63,7 +63,7 @@ var eventSchema = new Schema({
 		default : []
 	},
 
-	forms : [{}], // list of objects { title : id }
+	forms : [{}], // list of objects { title , id }
 
 	optional_field:{
 		type:[],
