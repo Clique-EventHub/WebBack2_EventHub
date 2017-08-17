@@ -53,10 +53,6 @@ say hello
 
     `id=[string]`
 
-    **Optional:**
-
-    `stat=[boolean]`
-
 * **Body**
 
   None
@@ -66,16 +62,48 @@ say hello
   * **Code:** 200
 
     **Content:** `{fields : data}`
+    
+    ```JSON
+    {
+       _id, 
+       title,
+       about, 
+       video,
+       location,
+       channel,
+	   date_start, date_end,
+	   time_start, time_end,
+	   time_each_day,
+	   refs,
+	   picture, picture_large,
+	   year_require, faculty_require,
+	   tags,
+	   forms,
+	   notes,
+	   admins,
+	   msg_after_join,
+	   contact_information,
+	   require_field, optional_field,
+	   agreement,
+	   joinable_start_time, joinable_end_time,
+	   joinable_amount,
+	   outsider_accessible,
+	   choose_joins
+    }
+    ```
 
-    *__fields__: _id,title,about,video,channel,location,date_start,expire,refs,join,time_each_day,
-		date_end,picture,picture_large,year_require,faculty_require,tags,forms,notes,who_join,who_interest,
-    time_start,time_end,contact_information,optional_field,require_field,msg_after_join*
 
 * **Error Response:**
 
   * **Code:** 400,500
 
-    **Content:** `{err : detail of error}`
+    **Content:** 
+    ```JSON
+    {
+        "err" : detail of error
+    }
+    ```
+
 ---
 
 ## Get new event
@@ -96,17 +124,23 @@ get the last created event
 
 *  **URL Params**
 
-    **Optional:** `top = [number of lastest event]`
+    **Optional:** 
+    
+    `top = [number of lastest event]`
 
 * **Body**
 
     None
 
+* **Example**
+
+    `GET /event/newEvent?top=3`
+
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `[ event object ]`
+    **Content:** `[ list of events object ]`
 
 
 * **Error Response:**
@@ -119,7 +153,7 @@ get the last created event
 
 ## Get hot event
 
-get the most 3 hot event
+get the most 5 hot event
 
 * **URL**
 
@@ -145,9 +179,28 @@ get the most 3 hot event
 
   * **Code:** 200
 
-    **Content:** `{ fields : event }`
+    **Content:** list of hot event sort from high to low
+    
+    ```JSON
+    [{
+        "_id": "5960ee01518ff40010321e45",
+        "title": "eventhub",
+        "momentum": 17,
+        "tags": [ ],
+        "picture_large": [ ],
+        "picture": null
+    }]
+    ```
 
-    *__fields:__ first , second , third*
+* **Error Response:**
+
+  * **Code:** 500
+
+    **Content:** 
+    ```JSON
+    {
+        "err" : "Something went wrong"
+    }
 ---
 
 
@@ -171,31 +224,41 @@ search event
 
     **Require:** `keyword=key1,key2,key3`
 
-*  **Example**
-
-		```
-				You can use both keyword and keywords
-				/event/search?keyword=water
-				/event/search?keywords=winter,fell,down
-		```
-
 * **Body**
     None
+
+*  **Example**
+
+	```
+	You can use both keyword and keywords
+	GET /event/search?keyword=water
+	GET /event/search?keywords=winter,fell,down
+	```
+
 
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{ events : list of event }`
+    **Content:** 
 
+    ```JSON
+    {
+        "events" : [list of events]
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 400, 500
 
-    **Content:** `{ "err" : error detail }`
+    **Content:** 
+    ```JSON
+    { 
+        "err" : error detail 
+    }
+    ```
 ---
-
 
 ## Search event by date
 
@@ -221,18 +284,34 @@ Return event in date period
 
     None
 
+* **Example**
+    
+    GET /event/searchbydate?date_start=1502994512740&date_end=1502995678900
+
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{ events : list of event }`
+    **Content:** 
+    
+    ```JSON
+    { 
+        "events" : [list of event] 
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 400, 500
 
-    **Content:** `{ "err" : error detail }`
+    **Content:** 
+    
+    ```JSON
+    { 
+        "err" : error detail 
+    }
+    ```
 ---
 
 ## Event for you 
@@ -263,14 +342,26 @@ Return upcoming event sort in ascending order
 
   * **Code:** 200
 
-    **Content:** `{ events : list of events }`
+    **Content:** 
+    
+    ```JSON
+    { 
+        "events" : [list of events]
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 500
 
-    **Content:** `{ "err" : Internal Error }`
+    **Content:** 
+    
+    ```JSON
+    { 
+        "err" : "Internal Error"
+    }
+    ```
 ---
 
 ## Upcoming event
@@ -301,7 +392,13 @@ Return upcoming event sort in ascending order
 
   * **Code:** 200
 
-    **Content:** `{ events : list of events }`
+    **Content:** 
+    
+    ```JSON
+    { 
+        "events" : [list of events] 
+    }
+    ```
 
 
 * **Error Response:**
@@ -309,5 +406,9 @@ Return upcoming event sort in ascending order
  * **Code:** 500
 
     **Content:**
-    `{ "err" : Internal Error }`
-    `{ "err" : Authentication info }`
+    
+    ```JSON
+    { 
+        "err" : "Internal Error"/Authentication info
+    }
+    ```

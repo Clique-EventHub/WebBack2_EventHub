@@ -118,7 +118,7 @@ exports.getableFieldEvent = ['_id','title','about','video','channel','location',
 	'tags','forms','notes','admins','msg_after_join',
 	'contact_information','require_field','optional_field',
 	'agreement','joinable_start_time','joinable_end_time',
-	'joinable_amount','optional_field','require_field',
+	'joinable_amount',
 	'outsider_accessible','choose_joins'];
 
 exports.getableFieldEventAdmin = ['_id','title','about','video','channel','location',
