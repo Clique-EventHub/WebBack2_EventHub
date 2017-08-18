@@ -2,7 +2,7 @@
 
 - [Get channel detail](#get-channel-detail)
 
-- [Search channel](#searh-channel)
+- [Search channel](#search-channel)
 
 ---
 

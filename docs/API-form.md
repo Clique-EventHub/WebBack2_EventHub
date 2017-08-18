@@ -1,8 +1,8 @@
 # **FORM**
 
 - [Get form](#get-form)
-- [Create/Edit form](#create/edit-form)
-- [Save form's response](#save-form's-response)
+- [Create/Edit form](#createedit-form)
+- [Save form's response](#save-forms-response)
 - [Delete form](#delete-form)
 
 ---
