@@ -1,5 +1,7 @@
 # **Picture**
-
+- [Get Picture](#get-picture)
+- [Post Picture](#post-picture)
+- Delete picture](#delete-picture)
 ---
 ## Get Picture
 create picture in the server and response the url
@@ -31,8 +33,10 @@ create picture in the server and response the url
   * **Code:** 500
 
     **Content:**
-    {"msg" : "error in finding file"}
-
+    ```
+    {"err" : "error in finding file"}
+    ```
+    
 ---
 
 ## Post Picture
@@ -54,36 +58,39 @@ If post large picture, server will add a new one to the list.
    **Required:**
 
     `field=[event/channel]`
-
     `size=[small/large]`
-
     `id=[event's id]`
 
-* **Data Params**
-
-	`type: form-data`
-	`key: pictures , value: picture file` _accept multiple picture_
-
+* **Body**
+    
+    ```    
+    type: form-data
+	key: pictures 
+    value: pictures file (allow multiple pictures)
+    ```
+    
+* **Example**
+    ```
+    POST /picture?field=event&size=small&id=1234567890
+    ```
 
 * **Success Response:**
   * **Code:** 201
     **Content:**
-    `{msg : "done"}`
-    `{ urls : list of picture url}`
-
+    ```
+    {
+        msg : "done"
+        urls : list of picture url
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 500,404
     **Content:**
-`"something went wrong"` //should be fixed to response in msg
-`{err : "error find event"}`
-`{err : "event not found"`
-`{err : "something went wrong"}`
-`{err : "error find channel"}`
-`{err : "channel not found"}`
-`{ error : "event not found" }`
-
+    ```
+    {"err" : detail of error}
+    ```
 
 ---
 
@@ -126,11 +133,16 @@ url in list must belong to the same event/channel
 
   * **Code:** `200`
 
-    **Content:** `{ msg : "done" }`
+    **Content:** 
+    ```
+    { msg : "done" }
+    ```
 
 * **Error Response:**
 
   * **Code:** `400,500`
     **Content:**
-    `{ msg : "Something went wrong" }`
+    ```
+    { err : detail of error }
+    ```
 ---

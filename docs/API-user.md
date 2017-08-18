@@ -1,4 +1,24 @@
 # User
+- [Get user profile](#get-user-profile)
+- [Edit user profile](#edit-user-profile)
+- [Get join events](#get-join-event)
+- [Join an event](#join-an-event)
+- [Subscribe a channel](#subscribe-a-channel)
+- [Get all subscribed channels](#get-all-subscribed-channels)
+- [Unsubscribe a channel](#unsubscribe-a-channel)
+- [Interest an event](#interest-an-event)
+- [Get all interesting events](#get-all-interesting-events)
+- [Uninterest an event](#uninterest-an-event)
+- [Register reg chula](#register-reg-chula)
+- [Show admin events](#show-admin-events)
+- [Show admin channels](#show-admin-channels)
+- [Read notification](#read-notification)
+- [Get user profile from Facebook ID](#get-user-profile-from-facebook-id)
+- [Get user profile from Mongo ID](#get-user-profile-from-mongo-id)
+- [Get user profile from Reg Chula ID](#get-user-profile-from-reg-chula)
+
+
+---
 
 ## Get user profile
 
@@ -29,14 +49,47 @@
   * **Code:** 200
 
     **Content:** `{fields : data}`
-
-    *__fields__: _id, firstName, lastName, picture, picture_200px, email, gender, shirt_size, phone, regId, facebookId, twitterUsername, lineId, disease, birth_day, allergy, notification, firstNameTH, lastNameTH, major, emer_phone, admin_events, admin_channels, join_events, interest_events, subscribe_channels, already_joined_events, tag_like, dorm_bed, dorm_building, dorm_room, facebookLink*
+    ```
+    {
+        _id,
+        firstName, lastName, nick_name,
+        picture, picture_200px,
+        email,
+    	gender,
+    	phone,
+    	shirt_size,
+    	birth_day,
+    	allergy,
+    	disease,
+    	major,
+    	emer_phone,
+    	admin_events,
+    	admin_channels,
+    	join_events,
+    	interest_events,
+    	subscribe_channels,
+    	already_joined_events,
+    	tag_like,
+    	dorm_bed, dorm_room, dorm_building,
+    	regId,
+    	facebookId,
+    	twitterUsername,
+    	lineId,
+    	notification,
+    	firstNameTH,
+    	lastNameTH,
+    	accepted_events
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403
 
-    **Content:** `{msg : detail of error}`
+    **Content:** 
+    ```
+    {err : detail of error}
+    ```
 
 ---
 
@@ -60,23 +113,61 @@ Edit user profile
 
     None
 
-* **Body**
+* **Body:** JSON
+   ```
+   {
+   	'nick_name',
+	'picture',
+	'picture_200px',
+	'birth_day',
+	'twitterUsername',
+	'phone',
+	'shirt_size' ,
+	'allergy',
+	'disease',
+	'emer_phone',
+	'tag_like',
+	'dorm_room',
+	'dorm_building',
+	'dorm_bed',
+	'twitterUsername',
+	'lineId',
+	'notification',
+	'facebookLink'
+   }
+   ```
 
-    `{fields : data}`
-      *__fields__: nick_name, picture, picture_200px, birth_da, twitterUsername, phone, shirt_size, allergy, disease, emer_phone, tag_like, dorm_room, dorm_building, dorm_bed, twitterUsername, lineId, notification, facebookLink*
+* **Example**
+    ```
+    PUT /user
+    JSON BODY {
+        "phone" : "191",
+        "nickname" : "sup"
+    }
+    ```
+
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
+    **Content:** 
+    ```
+    {
+        "msg" : "done.",
+        "notification" : data
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:** 
+    ```
+    {err : detail of error}
+    ```
 ---
 
 ## Get join events
@@ -108,14 +199,30 @@ Returns events that user pressed join button.
 
   * **Code:** 200
 
-    **Content:** `{events : [ event's title : {fields : data} ]}`
-    *__fields__: channel, picture, channel_picture, channel_id*
+    **Content:** 
+    ```
+    {
+        events : [
+            {
+                event's title : {
+                    channel, 
+                    picture, 
+                    channel_picture, 
+                    channel_id
+                } 
+            }
+        ]
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 400,403,500
 
-    **Content:** `{msg : detail of error}`
+    **Content:** 
+    ```
+    {msg : detail of error}
+    ```
 ---
 
 ## Join an event
@@ -143,6 +250,7 @@ Saves data when user presses the join button.
 
     `{fields : data}`
       *__fields__: require_field, optional_field*
+
 
 * **Success Response:**
 
@@ -413,22 +521,38 @@ Check username and password with reg chula system and store the returned data in
 * **Body**
 
     **Require**
-    `{fields : data}`
-      *__fields__: username, password*
+    ```
+    {
+        username, 
+        password
+    }
+    ```
+    
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ fields : data }`
-    *__fields__: firstName, lastName, firstNameTH, lastNameTH, gender, regId*
-
+    **Content:** 
+    ```
+    {
+        firstName,
+        lastName,
+        firstNameTH,
+        lastNameTH,
+        gender,
+        regId
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 400, 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:** 
+    ```
+    {msg : detail of error}
+    ```
 ---
 
 ## Show admin events

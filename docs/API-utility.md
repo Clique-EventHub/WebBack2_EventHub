@@ -1,6 +1,8 @@
 # **Utility**
+- [get data](#get-data)
 
 ---
+
 ## get data 
 get fields of data
 
@@ -14,25 +16,34 @@ get fields of data
 
 *  **URL Params**
 
-    `None`
+    `fields=requestableFieldUser`
 
 * **Data Params**
 
-    `fields=requestableFieldUser`
+    `None`
+
+* **Example**
+    ```
+    GET /reqdata?fields=requestableFieldUser
+    ```
 
 * **Success Response:**
 
   * **Code:** `2xx`
 
     **Content:**
-		{ field : ... }
+	```
+	{ fields : [ list of requestable ] }
+	 *fields is same as URL params
+	```
 
 * **Error Response:**
 
   * **Code:** 500
 
     **Content:**
+    ```JSON
     {"msg" : "error"}
-
+    ```
 ---
 

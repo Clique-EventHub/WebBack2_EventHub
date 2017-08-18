@@ -1,86 +1,116 @@
 # **Tags**
+- [Get Tag](#get-tag)
+- [Modify Tag](#modify-tag)
+- [Search Tag](#search-tag)
 
 ---
+
 ## Get Tag
-get Tag
+get all of tag categories
+
 * **URL**
-  /tags
+  `/tags`
+
 * **Method:**
   `GET`
+
 *  **URL Params**
-   **Required:**
-    ???
+
+   None
 
 
 * **Data Params**
   None
-​
+
 * **Success Response:**
   * **Code:** 200
     **Content:**
-Sends "tags.json"
+    ```
+    {
+        tags : [ list of possible tags ]
+    }
+    ```
 
-​
+
+
 * **Error Response:**
-​
+
   * **Code:** 500
     **Content:**
-`{"msg" : "error in finding file"}`
+    ```
+    {"msg" : "error in finding file"}
+    ```
 
 ---
 ## Modify Tag
 Modify the tag in the server
+
 * **URL**
   /tags/modify
+
 * **Method:**
   `POST`
+
 *  **URL Params**
-   **Required:**
     None
 
 
-* **Data Params**
-  `{"possible_tag" : ["tag1" , "tag2" , ....] }`
-​
+* **Body**
+    ```
+    {
+     "possible_tag" : ["concert" , "garden" , "tag3", ....] 
+    }
+    ```
+
 * **Success Response:**
   * **Code:** 201
     **Content:**
-`{msg : "done"}`
+    ```    
+    {msg : "done"}
+    ```
 
-​
+
 * **Error Response:**
-​
+
   * **Code:** 404 NOT FOUND
     **Content:**
-`{msg : "error" }`
-
+    ```    
+    {msg : "error" }
+    ```
 ---
 
 
 ## Search Tag
 Search the Tag in the server
+
 * **URL**
-  /tags/search
+  `/tags/search`
+
 * **Method:**
   `GET`
+
 *  **URL Params**
    **Required:**
     `keywords = [keyword1,keyword2, ... ]`
 
 * **Data Params**
   None
-​
+
 * **Success Response:**
   * **Code:** 201
     **Content:**
-`{events : event1, event2, ... }`
+    ```
+    {
+        events : [ event1, event2, ... ]
+    }
+    ```
 
-​
 * **Error Response:**
-​
+
   * **Code:** 404 NOT FOUND
     **Content:**
-`{msg : "error" }`
-`{msg : "event not found on tags : searchTag - tag.controllers" }`
-
+    ```    
+        { msg : detail of error }
+        detail : "error", "event not found",
+    ```         
 ---
