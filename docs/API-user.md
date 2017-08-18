@@ -1,7 +1,7 @@
 # User
 - [Get user profile](#get-user-profile)
 - [Edit user profile](#edit-user-profile)
-- [Get join events](#get-join-event)
+- [Get join events](#get-join-events)
 - [Join an event](#join-an-event)
 - [Subscribe a channel](#subscribe-a-channel)
 - [Get all subscribed channels](#get-all-subscribed-channels)
