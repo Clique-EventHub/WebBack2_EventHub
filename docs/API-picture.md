@@ -1,7 +1,7 @@
 # **Picture**
 - [Get Picture](#get-picture)
 - [Post Picture](#post-picture)
-- Delete picture](#delete-picture)
+- [Delete picture](#delete-picture)
 ---
 ## Get Picture
 create picture in the server and response the url
