@@ -1,5 +1,10 @@
 # Authentication
 
+- [Login by facebook](https://github.com/Clique-EventHub/WebBack2_EventHub/blob/develop/docs/API-authentication.md#login-by-facebook)
+- [Revoke access token](https://github.com/Clique-EventHub/WebBack2_EventHub/blob/develop/docs/API-authentication.md#revoke-access-token)
+
+---
+
 ## Login by facebook
 
 Login user by facebook.
@@ -38,7 +43,7 @@ Refresh token will regenerate everytime user login by Facebook.
   * **Code:** 200
 
     **Content:** 
-    ```JSON
+    ```
     {
         "msg" : "done",
         "access_token" : server's access token,
@@ -51,7 +56,7 @@ Refresh token will regenerate everytime user login by Facebook.
   * **Code:** 400, 500
 
     **Content:**
-    ```JSON
+    ```
     {
         "msg" : detail of error
     }   
@@ -86,7 +91,7 @@ get new access token
 
 * **Body**
 
-   ```JSON
+   ```
    {
         "refresh_token" : refresh token
    }
@@ -98,7 +103,7 @@ get new access token
 
     **Content:** 
 
-    ```JSON
+    ```
     {
         "msg" : "OK",
         "access_token" : new access token
@@ -111,7 +116,7 @@ get new access token
 
     **Content:** 
     
-    ```JSON
+    ```
     {
         "err" : detail of error
     }
@@ -134,5 +139,4 @@ response from possible response from authentication
 ```    
 Please login
 jwt expired
-
 ```
