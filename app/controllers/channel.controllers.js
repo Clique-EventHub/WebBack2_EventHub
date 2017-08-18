@@ -208,7 +208,7 @@ exports.putChannel = function(request,response,next){
 	});
 }
 
-// route DELTE /channel?id=...
+// route DELETE /channel?id=...
 exports.deleteChannel = function(request,response,next){
 	var id = request.query.id;
 	var info = {};

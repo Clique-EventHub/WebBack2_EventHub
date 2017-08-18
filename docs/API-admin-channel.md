@@ -1,6 +1,24 @@
 # **Admin Channel**
-
 uses the same login system as normal users. The following below are special functions for admin channel.
+- [Put channel detail](#put-channel-detail)
+- [Get channel stat](#get-channel-stat)
+- [Add admin channel](#add-admin-channel)
+- [Add admin event](#add-admin-event)
+- [Delete admin channel](#delete-admin-channel)
+- [Delete admin event](#delete-admin-event)
+- [Add admin channel by facebook id](#add-admin-channel-by-facebook-id)
+- [Add admin event by facebook id](#add-admin-event-by-facebook-id)
+- [Delete admin channel by facebook id](#delete-admin-channel-by-facebook-id)
+- [Delete admin event by facebook id](#delete-admin-event-by-facebook-id)
+- [Add admin channel by mongo id](#add-admin-channel-by-mongo-id)
+- [Add admin event by mongo id](#add-admin-event-by-mongo-id)
+- [Delete admin channel by mongo id](#delete-admin-channel-by-mongo-id)
+- [Delete admin event by mongo id](#delete-admin-event-by-mongo-id)
+- [Check-in](#check-in)
+- [Delete channel](#delete-channel)
+- [Create new event](#create-new-event)
+---
+
 ## Put channel detail
 
 Change details of channel
@@ -25,23 +43,36 @@ Change details of channel
 
 * **Body**
 
-  `{fields : data}`
-
-  *__fields__: name,picture,picture_large*
+  ```
+  {
+    name,
+    picture,
+    picture_large
+  }
+  ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{fields : data}`
-
-    *__fields__: msg, notification*
+    **Content:** 
+    ```
+    {
+        msg : "done",
+        notification
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 400,403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {err : error detail}
+    { "msg" : "error"/"channel not found" }
+    ```
+    
 ---
 ## Get channel stat
 
@@ -73,15 +104,22 @@ Change details of channel
 
   * **Code:** 200
 
-    **Content:** `{fields : data}`
-
-    *__fields__: visit*
+    **Content:** 
+    ```
+    {
+        visit,
+        notification
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Add admin channel
@@ -90,7 +128,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/channel/add'
+  `/admin/channel/add`
 
 * **Method:**
 
@@ -108,21 +146,36 @@ Change details of channel
 
 * **Body**
 
-  `{fields : data}`
+  ```
+  { user : user's reg id }
+  ```
 
-  *__fields__: user*
+* **Example**
+    ```
+    PUT /admin/channel/add?id=123456
+    JSON BODY {
+        "user" : "5881194455"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done." }`
+    **Content:** 
+    ```JSON
+    { "msg" : "done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    { msg : error detail}
+    ```
+    
 ---
 
 ## Add admin event
@@ -131,7 +184,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/event/add'
+  `/admin/event/add`
 
 * **Method:**
 
@@ -148,22 +201,38 @@ Change details of channel
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's reg id }
+  ```
+  
+* **Example**
+    ```
+    PUT /admin/event/add?id=123456
+    JSON BODY {
+        "user" : "5881194455"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.",
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Delete admin channel
@@ -172,7 +241,7 @@ Change details of channel
 
 * **URL**
 
-  `/admin/channel/delete'
+  `/admin/channel/delete`
 
 * **Method:**
 
@@ -189,22 +258,35 @@ Change details of channel
     `id = channel's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's reg id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/channel/delete?id=123456
+    JSON BODY {
+        "user" : "5881194455"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done." }`
+    **Content:** 
+    ```JSON
+    { "msg":"done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Delete admin event
@@ -230,16 +312,29 @@ Change details of channel
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's reg id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/event/delete?id=123456
+    JSON BODY {
+        "user" : "5881194455"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
@@ -271,22 +366,35 @@ Change details of channel
     `id = channel's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's facebook id }
+  ```
+  
+* **Example**
+    ```
+    PUT /admin/channel/addfb?id=123456
+    JSON BODY {
+        "user" : "2031929301"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done." }`
+    **Content:** 
+    ```
+    { "msg":"done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Add admin event by facebook id
@@ -312,22 +420,38 @@ Change details of channel
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's facebook id }
+  ```
+  
+* **Example**
+    ```
+    PUT /admin/event/addfb?id=123456
+    JSON BODY {
+        "user" : "2031929301"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Delete admin channel by facebook id
@@ -353,22 +477,35 @@ Change details of channel
     `id = channel's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
-
+  ```
+  { user : user's facebook id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/channel/deletefb?id=123456
+    JSON BODY {
+        "user" : "2031929301"
+    }
+    ```
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done." }`
+    **Content:** 
+    ```
+    { "msg":"done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
+    
 ---
 
 ## Delete admin event by facebook id
@@ -394,22 +531,38 @@ Change details of channel
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's facebook id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/event/deletefb?id=123456
+    JSON BODY {
+        "user" : "2031929301"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Add admin channel by mongo id
@@ -435,25 +588,39 @@ Change details of channel
     `id = channel's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's mongo id }
+  ```
+  
+* **Example**
+    ```
+    PUT /admin/channel/addmg?id=123456
+    JSON BODY {
+        "user" : "555252515125"
+    }
+    ```
+    
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done." }`
+    **Content:** 
+    ```
+    { "msg":"done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
-## Add admin event by facebook id
+## Add admin event by mongo id
 
  Channel's admins have permission to add colleagues to be an admin event. They can only add colleagues one-by-one. They can add themselves to be the admin of that event, too. It uses mongo id.
 
@@ -476,25 +643,38 @@ Change details of channel
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's mongo id }
+  ```
+  
+* **Example**
+    ```
+    PUT /admin/channel/addmg?id=123456
+    JSON BODY {
+        "user" : "555252515125"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { "msg":"done.", "notification":data }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
-## Delete admin channel by facebook id
+## Delete admin channel by mongo id
 
  Delete colleagues from being an admin channel. You can only delete colleagues one-by-one using mongo id.
 
@@ -517,25 +697,38 @@ Change details of channel
     `id = channel's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's mongo id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/channel/deletemg?id=123456
+    JSON BODY {
+        "user" : "555252515125"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done." }`
+    **Content:** 
+    ```
+    { "msg":"done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
-## Delete admin event by facebook id
+## Delete admin event by mongo id
 
  Channel's admins also have permission to delete colleagues from being an admin event. They can only delete colleagues one-by-one. They can delete themselves, too. It uses mongo id.
 
@@ -558,22 +751,38 @@ Change details of channel
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's mongo id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/event/deletemg?id=123456
+    JSON BODY {
+        "user" : "555252515125"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Check-in
@@ -601,7 +810,9 @@ Change details of channel
 
 * **Body**
 
-  `{fields : array of data}`
+  ```
+  { users : [array of user's ? id ]  }
+  ```
 
   *__fields__: users*
 
@@ -609,14 +820,23 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { "msg":"done.", "notification":data }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail, user_list(optional) : array of user ids that have problems}`
-    `Note that user_list is contained only if the error detail says "error.(contains user_list)"`
+    **Content:** 
+    ```
+    {
+        msg : error detail, 
+        user_list(optional) : array of user ids that have problems
+    }
+    ** Note that user_list is contained only if the error detail says "error.(contains user_list)"
+    ```
 ---
 
 ## Delete channel
@@ -645,17 +865,34 @@ Change details of channel
 
   None
 
+* **Example**
+    ```
+    DELETE /channel?id=1234567890
+    ```
+
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {
+        err : error detail,
+        msg : error detail
+    }
+    ```
 ---
 
 ## Create new event
@@ -679,20 +916,53 @@ Change details of channel
   None
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: title, channel, about, picture, picture_large, video, faculty_require, year_require, agreement, location, date_start, date_end, contact_information, tags, joinable_start_time, joinable_end_time, time_start, time_end, optional_field, require_field, joinable_amount, show, outsider_accessible*
+    ```
+    {
+        title, 
+        channel, 
+        about, 
+        picture, 
+        picture_large, 
+        video, 
+        faculty_require, 
+        year_require, 
+        agreement, 
+        location, 
+        date_start, 
+        date_end, 
+        contact_information, 
+        tags, 
+        joinable_start_time, 
+        joinable_end_time, 
+        time_start, 
+        time_end, 
+        optional_field, 
+        require_field, 
+        joinable_amount, 
+        show, 
+        outsider_accessible
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data, "id":newEvent's id }`
+    **Content:** 
+    ``` 
+    { 
+        "msg":"done.", 
+        "notification":data, 
+        "id":newEvent's id 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 400,403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
