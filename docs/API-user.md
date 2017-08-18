@@ -15,7 +15,7 @@
 - [Read notification](#read-notification)
 - [Get user profile from Facebook ID](#get-user-profile-from-facebook-id)
 - [Get user profile from Mongo ID](#get-user-profile-from-mongo-id)
-- [Get user profile from Reg Chula ID](#get-user-profile-from-reg-chula)
+- [Get user profile from Reg Chula ID](#get-user-profile-from-reg-chula-id)
 
 
 ---
