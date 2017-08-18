@@ -1,7 +1,7 @@
 # Authentication
 
-- [Login by facebook](https://github.com/Clique-EventHub/WebBack2_EventHub/blob/develop/docs/API-authentication.md#login-by-facebook)
-- [Revoke access token](https://github.com/Clique-EventHub/WebBack2_EventHub/blob/develop/docs/API-authentication.md#revoke-access-token)
+- [Login by facebook](#login-by-facebook)
+- [Revoke access token](#revoke-access-token)
 
 ---
 
