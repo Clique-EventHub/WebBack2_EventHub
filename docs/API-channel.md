@@ -1,5 +1,11 @@
 # **Channel**
 
+- [Get channel detail](#get-channel-detail)
+
+- [Search channel](#searh-channel)
+
+---
+
 ## Get channel detail
 
 Returns json data about detail of channel
@@ -35,13 +41,13 @@ Returns json data about detail of channel
   * **Code:** 200
 
     **Content:** 
-    ```JSON
+    ```
     {
-        "name": ,
-        "verified": ,
-        "picture": ,
-        "picture_large": ,
-        "events":
+        name ,
+        verified ,
+        picture ,
+        picture_large ,
+        events
     }
     ```
 
@@ -50,7 +56,7 @@ Returns json data about detail of channel
   * **Code:** 404, 500
 
     **Content:** 
-    ```JSON
+    ```
     {
         "msg" : "channel not found"
     }
@@ -97,12 +103,12 @@ Returns json data about detail of channel
   * **Code:** 200
 
     **Content:** list of match channel
-    ```JSON
+    ```
     {
-        "channels" : [{
-             "_id" : ,
-             "name" : ,
-             "picture" :
+        channels : [{
+             _id ,
+             name ,
+             picture
         }]
     }
     ```
@@ -114,7 +120,7 @@ Returns json data about detail of channel
   * **Code:** 404,500
 
     **Content:** 
-    ```JSON
+    ```
     {
         "err" : error detail
     }

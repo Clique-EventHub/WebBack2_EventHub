@@ -1,4 +1,14 @@
 # **Event**
+- [Greeting](#greeting)
+- [Get event detail](#get-event-detail)
+- [Get new event](#get-new-event)
+- [Get hot event](#get-hot-event)
+- [Search event](#search-event)
+- [Search event by date](#search-event-by-date)
+- [Event for you](#event-for-you)
+- [Upcoming event](#upcoming-event)
+
+---
 
 ## Greeting
 
@@ -63,16 +73,16 @@ say hello
 
     **Content:** `{fields : data}`
     
-    ```JSON
+    ```
     {
-       _id, 
-       title,
-       about, 
-       video,
-       location,
-       channel,
-	   date_start, date_end,
-	   time_start, time_end,
+		 _id, 
+		 title,
+		 about, 
+		 video,
+		 location,
+		 channel,
+		 date_start, date_end,
+		 time_start, time_end,
 	   time_each_day,
 	   refs,
 	   picture, picture_large,
@@ -98,7 +108,7 @@ say hello
   * **Code:** 400,500
 
     **Content:** 
-    ```JSON
+    ```
     {
         "err" : detail of error
     }
@@ -148,6 +158,7 @@ get the last created event
   * **Code:** 500
 
     **Content:** `{ "err" : error detail }`
+
 ---
 
 
@@ -181,7 +192,7 @@ get the most 5 hot event
 
     **Content:** list of hot event sort from high to low
     
-    ```JSON
+    ```
     [{
         "_id": "5960ee01518ff40010321e45",
         "title": "eventhub",
@@ -197,7 +208,7 @@ get the most 5 hot event
   * **Code:** 500
 
     **Content:** 
-    ```JSON
+    ```
     {
         "err" : "Something went wrong"
     }
@@ -242,7 +253,7 @@ search event
 
     **Content:** 
 
-    ```JSON
+    ```
     {
         "events" : [list of events]
     }
@@ -253,7 +264,7 @@ search event
   * **Code:** 400, 500
 
     **Content:** 
-    ```JSON
+    ```
     { 
         "err" : error detail 
     }
@@ -294,7 +305,7 @@ Return event in date period
 
     **Content:** 
     
-    ```JSON
+    ```
     { 
         "events" : [list of event] 
     }
@@ -307,7 +318,7 @@ Return event in date period
 
     **Content:** 
     
-    ```JSON
+    ```
     { 
         "err" : error detail 
     }
@@ -344,7 +355,7 @@ Return upcoming event sort in ascending order
 
     **Content:** 
     
-    ```JSON
+    ```
     { 
         "events" : [list of events]
     }
@@ -357,7 +368,7 @@ Return upcoming event sort in ascending order
 
     **Content:** 
     
-    ```JSON
+    ```
     { 
         "err" : "Internal Error"
     }
@@ -394,7 +405,7 @@ Return upcoming event sort in ascending order
 
     **Content:** 
     
-    ```JSON
+    ```
     { 
         "events" : [list of events] 
     }
@@ -407,7 +418,7 @@ Return upcoming event sort in ascending order
 
     **Content:**
     
-    ```JSON
+    ```
     { 
         "err" : "Internal Error"/Authentication info
     }
