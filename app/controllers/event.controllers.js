@@ -364,7 +364,7 @@ exports.getStat = function(request,response,next){
 	check_permission(request,function(code,err,event){
 		if(code!=200) response.status(code).json(err);
 		else{
-			var fields = [...getableFieldEvent, ...getableStatEvent];
+			var fields = [...getableAdminEvent, ...getableStatEvent];
 			for(var i=0;i<fields.length;i++){
 				info[fields[i]]=event[fields[i]];
 			}

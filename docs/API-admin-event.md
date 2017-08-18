@@ -1,6 +1,24 @@
 # **Admin Event**
 
 uses the same login system as normal users. The following below are special functions for admin event.
+
+- [Put event detail](#put-event-detail)
+- [Get event stat](#get-event-stat)
+- [Add admin event](#add-admin-event)
+- [Delete admin event](#delete-admin-event)
+- [Add admin event by facebook id](#add-admin-by-facebook-id)
+- [Delete admin event by facebook id](#delete-admin-event-by-facebook-id)
+- [Add admin event by facebook id](#add-admin-event-by-facebook-id)
+- [Delete admin event by facebook id](#delete-admin-event-by-facebook-id)
+- [Check-in](#check-in)
+- [Delete event](#delete-event)
+- [Send notification to joining people](#send-notification-to-joining-people)
+- [Send personal notification to people who clicked join or interest button](#send-personal-notification-to-people-who-clicked-join-or-interest-button)
+- [Choose join people](#choose-join-people)
+
+
+---
+
 ## Put event detail
 
 Change details of event
@@ -24,24 +42,65 @@ Change details of event
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: about, video, location, date_start, date_end, picture, picture_large, year_require, faculty_require, tags, agreement, contact_information, joinable_start_time, joinable_end_time, joinable_amount, time_start, time_end, optional_field, require_field, show, outsider_accessible, msg_after_join*
-
+    ```
+  	{
+      	'about',
+    	'video',
+    	'location',
+    	'date_start',
+    	'date_end',
+    	'time_start',
+    	'time_end',
+    	'picture',
+    	'picture_large',
+    	'msg_after_join',
+    	'year_require',
+    	'faculty_require',
+    	'tags',
+    	'refs',
+    	'agreement',
+    	'contact_information',
+    	'joinable_start_time',
+    	'joinable_end_time',
+    	'joinable_amount',
+    	'time_start',
+    	'time_end',
+    	'optional_field',
+    	'require_field',
+    	'show',
+    	'outsider_accessible',
+    	'notes',
+    	'time_each_day'
+    }
+    ```
+* **Example**
+    ```
+    PUT /event?id=12345678
+    JSON BODY{
+        "about" : "hello form the other side",
+        "location" : "somewhere on the earth"
+    }
+    ```
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{fields : data}`
-
-    *__fields__: msg, notification*
+    **Content:** 
+    ```
+    {
+        msg, 
+        notification
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Get event stat
@@ -70,20 +129,80 @@ Change details of event
 
   None
 
+* **Example**
+    ```
+    GET /event/stat?id=1234567890
+    ```
+    
+
 * **Success Response:**
 
   * **Code:** 200
 
-    **Content:** `{fields : data}`
-
-    *__fields__: who_join, who_interest, who_pending,
-    who_accepted, who_rejected, who_completed, visit, visit_per_day, interest, interest_gender, interest_year, join, join_gender, join_year, join_per_day, join_data, notification*
+    **Content:**
+    ```
+    {
+        '_id',
+    	'title',
+    	'about',
+    	'video',
+    	'channel',
+    	'location',
+    	'date_start',
+    	'date_end',
+    	'time_start',
+    	'time_end',
+    	'expire',
+    	'refs',
+    	'join',
+    	'time_each_day',
+    	'picture',
+    	'picture_large',
+    	'year_require',
+    	'faculty_require',
+    	'tags',
+    	'forms',
+    	'notes',
+    	'msg_after_join',
+    	'contact_information',
+    	'require_field',
+    	'optional_field',
+    	'refs',
+    	'agreement',
+    	'joinable_start_time',
+    	'joinable_end_time',
+    	'joinable_amount',
+    	'optional_field',
+    	'require_field',
+    	'show',
+    	'outsider_accessible',
+    	'who_join',
+    	'who_interest',
+    	'who_pending',
+    	'who_accepted',
+    	'who_rejected',
+    	'who_completed',
+    	'visit',
+    	'visit_per_day',
+    	'interest',
+    	'interest_gender',
+    	'interest_year',
+    	'join',
+    	'join_gender',
+    	'join_year',
+    	'join_per_day',
+    	'join_data'
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Add admin event
@@ -109,22 +228,38 @@ Change details of event
     `id = event's id`
 
 * **Body**
+  ```
+  { user : user's reg id }
+  ```
 
-  `{fields : data}`
-
-  *__fields__: user*
-
+* **Eaxmple**
+    ```
+    PUT /admin/event/add?id=1234567890
+    JSON BODY{
+        "user" : "511293837"
+    }
+    ```
+    
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Delete admin event
@@ -150,22 +285,38 @@ Change details of event
     `id = event's id`
 
 * **Body**
+  ```
+  { user : user's reg id }
+  ```
 
-  `{fields : data}`
-
-  *__fields__: user*
+* **Eaxmple**
+    ```
+    DELETE /admin/event/delete?id=1234567890
+    JSON BODY{
+        "user" : "511293837"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Add admin event by facebook id
@@ -191,22 +342,38 @@ Change details of event
     `id = event's id`
 
 * **Body**
+  ```
+  { user : user's facebook id }
+  ```
 
-  `{fields : data}`
-
-  *__fields__: user*
+* **Eaxmple**
+    ```
+    PUT /admin/event/addfb?id=1234567890
+    JSON BODY{
+        "user" : "9938361028"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Delete admin event by facebook id
@@ -232,25 +399,41 @@ Change details of event
     `id = event's id`
 
 * **Body**
+  ```
+  { user : user's facebook id }
+  ```
 
-  `{fields : data}`
-
-  *__fields__: user*
+* **Eaxmple**
+    ```
+    DELETE /admin/event/deletefb?id=1234567890
+    JSON BODY{
+        "user" : "9938361028"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
-## Add admin event by facebook id
+## Add admin event by mongo id
 
  Channel's admins have permission to add colleagues to be an admin event. They can only add colleagues one-by-one. They can add themselves to be the admin of that event, too. It uses mongo id.
 
@@ -273,25 +456,38 @@ Change details of event
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's mongo id }
+  ```
+  
+* **Example**
+    ```
+    PUT /admin/channel/addmg?id=123456
+    JSON BODY {
+        "user" : "555252515125"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { "msg":"done.", "notification":data }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
-## Delete admin event by facebook id
+## Delete admin event by mongo id
 
  Channel's admins also have permission to delete colleagues from being an admin event. They can only delete colleagues one-by-one. They can delete themselves, too. It uses mongo id.
 
@@ -314,22 +510,35 @@ Change details of event
     `id = event's id`
 
 * **Body**
-
-  `{fields : data}`
-
-  *__fields__: user*
+  ```
+  { user : user's mongo id }
+  ```
+  
+* **Example**
+    ```
+    DELETE /admin/channel/deletemg?id=123456
+    JSON BODY {
+        "user" : "555252515125"
+    }
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { "msg":"done." }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Check-in
@@ -357,7 +566,9 @@ Change details of event
 
 * **Body**
 
-  `{fields : array of data}`
+  ```
+  { users : [array of user's ? id ]  }
+  ```
 
   *__fields__: users*
 
@@ -365,14 +576,23 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { "msg":"done.", "notification":data }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail, user_list(optional) : array of user ids that have problems}`
-    `Note that user_list is contained only if the error detail says "error.(contains user_list)"`
+    **Content:** 
+    ```
+    {
+        msg : error detail, 
+        user_list(optional) : array of user ids that have problems
+    }
+    ** Note that user_list is contained only if the error detail says "error.(contains user_list)"
+    ```
 ---
 
 ## Delete event
@@ -400,18 +620,32 @@ Change details of event
 * **Body**
 
   None
+  
+ * **Example**
+    ```
+    DELETE /event?id=1234567890
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Send notification to joining people
@@ -438,21 +672,31 @@ Change details of event
 
 * **Body**
 
-  `{fields : data}`
-
-  *__fields__: description*
+    ```
+    { description }
+    ```
+ * **Example**
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { 
+        "msg":"done.", 
+        "notification":data 
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Send personal notification to people who clicked join or interest button
@@ -479,21 +723,27 @@ Change details of event
 
 * **Body**
 
-  `{fields : data}`
-
-  *__fields__: description, people*
+  ```
+  { description, people }
+  ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{ "msg":"done.", "notification":data }`
+    **Content:** 
+    ```
+    { "msg":"done.", "notification":data }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
 
 ## Choose join people
@@ -520,21 +770,29 @@ Choose who can join the event you supervising. This function automatically send 
 
 * **Body**
 
-  `{fields : data}`
-
-  *__fields__: yes(array of mongo ids of accepted people), no(array of mongo ids of rejected people)*
-
+  ```
+  {
+    yes : [array of mongo ids of accepted people], 
+    no : [array of mongo ids of rejected people]
+  }
+  ```
+    
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{fields : data}`
+    **Content:** 
 
-    *__fields__: msg*
+    ```
+    { msg }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** `{msg : error detail}`
+    **Content:** 
+    ```
+    {msg : error detail}
+    ```
 ---
