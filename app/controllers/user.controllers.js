@@ -1392,21 +1392,20 @@ exports.checkRegChula = function(request, response){
 		};
 		var req = https.request(options, function(res){
 			var str = '';
-			console.log(options.host + ':' + res.statusCode);
+			//console.log(options.host + ':' + res.statusCode);
 			res.setEncoding('utf8');
 			res.on('data', function(chunk){
 				str+=chunk;
-				console.log('BODY: ${chunk} = '+chunk);
+				//console.log('BODY: ${chunk} = '+chunk);
 			});
 			res.on('end', function(){
-				console.log('eieina');
 				var obj = JSON.parse(str);
 				if(!obj.hasOwnProperty('type') || obj.type == 'error'){
 					response.status(400).json(obj);
 					return ;
 				}
 				else{
-					console.log(obj);
+					//console.log(obj);
 					if(obj.type == 'beanStudent'){
 						var info = {};
 						obj.content.name_th = obj.content.name_th.trim();
@@ -1436,6 +1435,7 @@ exports.checkRegChula = function(request, response){
 											"lastNameTH" : info.lastNameTH,
 											"gender" : info.gender,
 											"regId" : obj.content.studentid,
+											"regData" : obj.content
 										}
 						}, function(err, updatedUser){
 								if(err){

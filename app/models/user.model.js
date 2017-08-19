@@ -126,6 +126,7 @@ var userSchema = new Schema({
 		type:String,
 		default:null
 	},
+	regData: {},
 	provider:{
 		type:String,
 		default:null
@@ -216,6 +217,15 @@ var userSchema = new Schema({
 		type: String,
 		default: null
 	},
+	firstNameEN:{
+		type: String,
+		default: null
+	},
+	lastNameEN:{
+		type: String,
+		default: null
+	},
+
 // authentication
 	refresh_token: String,
 	refresh_token_exp: Number,
