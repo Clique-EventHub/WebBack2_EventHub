@@ -86,7 +86,7 @@
 
   * **Code:** 403
 
-    **Content:** 
+    **Content:**
     ```
     {err : detail of error}
     ```
@@ -151,7 +151,7 @@ Edit user profile
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     {
         "msg" : "done.",
@@ -164,7 +164,7 @@ Edit user profile
 
   * **Code:** 403, 404, 500
 
-    **Content:** 
+    **Content:**
     ```
     {err : detail of error}
     ```
@@ -199,17 +199,17 @@ Returns events that user pressed join button.
 
   * **Code:** 200
 
-    **Content:** 
+    **Content:**
     ```
     {
         events : [
             {
                 event's title : {
-                    channel, 
-                    picture, 
-                    channel_picture, 
+                    channel,
+                    picture,
+                    channel_picture,
                     channel_id
-                } 
+                }
             }
         ]
     }
@@ -219,7 +219,7 @@ Returns events that user pressed join button.
 
   * **Code:** 400,403,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : detail of error}
     ```
@@ -248,22 +248,34 @@ Saves data when user presses the join button.
 
 * **Body**
 
-    `{fields : data}`
-      *__fields__: require_field, optional_field*
-
+  ```    
+  require_field: an object of data that this event requires
+  optional_field: an object of data that this event requires but optional
+  ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
+    **Content:**
+    ```
+    {
+        msg : "done.",
+        notification : data
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 400, 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Subscribe a channel
@@ -295,14 +307,24 @@ Saves data when user presses subscribe button.
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
-
+    **Content:**
+    ```
+    {
+        "msg" : "done.",
+        "notification" : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Get all subscribed channels
@@ -333,14 +355,27 @@ Returns all channels that user subscribed.
 
   * **Code:** 200
 
-    **Content:** `{channel_name : { fields : data }, "notification" : data}`
-    *__fields__: channel_picture, channel_id*
+    **Content:**
+    ```
+    {
+        channel_name : {
+                          channel_picture : data,
+                          channel_id : data
+                       },
+        notification : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Unsubscribe a channel
@@ -372,14 +407,25 @@ Saves data when user presses unsubscribe button.
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
+    **Content:**
+    ```
+    {
+        "msg" : "done.",
+        "notification" : data
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Interest an event
@@ -411,14 +457,25 @@ Saves data when user presses interest button.
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
+    **Content:**
+    ```
+    {
+        "msg" : "done.",
+        "notification" : data
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Get all interesting events
@@ -449,14 +506,39 @@ Returns all events that user clicked interest button.
 
   * **Code:** 200
 
-    **Content:** `{events : [event_title : {fields : data}], "notification" : data}`
-    *__fields__: picture, event_id, channel, channel_picture, channel_id*
+    **Content:**
+    ```
+    {
+        events :[event_title1 : {
+                                    picture : data,
+                                    event_id : data,
+                                    channel : data,
+                                    channel_picture : data,
+                                    channel_id : data
+                                },
+                  event_title2 : {
+                                    picture : data,
+                                    event_id : data,
+                                    channel : data,
+                                    channel_picture : data,
+                                    channel_id : data
+                                },
+                  ...
+                  ],
+        notification : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Uninterest an event
@@ -488,14 +570,25 @@ Saves data when user uninterest an event.
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
+    **Content:**
+    ```
+    {
+        "msg" : "done.",
+        "notification" : data
+    }
+    ```
 
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+        msg : detail of error
+    }
+    ```
 ---
 
 ## Register reg chula
@@ -523,17 +616,17 @@ Check username and password with reg chula system and store the returned data in
     **Require**
     ```
     {
-        username, 
+        username,
         password
     }
     ```
-    
+
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     {
         firstName,
@@ -549,7 +642,7 @@ Check username and password with reg chula system and store the returned data in
 
   * **Code:** 400, 403, 404, 500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : detail of error}
     ```
@@ -583,15 +676,36 @@ Check username and password with reg chula system and store the returned data in
 
   * **Code:** 200
 
-    **Content:** `{ "event_info" : [{ fields : data }], "notification" : data }`
-
-    *__fields__: event_picture, event_title, event_id, channel_id, channel_name*
+    **Content:**
+    ```
+    { "event_info" : [{
+                          event_picture : data,
+                          event_title : data,
+                          event_id : data,
+                          channel_id : data,
+                          channel_name : data
+                      },
+                      {
+                          event_picture : data,
+                          event_title : data,
+                          event_id : data,
+                          channel_id : data,
+                          channel_name : data
+                      },
+                      ...
+                      ],
+      "notification" : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403, 500
 
-    **Content:** `{msg : detail of error, event_list/channel_list : data }`
+    **Content:**
+    ```
+    {msg : detail of error, event_list/channel_list : data }
+    ```
     `Note that detail of error will specify "error.(contains event_list)" or "error.(contains channel_list)" if the return code is 500.`
 
 ---
@@ -624,15 +738,34 @@ Check username and password with reg chula system and store the returned data in
 
   * **Code:** 200
 
-    **Content:** `{ "channels" : [{ fields : data }], "notification" : data }`
-
-    *__fields__: channel_id, channel_name*
+    **Content:**
+    ```
+    {
+      "channels" : [{
+                      channel_id : data,
+                      channel_name : data
+                    },
+                    {
+                      channel_id : data,
+                      channel_name : data
+                    },
+                    ...
+                    ],
+      "notification" : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403, 500
 
-    **Content:** `{msg : detail of error, (optional)channel_list : data }`
+    **Content:**
+    ```
+    {
+      msg : detail of error,
+      (optional)channel_list : data
+    }
+    ```
 
 ---
 
@@ -658,21 +791,32 @@ Read the new notification. That notification will become 'seen'.
 
 * **Body**
 
-    `{fields : data}`
-      *__fields__: notification(send an array of notifications which contains the whole notification object)*
+    ```
+    {notification : data}
+    ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** `{"msg" : "done.", "notification" : data}`
-
+    **Content:**
+    ```
+    {
+      "msg" : "done.",
+      "notification" : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 403, 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+      msg : detail of error
+    }
+    ```
 
 ---
 
@@ -704,15 +848,32 @@ Read the new notification. That notification will become 'seen'.
 
   * **Code:** 200
 
-    **Content:** `{fields : data}`
-
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId,facebookLink*
+    **Content:**
+    ```JSON
+    {
+        id: mongo id,
+        firstName : data,
+        lastName : data,
+        nick_name : data,
+        picture : data,
+        picture_200px :data,
+        firstNameTH : data,
+        lastNameTH : data,
+        regId : data,
+        facebookLink : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+      msg : detail of error
+    }
+    ```
 
 ---
 
@@ -744,15 +905,32 @@ Read the new notification. That notification will become 'seen'.
 
   * **Code:** 200
 
-    **Content:** `{fields : data}`
-
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId*
+    **Content:**
+    ```JSON
+    {
+        id: mongo id,
+        firstName : data,
+        lastName : data,
+        nick_name : data,
+        picture : data,
+        picture_200px :data,
+        firstNameTH : data,
+        lastNameTH : data,
+        regId : data,
+        facebookLink : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+      msg : detail of error
+    }
+    ```
 
 ---
 
@@ -784,14 +962,31 @@ Read the new notification. That notification will become 'seen'.
 
   * **Code:** 200
 
-    **Content:** `{fields : data}`
-
-    *__fields__: _id,firstName,lastName,nick_name,picture,picture_200px,firstNameTH,lastNameTH,regId*
+    **Content:**
+    ```JSON
+    {
+        id: mongo id,
+        firstName : data,
+        lastName : data,
+        nick_name : data,
+        picture : data,
+        picture_200px :data,
+        firstNameTH : data,
+        lastNameTH : data,
+        regId : data,
+        facebookLink : data
+    }
+    ```
 
 * **Error Response:**
 
   * **Code:** 404, 500
 
-    **Content:** `{msg : detail of error}`
+    **Content:**
+    ```
+    {
+      msg : detail of error
+    }
+    ```
 
 ---

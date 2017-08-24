@@ -55,7 +55,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     {
         msg : "done",
@@ -67,12 +67,12 @@ Change details of channel
 
   * **Code:** 400,403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {err : error detail}
     { "msg" : "error"/"channel not found" }
     ```
-    
+
 ---
 ## Get channel stat
 
@@ -104,7 +104,7 @@ Change details of channel
 
   * **Code:** 200
 
-    **Content:** 
+    **Content:**
     ```
     {
         visit,
@@ -116,7 +116,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -162,7 +162,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```JSON
     { "msg" : "done." }
     ```
@@ -171,11 +171,11 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     { msg : error detail}
     ```
-    
+
 ---
 
 ## Add admin event
@@ -204,7 +204,7 @@ Change details of channel
   ```
   { user : user's reg id }
   ```
-  
+
 * **Example**
     ```
     PUT /admin/event/add?id=123456
@@ -217,11 +217,11 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
+    {
         "msg":"done.",
-        "notification":data 
+        "notification":data
     }
     ```
 
@@ -229,7 +229,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -261,7 +261,7 @@ Change details of channel
   ```
   { user : user's reg id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/channel/delete?id=123456
@@ -274,7 +274,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```JSON
     { "msg":"done." }
     ```
@@ -283,7 +283,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -315,7 +315,7 @@ Change details of channel
   ```
   { user : user's reg id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/event/delete?id=123456
@@ -328,11 +328,11 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -369,7 +369,7 @@ Change details of channel
   ```
   { user : user's facebook id }
   ```
-  
+
 * **Example**
     ```
     PUT /admin/channel/addfb?id=123456
@@ -382,7 +382,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done." }
     ```
@@ -391,7 +391,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -423,7 +423,7 @@ Change details of channel
   ```
   { user : user's facebook id }
   ```
-  
+
 * **Example**
     ```
     PUT /admin/event/addfb?id=123456
@@ -436,11 +436,11 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -448,7 +448,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -480,7 +480,7 @@ Change details of channel
   ```
   { user : user's facebook id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/channel/deletefb?id=123456
@@ -492,7 +492,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done." }
     ```
@@ -501,11 +501,11 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
-    
+
 ---
 
 ## Delete admin event by facebook id
@@ -534,7 +534,7 @@ Change details of channel
   ```
   { user : user's facebook id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/event/deletefb?id=123456
@@ -547,11 +547,11 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -559,7 +559,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -591,7 +591,7 @@ Change details of channel
   ```
   { user : user's mongo id }
   ```
-  
+
 * **Example**
     ```
     PUT /admin/channel/addmg?id=123456
@@ -599,13 +599,13 @@ Change details of channel
         "user" : "555252515125"
     }
     ```
-    
+
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done." }
     ```
@@ -614,7 +614,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -646,7 +646,7 @@ Change details of channel
   ```
   { user : user's mongo id }
   ```
-  
+
 * **Example**
     ```
     PUT /admin/channel/addmg?id=123456
@@ -659,7 +659,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done.", "notification":data }
     ```
@@ -668,7 +668,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -700,7 +700,7 @@ Change details of channel
   ```
   { user : user's mongo id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/channel/deletemg?id=123456
@@ -713,7 +713,7 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done." }
     ```
@@ -722,7 +722,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -754,7 +754,7 @@ Change details of channel
   ```
   { user : user's mongo id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/event/deletemg?id=123456
@@ -767,11 +767,11 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -779,7 +779,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -811,28 +811,31 @@ Change details of channel
 * **Body**
 
   ```
-  { users : [array of user's ? id ]  }
+  {
+    users : [array of user's mongo id ]  
+  }
   ```
-
-  *__fields__: users*
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { "msg":"done.", "notification":data }
+    {
+      "msg":"done.",
+      "notification":data
+    }
     ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {
-        msg : error detail, 
+        msg : error detail,
         user_list(optional) : array of user ids that have problems
     }
     ** Note that user_list is contained only if the error detail says "error.(contains user_list)"
@@ -874,11 +877,11 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -886,7 +889,7 @@ Change details of channel
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {
         err : error detail,
@@ -918,28 +921,28 @@ Change details of channel
 * **Body**
     ```
     {
-        title, 
-        channel, 
-        about, 
-        picture, 
-        picture_large, 
-        video, 
-        faculty_require, 
-        year_require, 
-        agreement, 
-        location, 
-        date_start, 
-        date_end, 
-        contact_information, 
-        tags, 
-        joinable_start_time, 
-        joinable_end_time, 
-        time_start, 
-        time_end, 
-        optional_field, 
-        require_field, 
-        joinable_amount, 
-        show, 
+        title,
+        channel,
+        about,
+        picture,
+        picture_large,
+        video,
+        faculty_require,
+        year_require,
+        agreement,
+        location,
+        date_start,
+        date_end,
+        contact_information,
+        tags,
+        joinable_start_time,
+        joinable_end_time,
+        time_start,
+        time_end,
+        optional_field,
+        require_field,
+        joinable_amount,
+        show,
         outsider_accessible
     }
     ```
@@ -948,12 +951,12 @@ Change details of channel
 
   * **Code:** 201
 
-    **Content:** 
-    ``` 
-    { 
-        "msg":"done.", 
-        "notification":data, 
-        "id":newEvent's id 
+    **Content:**
+    ```
+    {
+        "msg":"done.",
+        "notification":data,
+        "id":newEvent's id
     }
     ```
 
@@ -961,7 +964,7 @@ Change details of channel
 
   * **Code:** 400,403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```

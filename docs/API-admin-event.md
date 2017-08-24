@@ -85,10 +85,10 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     {
-        msg, 
+        msg,
         notification
     }
     ```
@@ -97,7 +97,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -133,7 +133,7 @@ Change details of event
     ```
     GET /event/stat?id=1234567890
     ```
-    
+
 
 * **Success Response:**
 
@@ -199,7 +199,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -239,16 +239,16 @@ Change details of event
         "user" : "511293837"
     }
     ```
-    
+
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -256,7 +256,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -301,11 +301,11 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -313,7 +313,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -358,11 +358,11 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -370,7 +370,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -415,11 +415,11 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -427,7 +427,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -459,7 +459,7 @@ Change details of event
   ```
   { user : user's mongo id }
   ```
-  
+
 * **Example**
     ```
     PUT /admin/channel/addmg?id=123456
@@ -472,7 +472,7 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done.", "notification":data }
     ```
@@ -481,7 +481,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -513,7 +513,7 @@ Change details of event
   ```
   { user : user's mongo id }
   ```
-  
+
 * **Example**
     ```
     DELETE /admin/channel/deletemg?id=123456
@@ -526,7 +526,7 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
     { "msg":"done." }
     ```
@@ -535,7 +535,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -567,28 +567,31 @@ Change details of event
 * **Body**
 
   ```
-  { users : [array of user's ? id ]  }
+  {
+    users : [array of user's mongo id ]  
+  }
   ```
-
-  *__fields__: users*
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { "msg":"done.", "notification":data }
+    {
+      "msg":"done.",
+      "notification":data
+    }
     ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {
-        msg : error detail, 
+        msg : error detail,
         user_list(optional) : array of user ids that have problems
     }
     ** Note that user_list is contained only if the error detail says "error.(contains user_list)"
@@ -620,7 +623,7 @@ Change details of event
 * **Body**
 
   None
-  
+
  * **Example**
     ```
     DELETE /event?id=1234567890
@@ -630,11 +633,11 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -642,7 +645,7 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
@@ -673,7 +676,9 @@ Change details of event
 * **Body**
 
     ```
-    { description }
+    {
+      description : String
+    }
     ```
  * **Example**
 
@@ -681,11 +686,11 @@ Change details of event
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { 
-        "msg":"done.", 
-        "notification":data 
+    {
+        "msg":"done.",
+        "notification":data
     }
     ```
 
@@ -693,9 +698,11 @@ Change details of event
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
-    {msg : error detail}
+    {
+      msg : error detail
+    }
     ```
 ---
 
@@ -724,25 +731,33 @@ Change details of event
 * **Body**
 
   ```
-  { description, people }
+  {
+    description : String,
+    people : array of user mongo id
+  }
   ```
 
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
     ```
-    { "msg":"done.", "notification":data }
+    {
+      "msg":"done.",
+      "notification":data
+    }
     ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
-    {msg : error detail}
+    {
+      msg : error detail
+    }
     ```
 ---
 
@@ -772,26 +787,28 @@ Choose who can join the event you supervising. This function automatically send 
 
   ```
   {
-    yes : [array of mongo ids of accepted people], 
+    yes : [array of mongo ids of accepted people],
     no : [array of mongo ids of rejected people]
   }
   ```
-    
+
 * **Success Response:**
 
   * **Code:** 201
 
-    **Content:** 
+    **Content:**
 
     ```
-    { msg }
+    {
+      msg : "done."
+    }
     ```
 
 * **Error Response:**
 
   * **Code:** 403,404,500
 
-    **Content:** 
+    **Content:**
     ```
     {msg : error detail}
     ```
