@@ -258,6 +258,10 @@ exports.getableFieldChannel = [
 
 // user
 const userField = [
+	'firstName',
+	'lastName',
+	'firstNameTH',
+	'lastNameTH',
 	'nick_name',
 	'picture',
 	'picture_200px',
@@ -282,7 +286,8 @@ exports.editableFieldUser = userField;
 
 exports.loginFieldUser = [
 	'_id',
-	'firstName','lastName',
+	'name',
+	'name_th',
 	'gender',
 	'regId',
 	'facebookId',
@@ -294,14 +299,14 @@ exports.loginFieldUser = [
 	'join_events','major',
 	'admin_channels',
 	'admin_channels',
-	'firstNameTH',
-	'lastNameTH',
 	...userField
 ];
 
 
 exports.getUserProfileFields = [
 	'_id',
+	'name',
+	'name_th',
 	'firstName',
 	'lastName',
 	'nick_name',
@@ -391,7 +396,7 @@ exports.requestableFieldUser = [
 	"facebookId",
 	"regId",
 	"disease",
-	"allergy", 
+	"allergy",
 	"shirt_size",
 	"emer_phone",
 	"phone",
@@ -411,7 +416,7 @@ exports.postFieldForm = [
 ];
 
 exports.getableFieldForm = [
-	"_id", 
+	"_id",
 	"event",
 	"channel",
 	"lastModified",

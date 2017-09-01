@@ -51,10 +51,11 @@
     **Content:** `{fields : data}`
     ```
     {
-        _id,
-        firstName, lastName, nick_name,
-        picture, picture_200px,
-        email,
+      _id,
+      name, name_th,
+      firstName, lastName, nick_name,
+      picture, picture_200px,
+      email,
     	gender,
     	phone,
     	shirt_size,

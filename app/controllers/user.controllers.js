@@ -1410,6 +1410,7 @@ exports.checkRegChula = function(request, response){
 						var info = {};
 						obj.content.name_th = obj.content.name_th.trim();
 						let arr = obj.content.name_th.split(" ");
+						info.name_th = obj.content.name_th;
 						if(obj.content.gender == 'ช')	{
 							info.gender = 'male';
 							info.firstNameTH = arr[0].substr(3, arr[0].length);
@@ -1425,14 +1426,17 @@ exports.checkRegChula = function(request, response){
 						arr = obj.content.name_en.split(" ");
 						info.firstName = arr[1];
 						info.lastName = arr[arr.length-1];
+						info.name = obj.content.name_en;
 
 						User.findByIdAndUpdate(request.user._id, {
 							$set: {"lastModified" : new moment(),
 											"lastOnline" : new moment(),
-											"firstName" : info.firstName,
-											"lastName" : info.lastName,
-											"firstNameTH" : info.firstNameTH,
-											"lastNameTH" : info.lastNameTH,
+											// "firstName" : info.firstName,
+											// "lastName" : info.lastName,
+											// "firstNameTH" : info.firstNameTH,
+											// "lastNameTH" : info.lastNameTH,
+											"name" : info.name,
+											"name_th" : info.name_th,
 											"gender" : info.gender,
 											"regId" : obj.content.studentid,
 											"regData" : obj.content
@@ -1446,12 +1450,14 @@ exports.checkRegChula = function(request, response){
 								}
 								else{
 									var info2 = {};
-									info2.firstName = info.firstName;
-									info2.lastName = info.lastName;
-									info2.firstNameTH = info.firstNameTH;
-									info2.lastNameTH = info.lastNameTH;
+									// info2.firstName = info.firstName;
+									// info2.lastName = info.lastName;
+									// info2.firstNameTH = info.firstNameTH;
+									// info2.lastNameTH = info.lastNameTH;
 									info2.gender = info.gender;
 									info2.regId = obj.content.studentid;
+									info2.name = info.name;
+									info2.name_th = info.name_th;
 									response.status(201).json(info2);
 								}
 						});
