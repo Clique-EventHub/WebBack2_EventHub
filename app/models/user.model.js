@@ -18,8 +18,8 @@ var userSchema = new Schema({
 		// required:true,
 		validate: [
 			function(name){
-				return /^(?:[aA-zZ]+| |-|.)+$/.test(name);
-			}, 'English name must consist of alphabets, whitespaces, periods and hyphens.'
+				return /^(?:[aA-zZ]+| |-|[\u0E01-\u0E5B]+|.)+$/.test(name);
+			}, 'Name must consist of alphabets, whitespaces, periods and hyphens.'
 		]
 	},
 	name_th : {
