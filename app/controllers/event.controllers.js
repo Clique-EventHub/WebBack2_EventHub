@@ -9,7 +9,7 @@ const config = require('../../config/config');
 const utility = require('../../config/utility');
 const { storagePath, modify_log_size, tag_weight,
 			day_weight, join_weight, MomentumDays, NumberOfHotEvent } = config;
-const { getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
+const { getableFieldEventAdmin, getableStatEvent, getableFieldEvent, editableFieldEvent } = utility;
 const _ = require('lodash');
 //route /
 exports.hi = function(request,response,next){
@@ -364,7 +364,7 @@ exports.getStat = function(request,response,next){
 	check_permission(request,function(code,err,event){
 		if(code!=200) response.status(code).json(err);
 		else{
-			var fields = [...getableAdminEvent, ...getableStatEvent];
+			var fields = [...getableFieldEventAdmin, ...getableStatEvent];
 			for(var i=0;i<fields.length;i++){
 				info[fields[i]]=event[fields[i]];
 			}
@@ -946,8 +946,8 @@ exports.updateStatperDay = function(request,response,next){
 let calculateHot = function(events,callback){
 	events.sort( (left,right) =>{
 		return right.momentum >= left.momentum;
-	});	
-	events.splice(NumberOfHotEvent);			
+	});
+	events.splice(NumberOfHotEvent);
 	events.forEach( event => {
 	//	event.momentum = undefined;
 		event.visit_per_day = undefined;
@@ -965,11 +965,11 @@ let calculateHot = function(events,callback){
 let calculateMomentum = function(callback){
 	const today_date = new moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
 	let countDate = new Map(); // pair of YYYY-MM-DD and unix-time/1000
-	
+
 	let tempDate = null;
 
 	for(let i=0; i<MomentumDays; i++){
-		
+
 		if(tempDate){
 			tempDate -= 86400;	// backward one day
 			countDate.set(new moment(tempDate*1000).format("YYYY-MM-DD"),tempDate);
@@ -980,7 +980,7 @@ let calculateMomentum = function(callback){
 			tempDate = today.unix();
 		}
 	}
-	
+
 
 	Event.find({
 		tokenDelete:{$ne: true},
