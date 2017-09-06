@@ -253,6 +253,17 @@ Saves data when user presses the join button.
   require_field: an object of data that this event requires
   optional_field: an object of data that this event requires but optional
   ```
+  *__Example__*
+  ```JSON
+  {
+      "require_field" : {
+                          "nick_name" : "Oat",
+                          "phone" : "08xxxxxxxx" ,
+                          "emer_phone" : "09xxxxxxxx"
+                        },
+      "optional_field" : {}
+  }
+  ```
 
 * **Success Response:**
 
