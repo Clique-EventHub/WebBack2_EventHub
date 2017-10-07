@@ -16,20 +16,20 @@ var userSchema = new Schema({
 	//	unique : true,
 		index:true,
 		// required:true,
-		// validate: [
-		// 	function(name){
-		// 		return /^(?:[aA-zZ]+| |-|[\u0E01-\u0E5B]+|.)+$/.test(name);
-		// 	}, 'Name must consist of alphabets, whitespaces, periods and hyphens.'
-		// ]
+		validate: [
+			function(name){
+				return /^(?:[aA-zZ]+| |-|[\u0E01-\u0E5B]+|[.])+$/.test(name);
+			}, 'Name must consist of alphabets, whitespaces, periods and hyphens.'
+		]
 	},
 	name_th : {
 		type : String,
 		trim : true,
-		// validate : [
-		// 	function(name_th){
-		// 		return /^(?:| |.|-|[\u0E01-\u0E5B]+)+$/.test(name_th);
-		// 	}, 'Thai name must consist of alphabets, whitespaces, periods and hyphens.'
-		// ]
+		validate : [
+			function(name_th){
+					return /^\bundefined\b|(?:| |-|[\u0E01-\u0E5B]+|[.])+$/.test(name_th);
+			}, 'Thai name must consist of alphabets, whitespaces, periods and hyphens.'
+		]
 	},
 	username:{
 		type:String,
@@ -78,21 +78,21 @@ var userSchema = new Schema({
 		type: String,
 		trim: true,
 		default:null,
-		// validate: [
-		// 	function(firstName){
-		// 		return /^(?:[aA-zZ]+| |-|.)+$/.test(firstName);
-		// 	}, 'English first name must consist of alphabets, whitespaces, periods and hyphens.'
-		// ]
+		validate: [
+			function(firstName){
+				return /^(?:[aA-zZ]+| |-|[\u0E01-\u0E5B]+|[.])+$/.test(firstName);
+			}, 'First name must consist of alphabets, whitespaces, periods and hyphens.'
+		]
 	},
 	lastName : {
 		type: String,
 		trim: true,
 		default:null,
-		// validate: [
-		// 	function(lastName){
-		// 		return /^(?:[aA-zZ]+| |-|.)+$/.test(name);
-		// 	}, 'English last name must consist of alphabets, whitespaces, periods and hyphens.'
-		// ]
+		validate: [
+			function(lastName){
+				return /^(?:[aA-zZ]+| |-|[\u0E01-\u0E5B]+|[.])+$/.test(lastName);
+			}, 'English last name must consist of alphabets, whitespaces, periods and hyphens.'
+		]
 	},
 	nick_name: {
 		type: String,
@@ -231,20 +231,20 @@ var userSchema = new Schema({
 	firstNameTH:{
 		type: String,
 		default: null,
-		// validate : [
-		// 	function(firstNameTH){
-		// 		return /^(?:| |.|-|[\u0E01-\u0E5B]+)+$/.test(firstNameTH);
-		// 	}, 'Thai first name must consist of alphabets, whitespaces, periods and hyphens.'
-		// ]
+		validate : [
+			function(firstNameTH){
+				return /^\bnull\b|\bundefined\b|(?:| |-|[\u0E01-\u0E5B]+|[.])+$/.test(firstNameTH);
+			}, 'Thai first name must consist of alphabets, whitespaces, periods and hyphens.'
+		]
 	},
 	lastNameTH:{
 		type: String,
 		default: null,
-		// validate : [
-		// 	function(lastNameTH){
-		// 		return /^(?:| |.|-|[\u0E01-\u0E5B]+)+$/.test(name_th);
-		// 	}, 'Thai last name must consist of alphabets, whitespaces, periods and hyphens.'
-		// ]
+		validate : [
+			function(lastNameTH){
+				return /^\bnull\b|\bundefined\b|(?:| |-|[\u0E01-\u0E5B]+|[.])+$/.test(lastNameTH);
+			}, 'Thai last name must consist of alphabets, whitespaces, periods and hyphens.'
+		]
 	},
 	firstNameEN:{
 		type: String,
