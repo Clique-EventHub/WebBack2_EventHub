@@ -422,5 +422,6 @@ exports.getableFieldForm = [
 	"lastModified",
 	"created_date",
 	"questions",
-	"title"
+	"title",
+	"responses"
 ];
