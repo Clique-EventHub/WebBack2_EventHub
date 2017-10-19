@@ -935,13 +935,11 @@ exports.addAdminChannelFB = function(request, response){
 };
 
 exports.addAdminEventFB = function(request, response){
-  console.log('kao nas');
   User.findOne({ facebookId : request.body.user }, function(err, returnedUser){
     if(err){
       response.status(500).json({msg:"internal error."});
     }
     else if(!returnedUser){
-      console.log('jing vjv');
       response.status(404).json({msg:"user not register."});
     }
     else{

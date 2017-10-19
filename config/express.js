@@ -52,7 +52,7 @@ module.exports = function(){
 	app.use(function(request, response, next){
 		passport.authenticate('jwt', {session : false},
 			function(err, user, info){
-				request.authentication_info = info;	
+				request.authentication_info = info;
 			  if(user){
 					request.user = user;
 				}
