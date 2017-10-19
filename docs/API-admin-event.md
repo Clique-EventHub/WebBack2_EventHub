@@ -813,3 +813,117 @@ Choose who can join the event you supervising. This function automatically send 
     {msg : error detail}
     ```
 ---
+
+## Add admin event by array
+
+ Add colleagues to be an admin event. Array of Reg IDs must be sent.
+
+* **URL**
+
+  `/admin/event/add/arr`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+  ```
+  { users : users' reg id }
+  ```
+
+* **Eaxmple**
+    ```
+    PUT /admin/event/add/arr?id=1234567890
+    JSON BODY{
+        "users" : ["511293837"]
+    }
+    ```
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:**
+    ```
+    {
+        "msg":"done.",
+        "notification":data
+    }
+    ```
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:**
+    ```
+    {msg : error detail}
+    ```
+---
+
+## Delete admin event by array
+
+ Delete colleagues from being an admin event. Array must of Reg IDs be sent.
+
+* **URL**
+
+  `/admin/event/delete/arr`
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+  ```
+  { users : users' reg id }
+  ```
+
+* **Eaxmple**
+    ```
+    DELETE /admin/event/delete/arr?id=1234567890
+    JSON BODY{
+        "users" : ["511293837", "5812345678"]
+    }
+    ```
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:**
+    ```
+    {
+        "msg":"done.",
+        "notification":data
+    }
+    ```
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:**
+    ```
+    {msg : error detail}
+    ```
+---

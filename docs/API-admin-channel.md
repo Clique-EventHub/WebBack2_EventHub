@@ -969,3 +969,224 @@ Change details of channel
     {msg : error detail}
     ```
 ---
+
+## Add admin channel by array
+
+ Add colleagues to be an admin channel. Array of IDs must be sent.
+
+* **URL**
+
+  `/admin/channel/add/arr`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = channel's id`
+
+* **Body**
+
+  ```
+  { users : users' reg id }
+  ```
+
+* **Example**
+    ```
+    PUT /admin/channel/add/arr?id=123456
+    JSON BODY {
+        "users" : ["5881194455"]
+    }
+    ```
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:**
+    ```JSON
+    { "msg" : "done." }
+    ```
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:**
+    ```
+    { msg : error detail}
+    ```
+
+---
+
+## Add admin event
+
+ Channel's admins have permission to add colleagues to be an admin event. Array of IDs must be sent. They can add themselves to be the admin of that event, too.
+
+* **URL**
+
+  `/admin/event/add/arr`
+
+* **Method:**
+
+  `PUT`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+  ```
+  { users : users' reg id }
+  ```
+
+* **Example**
+    ```
+    PUT /admin/event/add/arr?id=123456
+    JSON BODY {
+        "users" : ["5881194455"]
+    }
+    ```
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:**
+    ```
+    {
+        "msg":"done.",
+        "notification":data
+    }
+    ```
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:**
+    ```
+    {msg : error detail}
+    ```
+---
+
+## Delete admin channel
+
+ Delete colleagues from being an admin channel. Array of IDs must be sent.
+
+* **URL**
+
+  `/admin/channel/delete/arr`
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = channel's id`
+
+* **Body**
+  ```
+  { users : users' reg id }
+  ```
+
+* **Example**
+    ```
+    DELETE /admin/channel/delete/arr?id=123456
+    JSON BODY {
+        "users" : ["5881194455","5612345677"]
+    }
+    ```
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:**
+    ```JSON
+    { "msg":"done." }
+    ```
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:**
+    ```
+    {msg : error detail}
+    ```
+---
+
+## Delete admin event
+
+ Channel's admins also have permission to delete colleagues from being an admin event. Array of IDs must be sent. They can delete themselves, too.
+
+* **URL**
+
+  `/admin/event/delete/arr'
+
+* **Method:**
+
+  `DELETE`
+
+* **Authentication**
+
+    `Required`
+
+*  **URL Params**
+
+   **Required:**
+
+    `id = event's id`
+
+* **Body**
+  ```
+  { users : users' reg id }
+  ```
+
+* **Example**
+    ```
+    DELETE /admin/event/delete/arr?id=123456
+    JSON BODY {
+        "users" : ["5881194455"]
+    }
+    ```
+
+* **Success Response:**
+
+  * **Code:** 201
+
+    **Content:**
+    ```
+    {
+        "msg":"done.",
+        "notification":data
+    }
+    ```
+
+* **Error Response:**
+
+  * **Code:** 403,404,500
+
+    **Content:** `{msg : error detail}`
+---
