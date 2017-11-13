@@ -277,7 +277,7 @@ exports.putEvent = function(request,response,next){
 
 // route DELETE /event?id=...
 // call from deleteEvent
-var updateDeleteEventToChannel = function(channelId,eventId,response){
+var updateDeleteEventToChannel = function(channelId,eventId,request,response){
 	var info = {msg:"done"};
 	Channel.findById(channelId,function(err,channel){
 		if(err){
@@ -308,17 +308,16 @@ var updateDeleteEventToChannel = function(channelId,eventId,response){
 								if(request.user.notification != undefined && request.user.notification != null){
 									info.notification = request.user.notification;
 									response.status(201).json({msg:info.msg});
+									return ;
 								}
-								else{
-									response.status(201).json({msg:info.msg});
-								}
+								response.status(info.code).json({msg:info.msg});
 							}
 							else{
-								response.status(201).json({msg:info.msg});
+								response.status(info.code).json({msg:info.msg});
 							}
 						}
 						else{
-							response.status(500).json({msg:info.msg});
+							response.status(info.code).json({msg:info.msg});
 						}
 					});
 				}
@@ -349,7 +348,7 @@ exports.deleteEvent = function(request,response,next){
 						response.status(500).json({err:"internal error"});
 					}
 					else{
-						updateDeleteEventToChannel(event.channel,event._id,response);
+						updateDeleteEventToChannel(event.channel,event._id,request,response);
 					}
 				});
 		}
@@ -632,15 +631,21 @@ var notiDeleteEvent = function(eventId, callback){
 	var errorList = [];
 	Event.findById(eventId, function(err, returnedInfo){
 		if(err){
-			response.status(500).json({msg:"internal error."});
+			var info = {};
+			info.code = 500;
+			info.msg = "internal error.";
+			callback(info);
 		}
 		else if(!returnedInfo){
-			response.status(404).json({msg:"event not found."});
+			var info = {};
+			info.code = 404;
+			info.msg = "event not found.";
+			callback(info);
 		}
 		else{
 			var noti = {};
 			var promises = [];
-			noti.title = returnedInfo.title+" is deleted by channel's administrator.";
+			noti.title = returnedInfo.title+" is deleted by event's administrator.";
 			noti.photo = returnedInfo.picture;
 			noti.source = returnedInfo.title;
 			noti.seen = false;
@@ -679,13 +684,13 @@ var notiDeleteEvent = function(eventId, callback){
 			Promise.all(promises).then(function(){
 				if(errorList.length == 0){
 					var info={};
-					info.msg = "done";
+					info.msg = "done.";
 					info.code = 201;
 					callback(info);
 				}
 				else{
 					var info={};
-					info.msg = "error";
+					info.msg = "internal error.";
 					info.code = 500;
 					callback(info);
 				}
