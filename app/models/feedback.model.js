@@ -18,6 +18,11 @@ let feedbackSchema = new Schema({
 		trim: true,
 	},
 
+	read :{
+		type: Boolean,
+		default: false,
+	},
+
 	created_date:{
 		type: 'Moment',
 		default: new Moment()
