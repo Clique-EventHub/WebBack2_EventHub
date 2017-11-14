@@ -425,3 +425,8 @@ exports.getableFieldForm = [
 	"title",
 	"responses"
 ];
+
+exports.feedbackFields = [
+	"id",
+	"text"
+];

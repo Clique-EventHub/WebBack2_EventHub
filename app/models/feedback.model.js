@@ -10,12 +10,12 @@ let feedbackSchema = new Schema({
 		type: String,
 		trim: true,
 		default: null,
-		required: true
 	},
 	
 	text : {
 		type: String,
-		trim: true,
+		default: null,
+
 	},
 
 	read :{
@@ -30,4 +30,4 @@ let feedbackSchema = new Schema({
 
 });
 
-mongoose.model('Feedback',formSchema);
+mongoose.model('Feedback',feedbackSchema);

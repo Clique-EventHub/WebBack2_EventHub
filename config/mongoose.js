@@ -15,5 +15,6 @@ module.exports = function(){
 	require('../app/models/channel.model');
 	require('../app/models/user.model');
 	require('../app/models/form.model');
+	require('../app/models/feedback.model');
 	return db; // database with setting
 }
