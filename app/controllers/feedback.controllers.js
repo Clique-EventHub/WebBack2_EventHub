@@ -44,10 +44,10 @@ exports.post = function(request, response){
 }
 
 exports.put = function(request,response){
-	let data = request.body.data;
-	var ret = [], promises = [];
+	let data = _.get(request,['body','feedbacks'],[]);
+	var promises = [] , ret = [];
 
-	console.log(data);
+
 	for(let i=0; i<data.length; i++){
 		promises.push( new Promise(function(resolve,reject){
 			Feedback.findByIdAndUpdate(data[i].id,{$set:data[i]}, {new:true}, 
