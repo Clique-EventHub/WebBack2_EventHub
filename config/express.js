@@ -70,6 +70,7 @@ module.exports = function(){
 	require('../app/routes/user.routes')(app);
 	require('../app/routes/form.routes')(app);
 	require('../app/routes/utility.routes')(app);
+	require('../app/routes/feedback.routes')(app);
 	//end setting up routing -------------------------------------
  	app.use(express.static('./public'));
 
